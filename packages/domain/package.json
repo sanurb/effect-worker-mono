@@ -1,0 +1,28 @@
+{
+  "name": "@repo/domain",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Domain types, schemas, and errors for Effect Worker",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "check": "tsc --noEmit",
+    "test": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "effect": "catalog:"
+  }
+}

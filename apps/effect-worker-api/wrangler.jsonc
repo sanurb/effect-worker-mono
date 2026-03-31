@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "effect-worker-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-11-27",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Environment variables (non-secret config)
+  "vars": {
+    "ENVIRONMENT": "production",
+    "LOG_LEVEL": "info"
+  },
+
+
+  // Hyperdrive for database connection pooling
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "your-hyperdrive-id"
+    }
+  ]
+}

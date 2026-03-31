@@ -1,0 +1,29 @@
+{
+  "name": "@repo/cloudflare",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@repo/db": "workspace:^",
+    "@repo/domain": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
