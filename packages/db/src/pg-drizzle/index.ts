@@ -17,38 +17,46 @@ import type { DrizzleConfig } from "drizzle-orm"
 export { PgDrizzle } from "./tag.js"
 import { PgDrizzle } from "./tag.js"
 
+// ============================================================================
+// Internal: RemoteCallback bridge
+// ============================================================================
+
+/** Default Drizzle config applied when none is provided. */
+const defaultConfig: DrizzleConfig = { casing: "snake_case" }
+
 /**
- * Creates the RemoteCallback that bridges Drizzle's pg-proxy to Effect's SqlClient.
+ * Build a Drizzle RemoteCallback from an Effect SqlClient.
+ *
+ * The callback translates Drizzle query calls into Effect SqlClient
+ * operations. This is the single source of truth for the bridge logic —
+ * every layer and helper below delegates to it.
+ */
+const buildRemoteCallback = (client: SqlClient.SqlClient): RemoteCallback =>
+  ((sql: string, params: any[], method: "all" | "execute") => {
+    const statement = client.unsafe(sql, params)
+    const baseEffect =
+      method === "execute"
+        ? Effect.map(statement.raw, (result) => ({ rows: [result] }))
+        : Effect.map(statement.values, (result) => ({ rows: result as any[] }))
+    return Effect.runPromise(baseEffect) as Promise<{ rows: any[] }>
+  }) satisfies RemoteCallback
+
+// ============================================================================
+// Public API
+// ============================================================================
+
+/**
+ * Creates the RemoteCallback that bridges Drizzle’s pg-proxy to Effect’s SqlClient.
  */
 export const makeRemoteCallback: Effect.Effect<RemoteCallback, never, SqlClient.SqlClient> =
   Effect.gen(function* () {
     const client = yield* SqlClient.SqlClient
-    return ((sql: string, params: any[], method: "all" | "execute") => {
-      const statement = client.unsafe(sql, params)
-      const baseEffect =
-        method === "execute"
-          ? Effect.map(statement.raw, (result) => ({ rows: [result] }))
-          : Effect.map(statement.values, (result) => ({
-              rows: result as any[]
-            }))
-      return Effect.runPromise(baseEffect) as Promise<{ rows: any[] }>
-    }) satisfies RemoteCallback
+    return buildRemoteCallback(client)
   })
 
 /**
- * Layer that provides PgDrizzle from an existing SqlClient in context.
- */
-export const PgDrizzleLive: Layer.Layer<PgDrizzle, never, SqlClient.SqlClient> =
-  Layer.effect(
-    PgDrizzle,
-    Effect.gen(function* () {
-      const callback = yield* makeRemoteCallback
-      return drizzle(callback, { casing: "snake_case" })
-    })
-  )
-
-/**
  * Layer that provides PgDrizzle with custom Drizzle config.
+ * When no config is needed, use {@link PgDrizzleLive} instead.
  */
 export const PgDrizzleLiveWithConfig = (
   config: DrizzleConfig
@@ -62,17 +70,21 @@ export const PgDrizzleLiveWithConfig = (
   )
 
 /**
+ * Layer that provides PgDrizzle from an existing SqlClient in context.
+ * Uses the default `{ casing: "snake_case" }` config.
+ */
+export const PgDrizzleLive: Layer.Layer<PgDrizzle, never, SqlClient.SqlClient> =
+  PgDrizzleLiveWithConfig(defaultConfig)
+
+/**
  * Creates a complete PgDrizzle layer from a connection string.
  * Includes PgClient setup with proper lifecycle management.
  */
 export const makePgDrizzleLayer = (
   connectionString: string,
-  config?: DrizzleConfig
+  config: DrizzleConfig = defaultConfig
 ): Layer.Layer<PgDrizzle> =>
-  (config
-    ? PgDrizzleLiveWithConfig(config)
-    : PgDrizzleLiveWithConfig({ casing: "snake_case" })
-  ).pipe(
+  PgDrizzleLiveWithConfig(config).pipe(
     Layer.provide(PgClient.layer({ url: Redacted.make(connectionString) }))
   ) as Layer.Layer<PgDrizzle>
 
@@ -83,25 +95,17 @@ export const makePgDrizzleLayer = (
  * for the duration of the enclosing scope (e.g. the request scope in
  * middleware).
  *
- * Requires Scope in context to manage the PgClient lifecycle.
+ * Composes {@link buildRemoteCallback} with a scoped PgClient, so the
+ * bridge logic is never duplicated.
  */
 export const makeDrizzle = (
-  connectionString: string
+  connectionString: string,
+  config: DrizzleConfig = defaultConfig
 ) =>
   Effect.gen(function* () {
     const services = yield* Layer.build(
       PgClient.layer({ url: Redacted.make(connectionString) })
     )
     const client = ServiceMap.get(services, SqlClient.SqlClient)
-    const callback: RemoteCallback = (sql, params, method) => {
-      const statement = client.unsafe(sql, params)
-      const baseEffect =
-        method === "execute"
-          ? Effect.map(statement.raw, (result) => ({ rows: [result] }))
-          : Effect.map(statement.values, (result) => ({
-              rows: result as any[]
-            }))
-      return Effect.runPromise(baseEffect) as Promise<{ rows: any[] }>
-    }
-    return drizzle(callback, { casing: "snake_case" })
+    return drizzle(buildRemoteCallback(client), config)
   })

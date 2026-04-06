@@ -2,26 +2,19 @@
  * Users RPC Handlers
  *
  * Handler implementations for the users RPC procedures.
+ * Domain errors from queries flow through directly — no manual mapping.
  *
  * @module
  */
 import { Effect } from "effect"
 import { UsersRpc } from "@repo/contracts"
 import { UserQueries } from "@repo/db"
-import type { UserId, CreateUser } from "@repo/domain"
 
 /**
  * Users RPC handler layer.
  */
 export const UsersRpcHandlersLive = UsersRpc.toLayer({
-  getUser: ({ id }) =>
-    UserQueries.findUserById(id as UserId).pipe(
-      Effect.mapError((e) => ({
-        _tag: "UserNotFound" as const,
-        id: e.id,
-        message: e.message
-      }))
-    ),
+  getUser: ({ id }) => UserQueries.findUserById(id),
 
   listUsers: () =>
     Effect.gen(function* () {
@@ -29,11 +22,5 @@ export const UsersRpcHandlersLive = UsersRpc.toLayer({
       return { users, total: users.length }
     }),
 
-  createUser: (data) =>
-    UserQueries.createUser(data as CreateUser).pipe(
-      Effect.mapError((e) => ({
-        _tag: "DuplicateEmail" as const,
-        email: e.email
-      }))
-    )
+  createUser: (data) => UserQueries.createUser(data)
 })

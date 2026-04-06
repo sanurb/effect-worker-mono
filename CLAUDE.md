@@ -104,7 +104,7 @@ CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE="postgres://postgres:po
 
 ## Learning more about the "effect" & "@effect/\*" packages
 
-`~/.local/share/ai-references/v4/LLMS.md` is an authoritative source of information about the
+`~/.local/share/ai-references/effect/v4/LLMS.md` is an authoritative source of information about the
 "effect" and "@effect/\*" packages. Read this before looking elsewhere for
 information about these packages. It contains the best practices for using
 effect.

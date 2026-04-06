@@ -2,6 +2,7 @@
  * User Queries
  *
  * Reusable Effect programs for user database operations.
+ * All public functions use `Effect.fn` for automatic tracing spans.
  *
  * @module
  */
@@ -40,11 +41,9 @@ const toDomainUser = (row: typeof users.$inferSelect): User => ({
 
 /**
  * Find all users.
- *
- * @returns Effect that yields array of domain Users
  */
 export const findAllUsers: Effect.Effect<
-  User[],
+  ReadonlyArray<User>,
   never,
   PgDrizzle
 > = Effect.gen(function* () {
@@ -52,27 +51,20 @@ export const findAllUsers: Effect.Effect<
   const rows = yield* drizzle
     .select()
     .from(users)
-    .pipe(Effect.orElseSucceed(() => []))
+    .pipe(Effect.orElseSucceed(() => [] as const))
 
   return rows.map(toDomainUser)
 })
 
 /**
  * Find user by ID.
- *
- * @param id - Branded UserId
- * @returns Effect that yields User or fails with UserNotFoundError
  */
-export const findUserById = (
-  id: UserId
-): Effect.Effect<User, UserNotFoundError, PgDrizzle> =>
-  Effect.gen(function* () {
+export const findUserById = Effect.fn("UserQueries.findUserById")(
+  function* (id: UserId): Effect.fn.Return<User, UserNotFoundError, PgDrizzle> {
     const dbId = parseUserId(id)
 
     if (dbId === null) {
-      return yield* Effect.fail(
-        new UserNotFoundError({ id, message: `Invalid user ID format: ${id}` })
-      )
+      return yield* new UserNotFoundError({ id, message: `Invalid user ID format: ${id}` })
     }
 
     const drizzle = yield* PgDrizzle
@@ -80,29 +72,23 @@ export const findUserById = (
       .select()
       .from(users)
       .where(eq(users.id, dbId))
-      .pipe(Effect.orElseSucceed(() => []))
+      .pipe(Effect.orElseSucceed(() => [] as const))
 
     const row = rows[0]
 
     if (!row) {
-      return yield* Effect.fail(
-        new UserNotFoundError({ id, message: `User not found: ${id}` })
-      )
+      return yield* new UserNotFoundError({ id, message: `User not found: ${id}` })
     }
 
     return toDomainUser(row)
-  })
+  }
+)
 
 /**
  * Create a new user.
- *
- * @param data - CreateUser payload (email, name)
- * @returns Effect that yields created User or fails with UserCreationError
  */
-export const createUser = (
-  data: CreateUser
-): Effect.Effect<User, UserCreationError, PgDrizzle> =>
-  Effect.gen(function* () {
+export const createUser = Effect.fn("UserQueries.createUser")(
+  function* (data: CreateUser): Effect.fn.Return<User, UserCreationError, PgDrizzle> {
     const drizzle = yield* PgDrizzle
     const rows = yield* drizzle
       .insert(users)
@@ -113,8 +99,9 @@ export const createUser = (
     const row = rows[0]
 
     if (!row) {
-      return yield* Effect.fail(new UserCreationError(data))
+      return yield* new UserCreationError(data)
     }
 
     return toDomainUser(row)
-  })
+  }
+)

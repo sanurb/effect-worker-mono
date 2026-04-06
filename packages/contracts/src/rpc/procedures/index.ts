@@ -4,13 +4,8 @@
  * @module
  */
 export {
-  // Error schemas
-  UserNotFoundErrorSchema,
-  DuplicateEmailErrorSchema,
-  ValidationErrorSchema,
   // Response schemas
-  UserRpcSchema,
-  UsersListRpcSchema,
+  RpcUsersListSchema,
   // Procedures
   getUser,
   listUsers,
