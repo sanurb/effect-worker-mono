@@ -23,3 +23,5 @@ export {
   makeBindingsMiddleware,
   makeDatabaseMiddleware
 } from "./middleware"
+
+export * from "./observability"

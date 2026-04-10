@@ -9,8 +9,22 @@ import { Layer } from "effect"
 import { HttpRouter, HttpServer } from "effect/unstable/http"
 import { HttpApiBuilder } from "effect/unstable/httpapi"
 import { WorkerApi } from "@repo/contracts"
+import { makeObservabilityLayer } from "@repo/cloudflare"
 import { HttpGroupsLive } from "@/handlers"
 import { MiddlewareLive } from "@/services"
+
+// ============================================================================
+// Observability
+// ============================================================================
+
+/**
+ * Observability layer — provides Logger + Tracer.
+ *
+ * Layer construction is memoized by HttpRouter.toWebHandler, so we keep
+ * the runtime configuration static at module load.
+ */
+const ObservabilityLive = makeObservabilityLayer()
+
 
 /**
  * API routes layer.
@@ -33,5 +47,8 @@ const ApiRoutes = HttpApiBuilder.layer(WorkerApi, {
  * parameter of the handler function.
  */
 export const { handler, dispose } = HttpRouter.toWebHandler(
-  ApiRoutes.pipe(Layer.provide(HttpServer.layerServices))
+  ApiRoutes.pipe(
+    Layer.provide(HttpServer.layerServices),
+    Layer.provide(ObservabilityLive)
+  )
 )

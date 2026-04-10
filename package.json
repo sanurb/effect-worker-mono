@@ -11,7 +11,13 @@
     "check": "pnpm -r run check",
     "clean": "pnpm --filter './packages/*' run clean",
     "test": "vitest",
-    "coverage": "vitest --coverage"
+    "coverage": "vitest --coverage",
+    "dev:api": "pnpm --filter effect-worker-api dev",
+    "dev:rpc": "pnpm --filter effect-worker-rpc dev",
+    "dev:traced:api": "pnpm dev:api 2>&1 | bun scripts/trace-sink.ts",
+    "dev:traced:rpc": "pnpm dev:rpc 2>&1 | bun scripts/trace-sink.ts",
+    "trace:inspect": "cat .traces/spans.ndjson | jq .",
+    "trace:clear": "rm -f .traces/spans.ndjson"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",

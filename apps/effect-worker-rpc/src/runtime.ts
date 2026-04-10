@@ -9,8 +9,22 @@ import { Layer } from "effect"
 import { HttpRouter, HttpServer } from "effect/unstable/http"
 import { RpcServer, RpcSerialization } from "effect/unstable/rpc"
 import { UsersRpc } from "@repo/contracts"
+import { makeObservabilityLayer } from "@repo/cloudflare"
 import { UsersRpcHandlersLive } from "@/handlers"
 import { RpcMiddlewareLive } from "@/services"
+
+// ============================================================================
+// Observability
+// ============================================================================
+
+/**
+ * Observability layer — provides Logger + Tracer.
+ *
+ * Layer construction is memoized by HttpRouter.toWebHandler, so we keep
+ * the runtime configuration static at module load.
+ */
+const ObservabilityLive = makeObservabilityLayer()
+
 
 // ============================================================================
 // Layer Composition
@@ -46,5 +60,8 @@ const RpcRoutes = RpcServer.layer(UsersRpc).pipe(
  * Per-request services (env/ctx) are passed via the ServiceMap context.
  */
 export const { handler: rpcHandler, dispose } = HttpRouter.toWebHandler(
-  RpcRoutes.pipe(Layer.provide(HttpServer.layerServices))
+  RpcRoutes.pipe(
+    Layer.provide(HttpServer.layerServices),
+    Layer.provide(ObservabilityLive)
+  )
 )

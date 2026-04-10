@@ -11,7 +11,7 @@ packages/*/src/**/*.js
 packages/*/src/**/*.d.ts
 packages/*/src/**/*.js.map
 packages/*/src/**/*.d.ts.map
-docs/
+# Keep handwritten docs tracked; ignore generated docs elsewhere if needed.
 scratchpad/*
 !scratchpad/tsconfig.json
 .direnv/
@@ -24,3 +24,5 @@ scratchpad/*
 
 tm/
 .codemogger/
+
+.traces/

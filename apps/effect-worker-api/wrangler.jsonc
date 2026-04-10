@@ -6,9 +6,12 @@
   "compatibility_flags": ["nodejs_compat"],
 
   // Environment variables (non-secret config)
+  // OTLP vars are optional — leave empty to disable OTLP trace export.
   "vars": {
     "ENVIRONMENT": "production",
-    "LOG_LEVEL": "info"
+    "LOG_LEVEL": "info",
+    "OTLP_TRACES_URL": "",
+    "OTLP_SERVICE_NAME": ""
   },
 
 
