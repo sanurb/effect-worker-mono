@@ -24,7 +24,10 @@
     "sg:test": "sg test",
     "test": "vitest",
     "trace:inspect": "cat .traces/spans.ndjson | jq .",
-    "trace:clear": "rm -f .traces/spans.ndjson"
+    "trace:clear": "rm -f .traces/spans.ndjson",
+    "ci:local": "agent-ci run --workflow .github/workflows/check.yml --quiet --no-matrix",
+    "ci:local:all": "agent-ci run --all --quiet --no-matrix",
+    "ci:local:retry": "agent-ci retry"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -34,6 +37,7 @@
   "devDependencies": {
     "@ast-grep/cli": "^0.42.1",
     "@effect/vitest": "catalog:",
+    "@redwoodjs/agent-ci": "^0.8.2",
     "@types/node": "^22.8.5",
     "effect": "catalog:",
     "oxfmt": "0.43.0",

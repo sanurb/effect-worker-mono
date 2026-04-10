@@ -6,7 +6,15 @@
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "paths": {
+      "@repo/domain": ["../domain/dist/index.d.ts"],
+      "@repo/domain/*": ["../domain/dist/*"],
+      "@repo/db": ["../db/dist/index.d.ts"],
+      "@repo/db/*": ["../db/dist/*"],
+      "@repo/cloudflare": ["../cloudflare/dist/index.d.ts"],
+      "@repo/cloudflare/*": ["../cloudflare/dist/*"]
+    }
   },
   "include": [
     "src"

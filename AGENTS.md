@@ -57,6 +57,16 @@ pnpm check       # tsc type check across all packages
 pnpm build       # build shared packages in dependency order
 ```
 
+### Local CI (run the real GitHub Actions workflow locally)
+
+```bash
+pnpm ci:local          # run check.yml (build + types + test) locally via agent-ci
+pnpm ci:local:all      # discover and run all workflows relevant to current branch
+pnpm ci:local:retry    # retry only the failed step (container stays alive on failure)
+```
+
+Requires Docker (OrbStack recommended on macOS). Runs against working tree — uncommitted changes included.
+
 See `docs/agents/validation.md` for per-package and per-tool breakdowns.
 
 ## Troubleshooting

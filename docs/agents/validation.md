@@ -126,3 +126,32 @@ DATABASE_URL=postgres://... pnpm db:studio     # open Drizzle Studio
 | `pnpm build` | Build-breaking import or export errors |
 
 No single gate catches everything. Run all four for non-trivial changes.
+
+## Local CI
+
+Run the real GitHub Actions workflow locally via `@redwoodjs/agent-ci`. Requires Docker.
+
+| Command | What it does |
+|---------|-------------|
+| `pnpm ci:local` | Run `check.yml` (build + types + test) locally |
+| `pnpm ci:local:all` | Discover and run all workflows for current branch |
+| `pnpm ci:local:retry` | Retry only the failed step after fixing code |
+
+### When to use
+
+- Before pushing a PR — runs the same pipeline GitHub will run
+- After fixing a CI failure — `ci:local:retry` re-runs only the failed step, no full restart
+- AI agents should prefer `ci:local` over pushing to trigger remote CI
+
+### Flags reference
+
+| Flag | Purpose |
+|------|---------|
+| `--quiet` | Suppress animated output (default in scripts, also set by `AI_AGENT=1`) |
+| `--no-matrix` | Collapse matrix combinations into single job |
+| `--pause-on-failure` | Keep container alive on failure (default behavior) |
+| `--github-token` | Provide token for remote reusable workflows (auto-resolves via `gh auth token`) |
+
+### Secrets
+
+Place secrets in `.env.agent-ci` at repo root (gitignored). Format: `KEY=VALUE`.
