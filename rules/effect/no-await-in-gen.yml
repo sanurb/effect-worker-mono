@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-await-in-gen
+language: tsx
+severity: error
+message: "Do not use await inside Effect.gen. Use yield* with Effect.tryPromise instead."
+
+rule:
+  pattern: await $EXPR
+  inside:
+    pattern: Effect.gen($$$BODY)
+    stopBy: end
+
+note: |
+  Mixing await with Effect.gen breaks the fiber scheduler and error channel.
+
+  WRONG:
+    Effect.gen(function*() {
+      const data = await fetch(url)
+    })
+
+  CORRECT:
+    Effect.gen(function*() {
+      const data = yield* Effect.tryPromise({
+        try: () => fetch(url).then(r => r.json()),
+        catch: (e) => new NetworkError({ cause: e })
+      })
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

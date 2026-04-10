@@ -1,0 +1,17 @@
+id: no-iife-wrapper
+
+valid:
+  - |
+      const user = getUser();
+      const result = Effect.succeed(user);
+  - |
+      const transform = (x: number) => x * 2;
+      const result = transform(value);
+
+invalid:
+  - |
+      const result = ((user) => Effect.succeed(user))(getUser());
+  - |
+      const mapped = ((x) => x * 2)(rawValue);
+  - |
+      (function(id) { return db.find(id); })(userId);

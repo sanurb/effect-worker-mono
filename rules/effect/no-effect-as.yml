@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-as
+language: tsx
+severity: error
+message: "Avoid Effect.as. Use Effect.map to transform the value or Effect.asVoid to discard it."
+
+rule:
+  pattern: Effect.as($$$ARGS)
+
+note: |
+  Effect.as is confusing because the argument order (effect, value) does not match Effect.map.
+  Use Effect.map for value transformation and Effect.asVoid to discard.
+
+  WRONG:
+    Effect.as(someEffect, newValue)
+
+  CORRECT:
+    someEffect.pipe(Effect.map(() => newValue))
+    someEffect.pipe(Effect.asVoid)
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

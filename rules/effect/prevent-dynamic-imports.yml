@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: prevent-dynamic-imports
+language: tsx
+severity: error
+message: "Avoid dynamic module imports. Use static imports so module dependencies stay explicit at the file boundary."
+
+rule:
+  kind: call_expression
+  has:
+    kind: import
+    field: function
+
+note: |
+  Dynamic imports hide dependencies behind deferred module loading and make the
+  module graph opaque to bundlers and agents.
+
+  WRONG:
+    const module = await import("./heavy-module")
+
+  CORRECT:
+    import { heavyFn } from "./heavy-module"
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

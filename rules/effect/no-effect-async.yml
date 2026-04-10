@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-async
+language: tsx
+severity: error
+message: "Avoid Effect.async. Callback-style wiring hides lifecycle and escapes declarative flow. Use Effect.tryPromise or structured Effect lifecycles (acquire/use/release)."
+
+rule:
+  any:
+    - pattern: Effect.async($$$)
+    - pattern: "Effect.async<$$$>($$$)"
+
+note: |
+  Effect.async wires in callback-style and makes lifecycle invisible. It bypasses structured concurrency.
+
+  WRONG:
+    Effect.async<string>((resume) => {
+      setTimeout(() => resume(Effect.succeed("done")), 1000)
+    })
+
+  CORRECT:
+    Effect.tryPromise(() => fetch(url).then(r => r.json()))
+    // or for complex lifecycles: Effect.acquireRelease
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

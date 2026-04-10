@@ -1,0 +1,40 @@
+id: no-switch-statement
+snapshots:
+  ? |
+    switch (event.type) {
+      case "created":
+        return Effect.succeed(handleCreated(event));
+      case "deleted":
+        return Effect.fail(new DeleteError());
+    }
+  : labels:
+    - source: |-
+        switch (event.type) {
+          case "created":
+            return Effect.succeed(handleCreated(event));
+          case "deleted":
+            return Effect.fail(new DeleteError());
+        }
+      style: primary
+      start: 0
+      end: 151
+  ? |
+    switch (status) {
+      case "active":
+        doActive();
+        break;
+      default:
+        doDefault();
+    }
+  : labels:
+    - source: |-
+        switch (status) {
+          case "active":
+            doActive();
+            break;
+          default:
+            doDefault();
+        }
+      style: primary
+      start: 0
+      end: 91

@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-bind
+language: tsx
+severity: error
+message: "Avoid Effect.bind. Use yield* inside Effect.gen to name each step."
+
+rule:
+  pattern: Effect.bind($$$ARGS)
+
+note: |
+  Effect.bind is the v3 Do-notation builder. Use generators instead.
+
+  WRONG:
+    pipe(Effect.Do, Effect.bind("user", () => getUser(id)))
+
+  CORRECT:
+    Effect.gen(function*() {
+      const user = yield* getUser(id)
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

@@ -1,0 +1,21 @@
+id: no-effect-do
+snapshots:
+  ? |
+    Effect.Do.pipe(
+      Effect.bind("user", () => getUser(id))
+    );
+  : labels:
+    - source: |-
+        Effect.Do.pipe(
+          Effect.bind("user", () => getUser(id))
+        )
+      style: primary
+      start: 0
+      end: 58
+  ? |
+    const program = Effect.Do;
+  : labels:
+    - source: Effect.Do
+      style: primary
+      start: 16
+      end: 25

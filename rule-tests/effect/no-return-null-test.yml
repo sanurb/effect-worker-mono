@@ -1,0 +1,22 @@
+id: no-return-null
+
+valid:
+  - |
+      Effect.gen(function*() {
+        return yield* Effect.fail(new UserNotFoundError({ id }));
+      });
+  - |
+      Effect.gen(function*() {
+        return Option.fromNullable(user);
+      });
+  - |
+      // return null outside Effect.gen is fine
+      function maybeGetUser(): User | null {
+        return null;
+      }
+
+invalid:
+  - |
+      Effect.gen(function*() {
+        if (!user) return null;
+      });

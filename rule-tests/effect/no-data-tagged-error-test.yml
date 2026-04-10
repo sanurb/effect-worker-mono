@@ -1,0 +1,17 @@
+id: no-data-tagged-error
+
+valid:
+  - |
+      class UserNotFoundError extends Schema.TaggedErrorClass<UserNotFoundError>()("UserNotFoundError", {
+        id: Schema.String,
+      }) {}
+  - |
+      class ValidationError extends Schema.TaggedErrorClass<ValidationError>()("ValidationError", {
+        message: Schema.String,
+      }) {}
+
+invalid:
+  - |
+      class UserNotFoundError extends Data.TaggedError("UserNotFoundError")<{ id: string }> {}
+  - |
+      class ProcessingError extends Data.TaggedError("ProcessingError")<{ message: string }> {}

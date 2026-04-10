@@ -1,0 +1,47 @@
+id: no-iife-wrapper
+snapshots:
+  ? |
+    (function(id) { return db.find(id); })(userId);
+  : labels:
+    - source: (function(id) { return db.find(id); })(userId)
+      style: primary
+      start: 0
+      end: 46
+    - source: function(id) { return db.find(id); }
+      style: secondary
+      start: 1
+      end: 37
+    - source: (function(id) { return db.find(id); })
+      style: secondary
+      start: 0
+      end: 38
+  ? |
+    const mapped = ((x) => x * 2)(rawValue);
+  : labels:
+    - source: ((x) => x * 2)(rawValue)
+      style: primary
+      start: 15
+      end: 39
+    - source: (x) => x * 2
+      style: secondary
+      start: 16
+      end: 28
+    - source: ((x) => x * 2)
+      style: secondary
+      start: 15
+      end: 29
+  ? |
+    const result = ((user) => Effect.succeed(user))(getUser());
+  : labels:
+    - source: ((user) => Effect.succeed(user))(getUser())
+      style: primary
+      start: 15
+      end: 58
+    - source: (user) => Effect.succeed(user)
+      style: secondary
+      start: 16
+      end: 46
+    - source: ((user) => Effect.succeed(user))
+      style: secondary
+      start: 15
+      end: 47

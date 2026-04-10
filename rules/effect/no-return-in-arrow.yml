@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-return-in-arrow
+language: tsx
+severity: info
+message: "Avoid block-bodied arrow callbacks with explicit returns inside Effect combinators. Use expression-only callbacks and move complex logic into a single pipeline."
+
+rule:
+  kind: arrow_function
+  has:
+    kind: statement_block
+    has:
+      kind: return_statement
+
+note: |
+  Block-bodied arrow callbacks with returns inside Effect combinators hide local control flow.
+  Use expression arrows or move the logic into Effect.gen.
+
+  WRONG:
+    Effect.flatMap(effect, (user) => {
+      const name = user.name.trim()
+      return Effect.succeed(name)
+    })
+
+  CORRECT:
+    Effect.flatMap(effect, (user) => Effect.succeed(user.name.trim()))
+    // or for complex multi-step:
+    Effect.gen(function*() {
+      const user = yield* effect
+      const name = user.name.trim()
+      return name
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

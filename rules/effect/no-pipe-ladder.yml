@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-pipe-ladder
+language: tsx
+severity: error
+message: "Avoid nested pipe() calls. Flatten into a single pipeline or use Effect.gen for multi-step sequencing."
+
+rule:
+  pattern: pipe(pipe($$$INNER), $$$OUTER)
+
+note: |
+  Nested pipe calls hide the sequencing structure.
+
+  WRONG:
+    pipe(
+      pipe(getUser(id), Effect.map(transform)),
+      Effect.flatMap(processUser)
+    )
+
+  CORRECT:
+    pipe(
+      getUser(id),
+      Effect.map(transform),
+      Effect.flatMap(processUser)
+    )
+    // or:
+    Effect.gen(function*() {
+      const user = yield* getUser(id)
+      const transformed = transform(user)
+      return yield* processUser(transformed)
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

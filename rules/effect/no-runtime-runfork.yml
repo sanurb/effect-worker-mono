@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-runtime-runfork
+language: tsx
+severity: error
+message: "Avoid Runtime.runFork in interior code. Use forkScoped, forkDaemon, or provide at a Layer boundary."
+
+rule:
+  any:
+    - pattern: Runtime.runFork($$$ARGS)
+    - pattern: $RUNTIME.runFork($$$ARGS)
+
+note: |
+  Runtime.runFork escapes structured concurrency and can leak fibers.
+
+  WRONG:
+    Runtime.runFork(myEffect)
+
+  CORRECT:
+    // Inside a Layer:
+    yield* Effect.forkScoped(myEffect)
+    // Or expose via a service layer boundary
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"
+  - "**/runtime.ts"
+  - "**/index.ts"

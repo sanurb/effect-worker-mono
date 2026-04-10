@@ -1,0 +1,16 @@
+id: no-data-tagged-error
+snapshots:
+  ? |
+    class ProcessingError extends Data.TaggedError("ProcessingError")<{ message: string }> {}
+  : labels:
+    - source: 'class ProcessingError extends Data.TaggedError("ProcessingError")<{ message: string }> {}'
+      style: primary
+      start: 0
+      end: 89
+  ? |
+    class UserNotFoundError extends Data.TaggedError("UserNotFoundError")<{ id: string }> {}
+  : labels:
+    - source: 'class UserNotFoundError extends Data.TaggedError("UserNotFoundError")<{ id: string }> {}'
+      style: primary
+      start: 0
+      end: 88

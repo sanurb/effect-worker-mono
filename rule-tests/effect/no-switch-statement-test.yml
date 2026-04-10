@@ -1,0 +1,26 @@
+id: no-switch-statement
+
+valid:
+  - |
+      Match.value(event.type).pipe(
+        Match.when("created", () => Effect.succeed(handleCreated(event))),
+        Match.when("deleted", () => Effect.fail(new DeleteError())),
+        Match.exhaustive
+      );
+
+invalid:
+  - |
+      switch (event.type) {
+        case "created":
+          return Effect.succeed(handleCreated(event));
+        case "deleted":
+          return Effect.fail(new DeleteError());
+      }
+  - |
+      switch (status) {
+        case "active":
+          doActive();
+          break;
+        default:
+          doDefault();
+      }

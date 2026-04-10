@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-flatmap-ladder
+language: tsx
+severity: warning
+message: "Avoid nested Effect.flatMap or map+flatten ladders. Build context once with Effect.all/Effect.map and run a single flatMap."
+
+rule:
+  any:
+    - pattern: Effect.flatMap($A, $_ => Effect.flatMap($$$))
+    - pattern: Effect.flatten(Effect.map($$$))
+    - pattern: Effect.flatMap($A, Effect.flatMap($$$))
+
+note: |
+  Nested flatMap ladders accumulate left-nesting and hide the actual data transformation.
+
+  WRONG:
+    Effect.flatMap(users, (u) => Effect.flatMap(getPosts(u.id), (p) => process(p)))
+
+  CORRECT:
+    Effect.gen(function*() {
+      const users = yield* getUsers()
+      const posts = yield* getPosts(users[0].id)
+      return yield* process(posts)
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

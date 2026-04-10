@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-string-sentinel-return
+language: tsx
+severity: error
+message: "Avoid Effect.succeed with string literals as status/control tokens. Use Option, Either, or tagged unions."
+
+rule:
+  pattern: Effect.succeed("$STR")
+
+note: |
+  String sentinels encode control flow as data and lose type safety.
+
+  WRONG:
+    return Effect.succeed("ok")
+    return Effect.succeed("not_found")
+
+  CORRECT:
+    return Effect.succeed(Option.none())
+    return Effect.fail(new UserNotFoundError({ id }))
+    return Effect.succeed({ status: "completed" } as const)
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-wrapper-alias
+language: tsx
+severity: error
+message: "Avoid Effect wrapper aliases (const x = pipe(Effect..., ...)). Inline at call site or define a real named domain function with Effect.fn('name')."
+
+rule:
+  any:
+    - pattern: const $NAME = pipe($FIRST, $$$REST)
+    - pattern: const $NAME = () => pipe($$$)
+    - pattern: const $NAME = ($$$PARAMS) => pipe($$$)
+    - pattern: "const $NAME = ($$$PARAMS): $TYPE => pipe($$$)"
+
+note: |
+  Wrapper aliases obscure the domain name and hide the composition.
+  If this is a reusable domain operation, declare it with Effect.fn("name").
+  If it is used once, inline the pipe at the call site.
+
+  WRONG:
+    const withUser = pipe(getUser(id), Effect.map(transform))
+    const wrappedOp = () => pipe(getUsers(), Effect.flatMap(process))
+
+  CORRECT:
+    // reusable operation:
+    const findAndTransform = Effect.fn("findAndTransform")((id: UserId) =>
+      pipe(getUser(id), Effect.map(transform))
+    )
+    // one-off: inline directly at the call site
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

@@ -1,0 +1,13 @@
+id: warn-effect-sync-wrapper
+
+valid:
+  - |
+      Effect.sync(() => ({ name: "test" }));
+  - |
+      Effect.sync(() => 42);
+
+invalid:
+  - |
+      Effect.sync(() => metrics.record("users.created", 1));
+  - |
+      Effect.sync(() => cache.set(key, value));

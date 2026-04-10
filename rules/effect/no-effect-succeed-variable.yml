@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-succeed-variable
+language: tsx
+severity: warning
+message: "Avoid Effect.succeed(variable) as a branch placeholder. Select a plain value with Option/Match and then run one Effect pipeline after the decision."
+
+rule:
+  all:
+    - pattern: Effect.succeed($VAR)
+    - not:
+        any:
+          - pattern: Effect.succeed({$$$})
+          - pattern: Effect.succeed([$$$])
+          - pattern: Effect.succeed($_($$$))
+          - pattern: Effect.succeed("$_")
+          - pattern: "Effect.succeed($_ ? $_ : $_)"
+          - pattern: Effect.succeed(undefined)
+          - pattern: Effect.succeed(null)
+          - pattern: Effect.succeed(void 0)
+
+note: |
+  Effect.succeed(variable) used as a branch result encodes control flow as a lifted value.
+  The decision should be made before entering Effect — use Option/Match for the branch,
+  then enter a single Effect pipeline.
+
+  WRONG:
+    const result = isValid ? Effect.succeed(user) : Effect.fail(err)
+
+  CORRECT (when the branch must be inside Effect):
+    pipe(
+      Option.fromNullable(user),
+      Effect.mapOption(...)
+    )
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

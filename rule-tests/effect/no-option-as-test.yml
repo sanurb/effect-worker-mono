@@ -1,0 +1,13 @@
+id: no-option-as
+
+valid:
+  - |
+      Option.map(maybeUser, (u) => u.name);
+  - |
+      Option.getOrElse(maybeUser, () => defaultUser);
+
+invalid:
+  - |
+      Option.as(maybeUser, defaultUser);
+  - |
+      const x = Option.as(opt, 42);

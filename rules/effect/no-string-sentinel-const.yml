@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-greg/main/schemas/typescript_rule.json
+
+id: no-string-sentinel-const
+language: tsx
+severity: warning
+message: "Avoid string status constants. Use tagged unions, Option/Either, or meaningful domain values instead of string tokens."
+
+rule:
+  kind: lexical_declaration
+  has:
+    kind: variable_declarator
+    all:
+      - has:
+          kind: string
+          field: value
+
+note: |
+  String constants used as status tokens encode control flow and force defensive branching
+  at every call site. Prefer tagged unions, branded types, or Effect data types.
+
+  WRONG:
+    const STATUS_ACTIVE = "active"
+    const STATUS_DELETED = "deleted"
+
+  CORRECT:
+    type UserStatus = "active" | "deleted"
+    // or with Schema for runtime safety:
+    const UserStatus = Schema.Union(Schema.Literal("active"), Schema.Literal("deleted"))
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

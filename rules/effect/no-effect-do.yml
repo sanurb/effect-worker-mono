@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-do
+language: tsx
+severity: error
+message: "Avoid Effect.Do builder pattern. Use Effect.gen(function*() { ... }) with yield* for sequencing."
+
+rule:
+  any:
+    - pattern: Effect.Do
+    - pattern: Effect.Do.pipe($$$ARGS)
+
+note: |
+  Effect.Do and Effect.bind are legacy builder patterns replaced by generator syntax.
+
+  WRONG:
+    Effect.Do.pipe(
+      Effect.bind("user", () => findUser(id)),
+      Effect.bind("posts", ({ user }) => findPosts(user.id))
+    )
+
+  CORRECT:
+    Effect.gen(function*() {
+      const user = yield* findUser(id)
+      const posts = yield* findPosts(user.id)
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

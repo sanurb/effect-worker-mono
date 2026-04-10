@@ -1,0 +1,19 @@
+id: no-string-sentinel-return
+
+valid:
+  - |
+      Effect.succeed({ status: "ok" });
+  - |
+      Effect.succeed(42);
+  - |
+      Effect.succeed(Option.none());
+  - |
+      Effect.fail(new UserNotFoundError({ id }));
+
+invalid:
+  - |
+      Effect.succeed("ok");
+  - |
+      return Effect.succeed("not_found");
+  - |
+      return Effect.succeed("success");

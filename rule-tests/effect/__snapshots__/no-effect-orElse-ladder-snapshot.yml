@@ -1,0 +1,32 @@
+id: no-effect-orElse-ladder
+snapshots:
+  ? |
+    effect.pipe(
+      Effect.map(transform),
+      Effect.orElse(() => fallback)
+    );
+  : labels:
+    - source: |-
+        effect.pipe(
+          Effect.map(transform),
+          Effect.orElse(() => fallback)
+        )
+      style: primary
+      start: 0
+      end: 71
+  ? |
+    pipe(
+      getUser(id),
+      Effect.flatMap(validateUser),
+      Effect.orElse(() => Effect.fail(new NotFoundError()))
+    );
+  : labels:
+    - source: |-
+        pipe(
+          getUser(id),
+          Effect.flatMap(validateUser),
+          Effect.orElse(() => Effect.fail(new NotFoundError()))
+        )
+      style: primary
+      start: 0
+      end: 110

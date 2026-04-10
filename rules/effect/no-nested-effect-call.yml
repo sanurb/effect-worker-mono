@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-nested-effect-call
+language: tsx
+severity: error
+message: "Avoid deeply nested Effect calls (Effect.xx(Effect.yy(Effect.zz(...)))). Build values first, then run one flat Effect pipeline."
+
+rule:
+  any:
+    - pattern: Effect.$A(Effect.$B(Effect.$C($$$)))
+    - pattern: Effect.$A(Effect.$B(Effect.$C($$$), $$$))
+    - pattern: Effect.$A(Effect.$B(Effect.$C($$$), $$$), $$$)
+    - pattern: Effect.$A(Effect.$B(Effect.$C($$$)), $$$)
+
+note: |
+  Three-level Effect nesting is always a sign the sequencing model is broken.
+
+  WRONG:
+    Effect.flatMap(Effect.map(Effect.succeed(value), fn1), fn2)
+
+  CORRECT:
+    Effect.gen(function*() {
+      const a = yield* Effect.succeed(value)
+      const b = fn1(a)
+      return yield* fn2(b)
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

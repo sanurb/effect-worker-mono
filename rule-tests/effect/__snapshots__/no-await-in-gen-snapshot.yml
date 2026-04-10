@@ -1,0 +1,34 @@
+id: no-await-in-gen
+snapshots:
+  ? |
+    Effect.gen(function*() {
+      const data = await fetch(url);
+    });
+  : labels:
+    - source: await fetch(url)
+      style: primary
+      start: 40
+      end: 56
+    - source: |-
+        Effect.gen(function*() {
+          const data = await fetch(url);
+        })
+      style: secondary
+      start: 0
+      end: 60
+  ? |
+    Effect.gen(function*() {
+      const result = await Promise.resolve(42);
+    });
+  : labels:
+    - source: await Promise.resolve(42)
+      style: primary
+      start: 42
+      end: 67
+    - source: |-
+        Effect.gen(function*() {
+          const result = await Promise.resolve(42);
+        })
+      style: secondary
+      start: 0
+      end: 71

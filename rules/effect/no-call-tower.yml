@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-call-tower
+language: tsx
+severity: error
+message: "Avoid nested Effect call towers (Effect.fn(Effect.fn(...))). Build the inner Effect first, then use pipe/Effect.flatMap/Effect.andThen for a single flat pipeline."
+
+rule:
+  any:
+    - pattern: Effect.$A(Effect.$B($$$))
+    - pattern: Effect.$A(Effect.$B($$$), $$$)
+    - pattern: Effect.$A($_, Effect.$B($$$))
+
+note: |
+  Nested Effect calls hide sequencing and make data flow impossible to follow.
+
+  WRONG:
+    Effect.flatMap(Effect.map(getUser(id), transform), processUser)
+
+  CORRECT:
+    pipe(
+      getUser(id),
+      Effect.map(transform),
+      Effect.flatMap(processUser)
+    )
+    // or use Effect.gen for multi-step flows
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-match-void-branch
+language: tsx
+severity: error
+message: "Avoid void/Effect.void Match branches. Remove the no-op branch or select a value and run one Effect pipeline outside the Match."
+
+rule:
+  any:
+    - pattern: Match.when($_, () => Effect.void)
+    - pattern: Match.orElse(() => Effect.void)
+    - pattern: Match.when($_, () => void $$$)
+    - pattern: Match.orElse(() => void $$$)
+
+note: |
+  Void branches hide guard-style control flow — the intent is unclear and the branch
+  does nothing meaningful. Factor it out before entering the Match.
+
+  WRONG:
+    Match.value(event).pipe(
+      Match.when("update", () => handleUpdate(event)),
+      Match.orElse(() => Effect.void)
+    )
+
+  CORRECT:
+    pipe(
+      Option.fromNullable(isUpdate ? event : null),
+      Option.match({
+        onSome: (e) => handleUpdate(e),
+        onNone: () => Effect.succeed(undefined)
+      })
+    )
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

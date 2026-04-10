@@ -1,0 +1,17 @@
+id: no-effect-wrapper-alias
+
+valid:
+  - |
+      const findAndTransform = Effect.fn("findAndTransform")((id: UserId) =>
+        pipe(getUser(id), Effect.map(transform))
+      );
+  - |
+      pipe(getUser(id), Effect.map(transform), Effect.flatMap(save));
+
+invalid:
+  - |
+      const withUser = pipe(getUser(id), Effect.map(transform));
+  - |
+      const wrappedOp = () => pipe(getUsers(), Effect.flatMap(process));
+  - |
+      const handler = (id: string) => pipe(findUser(id), Effect.flatMap(validate));

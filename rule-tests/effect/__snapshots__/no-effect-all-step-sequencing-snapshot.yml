@@ -1,0 +1,23 @@
+id: no-effect-all-step-sequencing
+snapshots:
+  ? |
+    Effect.all([
+      Effect.log("step 1"),
+      saveUser(user),
+    ], { concurrency: 1 });
+  : labels:
+    - source: |-
+        Effect.all([
+          Effect.log("step 1"),
+          saveUser(user),
+        ], { concurrency: 1 })
+      style: primary
+      start: 0
+      end: 77
+  ? |
+    Effect.all([step1, step2, step3], { concurrency: 1, discard: true });
+  : labels:
+    - source: 'Effect.all([step1, step2, step3], { concurrency: 1, discard: true })'
+      style: primary
+      start: 0
+      end: 68

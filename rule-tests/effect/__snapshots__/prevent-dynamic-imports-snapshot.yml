@@ -1,0 +1,35 @@
+id: prevent-dynamic-imports
+snapshots:
+  ? |
+    const module = await import("./heavy-module");
+  : labels:
+    - source: import("./heavy-module")
+      style: primary
+      start: 21
+      end: 45
+    - source: import
+      style: secondary
+      start: 21
+      end: 27
+  ? |
+    const { fn } = await import("./utils");
+  : labels:
+    - source: import("./utils")
+      style: primary
+      start: 21
+      end: 38
+    - source: import
+      style: secondary
+      start: 21
+      end: 27
+  ? |
+    import("./lazy-feature").then(m => m.init());
+  : labels:
+    - source: import("./lazy-feature")
+      style: primary
+      start: 0
+      end: 24
+    - source: import
+      style: secondary
+      start: 0
+      end: 6

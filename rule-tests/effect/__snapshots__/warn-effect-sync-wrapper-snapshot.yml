@@ -1,0 +1,16 @@
+id: warn-effect-sync-wrapper
+snapshots:
+  ? |
+    Effect.sync(() => cache.set(key, value));
+  : labels:
+    - source: Effect.sync(() => cache.set(key, value))
+      style: primary
+      start: 0
+      end: 40
+  ? |
+    Effect.sync(() => metrics.record("users.created", 1));
+  : labels:
+    - source: Effect.sync(() => metrics.record("users.created", 1))
+      style: primary
+      start: 0
+      end: 53

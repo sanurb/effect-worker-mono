@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-option-as
+language: tsx
+severity: error
+message: "Avoid Option.as. Use Option.map or Option.match and return the value explicitly."
+
+rule:
+  pattern: Option.as($$$)
+
+note: |
+  Option.as hides selection and encourages placeholder flows where a real value
+  should be selected through Option.map or matched explicitly.
+
+  WRONG:
+    Option.as(maybeUser, defaultUser)
+
+  CORRECT:
+    Option.map(maybeUser, (u) => u)
+    // or: Option.getOrElse(maybeUser, () => defaultUser)
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

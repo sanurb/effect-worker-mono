@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-ternary
+language: tsx
+severity: error
+message: "Avoid ternary expressions in Effect code. Use Option.match/Either.match/Match.value or data combinators, then run one Effect pipeline."
+
+rule:
+  kind: ternary_expression
+
+note: |
+  Ternaries hide control flow inside expressions and discourage explicit Effect-style branching.
+
+  WRONG:
+    const result = isValid ? Effect.succeed(value) : Effect.fail(new ValidationError())
+
+  CORRECT:
+    Option.match(validated, {
+      onSome: (value) => Effect.succeed(value),
+      onNone: () => Effect.fail(new ValidationError())
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

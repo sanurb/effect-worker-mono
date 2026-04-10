@@ -1,0 +1,23 @@
+id: no-flatmap-ladder
+snapshots:
+  ? |
+    Effect.flatMap(source, Effect.flatMap(inner, fn));
+  : labels:
+    - source: Effect.flatMap(source, Effect.flatMap(inner, fn))
+      style: primary
+      start: 0
+      end: 49
+  ? |
+    Effect.flatMap(users, (u) => Effect.flatMap(getPosts(u.id), process));
+  : labels:
+    - source: Effect.flatMap(users, (u) => Effect.flatMap(getPosts(u.id), process))
+      style: primary
+      start: 0
+      end: 69
+  ? |
+    Effect.flatten(Effect.map(getUsers(), (u) => getPosts(u.id)));
+  : labels:
+    - source: Effect.flatten(Effect.map(getUsers(), (u) => getPosts(u.id)))
+      style: primary
+      start: 0
+      end: 61

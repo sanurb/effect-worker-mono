@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-model-overlay-cast
+language: tsx
+severity: error
+message: "Avoid 'as' type assertions on decoded model flow. Decode with the correct schema type and read fields directly."
+
+rule:
+  kind: as_expression
+  not:
+    regex: "as\\s+const$"
+
+note: |
+  Type assertions hide schema drift and allow untyped overlays to accumulate.
+  Decode data through Schema at the boundary and read typed fields throughout the pipeline.
+
+  WRONG:
+    const user = rawData as User
+
+  CORRECT:
+    const user = yield* Schema.decode(UserSchema)(rawData)
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

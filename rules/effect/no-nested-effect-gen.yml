@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-nested-effect-gen
+language: tsx
+severity: error
+message: "Avoid nesting Effect.gen inside another Effect.gen. Flatten into a single generator."
+
+rule:
+  pattern: Effect.gen($$$INNER)
+  inside:
+    pattern: Effect.gen($$$OUTER)
+    stopBy: end
+
+note: |
+  Nested Effect.gen hides sequencing and makes control flow harder to follow.
+
+  WRONG:
+    Effect.gen(function*() {
+      const result = yield* Effect.gen(function*() {
+        return yield* someService.method()
+      })
+    })
+
+  CORRECT:
+    Effect.gen(function*() {
+      const result = yield* someService.method()
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

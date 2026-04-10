@@ -1,0 +1,16 @@
+id: no-fromnullable-nullish-coalesce
+snapshots:
+  ? |
+    Option.fromNullable(data ?? undefined);
+  : labels:
+    - source: Option.fromNullable(data ?? undefined)
+      style: primary
+      start: 0
+      end: 38
+  ? |
+    Option.fromNullable(user ?? null);
+  : labels:
+    - source: Option.fromNullable(user ?? null)
+      style: primary
+      start: 0
+      end: 33

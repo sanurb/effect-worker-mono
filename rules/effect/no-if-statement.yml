@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-if-statement
+language: tsx
+severity: error
+message: "Avoid imperative if branching in Effect code. Use Option.match/Either.match/Match.value or data combinators, then run one Effect pipeline."
+
+rule:
+  kind: if_statement
+
+note: |
+  Imperative if/else hides control flow and discourages explicit Effect-style branching.
+
+  WRONG:
+    if (user) {
+      return Effect.succeed(user)
+    } else {
+      return Effect.fail(new UserNotFoundError())
+    }
+
+  CORRECT:
+    Option.match(Option.fromNullable(user), {
+      onSome: (u) => Effect.succeed(u),
+      onNone: () => Effect.fail(new UserNotFoundError())
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

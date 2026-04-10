@@ -1,0 +1,22 @@
+id: no-call-tower
+
+valid:
+  - |
+      pipe(
+        getUser(id),
+        Effect.map(transform),
+        Effect.flatMap(processUser)
+      );
+  - |
+      Effect.gen(function*() {
+        const user = yield* getUser(id);
+        return transform(user);
+      });
+
+invalid:
+  - |
+      Effect.flatMap(Effect.map(getUser(id), transform), processUser);
+  - |
+      Effect.map(Effect.succeed(value), fn);
+  - |
+      Effect.andThen(Effect.flatMap(source, step1), step2);

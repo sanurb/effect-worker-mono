@@ -1,0 +1,23 @@
+id: no-model-overlay-cast
+snapshots:
+  ? |
+    const env = process.env as Env;
+  : labels:
+    - source: process.env as Env
+      style: primary
+      start: 12
+      end: 30
+  ? |
+    const result = response as ApiResponse<User>;
+  : labels:
+    - source: response as ApiResponse<User>
+      style: primary
+      start: 15
+      end: 44
+  ? |
+    const user = rawData as User;
+  : labels:
+    - source: rawData as User
+      style: primary
+      start: 13
+      end: 28

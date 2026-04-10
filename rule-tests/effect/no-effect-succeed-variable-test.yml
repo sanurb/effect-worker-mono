@@ -1,0 +1,21 @@
+id: no-effect-succeed-variable
+
+valid:
+  - |
+      Effect.succeed({ id: 1, name: "test" });
+  - |
+      Effect.succeed([1, 2, 3]);
+  - |
+      Effect.succeed(computeValue(args));
+  - |
+      Effect.succeed("literal string");
+  - |
+      Effect.succeed(undefined);
+
+invalid:
+  - |
+      Effect.succeed(user);
+  - |
+      Effect.succeed(result);
+  - |
+      const x = Effect.succeed(someVar);

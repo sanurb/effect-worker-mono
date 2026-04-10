@@ -1,0 +1,16 @@
+id: no-effect-type-alias
+snapshots:
+  ? |
+    type FindUserEffect = Effect.Effect<User, UserNotFoundError, UserRepo>;
+  : labels:
+    - source: type FindUserEffect = Effect.Effect<User, UserNotFoundError, UserRepo>;
+      style: primary
+      start: 0
+      end: 71
+  ? |
+    type ProcessEffect = Effect.Effect<void, ProcessingError>;
+  : labels:
+    - source: type ProcessEffect = Effect.Effect<void, ProcessingError>;
+      style: primary
+      start: 0
+      end: 58

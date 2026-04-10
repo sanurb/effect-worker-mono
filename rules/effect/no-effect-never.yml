@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-never
+language: tsx
+severity: error
+message: "Avoid Effect.never. It blocks the fiber indefinitely without cleanup. Use Stream, Scope, or structured lifecycle management."
+
+rule:
+  pattern: Effect.never
+
+note: |
+  Effect.never suspends the fiber with no release mechanism, leaking resources.
+
+  WRONG:
+    yield* Effect.never
+
+  CORRECT:
+    // For background loops use forkScoped + interruptible logic
+    yield* Effect.forkScoped(
+      Effect.gen(function*() {
+        while (true) {
+          yield* processNextItem()
+        }
+      })
+    )
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

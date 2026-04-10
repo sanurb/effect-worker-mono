@@ -1,0 +1,13 @@
+id: no-fromnullable-nullish-coalesce
+
+valid:
+  - |
+      Option.fromNullable(user);
+  - |
+      Option.fromNullable(config.value);
+
+invalid:
+  - |
+      Option.fromNullable(user ?? null);
+  - |
+      Option.fromNullable(data ?? undefined);

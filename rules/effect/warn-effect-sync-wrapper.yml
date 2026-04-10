@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: warn-effect-sync-wrapper
+language: tsx
+severity: warning
+message: "Avoid Effect.sync around side-effecting calls. Use Effect.log* or an explicit pipeline step for the side effect."
+
+rule:
+  pattern: Effect.sync(() => $CALLEE($$$))
+  not:
+    any:
+      - pattern: Effect.sync(() => console.$METHOD($$$))
+
+note: |
+  Effect.sync around a function call hides intent — the side effect is not declared in the Effect pipeline.
+
+  WRONG:
+    Effect.sync(() => metrics.record("users.created", 1))
+
+  CORRECT:
+    Effect.tap(() => Effect.sync(() => metrics.record("users.created", 1)))
+    // or move the call into a named step in the pipeline
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

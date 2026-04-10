@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-return-null
+language: tsx
+severity: error
+message: "Avoid returning null from Effect-based code. Use Option.none() for absence or Effect.fail for errors."
+
+rule:
+  pattern: return null
+  inside:
+    any:
+      - pattern: Effect.gen($$$BODY)
+      - pattern: Effect.fn($$$ARGS)
+    stopBy: end
+
+note: |
+  Null sentinels force defensive guards on callers and lose the type system.
+
+  WRONG:
+    Effect.gen(function*() {
+      if (!user) return null
+    })
+
+  CORRECT:
+    Effect.gen(function*() {
+      if (!user) return yield* Effect.fail(new UserNotFoundError({ id }))
+      // or
+      return Option.fromNullable(user)
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

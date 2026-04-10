@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-fromnullable-nullish-coalesce
+language: tsx
+severity: error
+message: "Redundant nullish coalescing inside Option.fromNullable. Pass the value directly."
+
+rule:
+  any:
+    - pattern: Option.fromNullable($VALUE ?? null)
+    - pattern: Option.fromNullable($VALUE ?? undefined)
+
+note: |
+  Option.fromNullable already treats both null and undefined as None.
+
+  WRONG:
+    Option.fromNullable(user ?? null)
+    Option.fromNullable(user ?? undefined)
+
+  CORRECT:
+    Option.fromNullable(user)
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

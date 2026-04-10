@@ -1,0 +1,25 @@
+id: no-nested-effect-gen
+snapshots:
+  ? |
+    Effect.gen(function*() {
+      const result = yield* Effect.gen(function*() {
+        return yield* someService.method();
+      });
+    });
+  : labels:
+    - source: |-
+        Effect.gen(function*() {
+            return yield* someService.method();
+          })
+      style: primary
+      start: 49
+      end: 118
+    - source: |-
+        Effect.gen(function*() {
+          const result = yield* Effect.gen(function*() {
+            return yield* someService.method();
+          });
+        })
+      style: secondary
+      start: 0
+      end: 122

@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-data-tagged-error
+language: tsx
+severity: error
+message: "Use Schema.TaggedErrorClass instead of Data.TaggedError. Data.TaggedError is the Effect v3 API."
+
+rule:
+  any:
+    - pattern: Data.TaggedError($$$ARGS)
+    - pattern: class $NAME extends Data.TaggedError($$$ARGS) { $$$BODY }
+
+note: |
+  Effect v4 canonical error class:
+
+  WRONG (v3 style):
+    class MyError extends Data.TaggedError("MyError")<{ message: string }> {}
+
+  CORRECT (v4):
+    class MyError extends Schema.TaggedErrorClass<MyError>()("MyError", {
+      message: Schema.String,
+    }) {}
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

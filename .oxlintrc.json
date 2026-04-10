@@ -1,16 +1,11 @@
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["typescript"],
-  "categories": {
-    "correctness": "error"
-  },
-  "rules": {
-    "typescript/no-explicit-any": "error",
-    "no-console": "off",
-    "oxc/no-accumulating-spread": "error",
-    "curly": "error"
-  },
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
   "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.wrangler/**",
+    "**/*.d.ts",
+    "**/__snapshots__/**",
     ".claude/",
     ".agents/",
     ".codex/",
@@ -19,18 +14,43 @@
     ".pi/",
     ".traces/",
     "designs/",
-    "dist/",
-    "node_modules/",
     "references/",
-    "**/*.d.ts",
     "**/routeTree.gen.ts"
   ],
+  "plugins": ["typescript"],
+  "env": {
+    "browser": false,
+    "node": true
+  },
+  "rules": {
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-unused-vars": "off",
+    "typescript/no-unused-vars": "error",
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-non-null-assertion": "warn",
+    "typescript/consistent-type-imports": ["error", { "prefer": "type-imports" }],
+    "no-console": "error",
+    "no-debugger": "error",
+    "no-eval": "error",
+    "no-new-func": "error",
+    "no-throw-literal": "error",
+    "no-return-assign": "error",
+    "eqeqeq": "error",
+    "no-shadow": "off",
+    "typescript/no-shadow": "error"
+  },
   "overrides": [
     {
       "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
       "rules": {
-        "typescript/no-explicit-any": "warn"
+        "no-console": "off",
+        "typescript/no-explicit-any": "off"
       }
+    },
+    {
+      "files": ["**/runtime.ts", "**/index.ts"],
+      "rules": {}
     }
   ]
 }

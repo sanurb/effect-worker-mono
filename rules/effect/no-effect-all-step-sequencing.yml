@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-all-step-sequencing
+language: tsx
+severity: error
+message: "Avoid Effect.all with concurrency:1 for sequential side-effect steps. Use one explicit linear pipeline with Effect.andThen/flatMap instead."
+
+rule:
+  any:
+    - pattern: "Effect.all($STEPS, { concurrency: 1 })"
+    - pattern: "Effect.all($STEPS, { concurrency: 1, $$$REST })"
+
+note: |
+  Effect.all with concurrency:1 hides imperative sequencing in an array.
+  Reserve Effect.all for real value aggregation (running effects concurrently and collecting results).
+  For sequential steps, use an explicit linear pipeline.
+
+  WRONG:
+    Effect.all([
+      Effect.log("step 1"),
+      saveUser(user),
+      Effect.log("step 2")
+    ], { concurrency: 1 })
+
+  CORRECT:
+    pipe(
+      Effect.log("step 1"),
+      Effect.andThen(saveUser(user)),
+      Effect.andThen(Effect.log("step 2"))
+    )
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

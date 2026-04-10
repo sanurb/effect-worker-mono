@@ -1,0 +1,29 @@
+id: no-arrow-effect-gen
+
+valid:
+  - |
+      const findUser = Effect.fn("findUser")(function*(id) {
+        const repo = yield* UserRepo;
+        return yield* repo.findById(id);
+      });
+  - |
+      // anonymous arrow in combinator is ok
+      Effect.gen(function*() {
+        const result = yield* Effect.forEach(items, (item) => processItem(item));
+      });
+  - |
+      function handleRequest() {
+        return Effect.gen(function*() {
+          return yield* doWork();
+        });
+      }
+
+invalid:
+  - |
+      const findUser = (id) => Effect.gen(function*() {
+        return yield* repo.findById(id);
+      });
+  - |
+      const createUser = (data) => Effect.gen(function*() {
+        return yield* repo.create(data);
+      }).pipe(Effect.withSpan("createUser"));

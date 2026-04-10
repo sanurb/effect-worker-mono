@@ -1,0 +1,29 @@
+id: no-if-statement
+
+valid:
+  - |
+      Option.match(Option.fromNullable(user), {
+        onSome: (u) => Effect.succeed(u),
+        onNone: () => Effect.fail(new UserNotFoundError())
+      });
+  - |
+      Match.value(status).pipe(
+        Match.when("active", () => Effect.succeed(true)),
+        Match.orElse(() => Effect.succeed(false))
+      );
+
+invalid:
+  - |
+      if (user) {
+        return Effect.succeed(user);
+      } else {
+        return Effect.fail(new UserNotFoundError());
+      }
+  - |
+      if (isValid) {
+        doSomething();
+      }
+  - |
+      if (count > 0) {
+        return count;
+      }

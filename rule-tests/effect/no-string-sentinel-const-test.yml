@@ -1,0 +1,17 @@
+id: no-string-sentinel-const
+
+valid:
+  - |
+      const count = 42;
+  - |
+      const obj = { key: "value" };
+  - |
+      const flag = true;
+
+invalid:
+  - |
+      const STATUS_ACTIVE = "active";
+  - |
+      const ERROR_CODE = "USER_NOT_FOUND";
+  - |
+      const ROUTE = "/api/users";

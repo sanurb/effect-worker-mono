@@ -1,0 +1,9 @@
+id: no-runtime-runfork
+snapshots:
+  ? |
+    const fiber = Runtime.runFork(myEffect);
+  : labels:
+    - source: Runtime.runFork(myEffect)
+      style: primary
+      start: 14
+      end: 39

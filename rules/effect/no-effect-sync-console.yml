@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-sync-console
+language: tsx
+severity: error
+message: "Avoid console.* inside Effect.sync. Replace with Effect.log/Effect.logDebug/Effect.logInfo or remove the call."
+
+rule:
+  any:
+    - pattern: Effect.sync(() => console.$METHOD($$$))
+    - pattern: Effect.sync(() => { console.$METHOD($$$) })
+
+note: |
+  console.* inside Effect.sync hides side effects and bypasses the Effect logging infrastructure.
+
+  WRONG:
+    Effect.sync(() => console.log("processing", user.id))
+
+  CORRECT:
+    Effect.logInfo("processing").pipe(Effect.annotateLogs({ userId: user.id }))
+    // or: Effect.log("processing " + user.id)
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

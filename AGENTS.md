@@ -245,6 +245,95 @@ Database-only commands live in `packages/db`: `db:push`, `db:studio`, `db:genera
 - Both worker apps enable `nodejs_compat` in `wrangler.jsonc`; stay aware of Worker runtime limits anyway.
 - Use `waitUntil` from `@repo/cloudflare` for background work you intentionally detach from the request lifecycle.
 
+### Effect Lint Enforcement
+
+This repository uses a two-layer linting model:
+
+| Layer | Tool | When to use |
+|-------|------|-------------|
+| Structural patterns | ast-grep (`sg scan`) | Effect-specific code shapes and architectural rules |
+| General TypeScript | Oxlint (`oxlint .`) | Type safety, console, unused vars, eval, eqeqeq |
+
+Run both with: `pnpm check:all`
+
+#### ast-grep Rule Presets
+
+**`rules/effect/` — Effect architecture rules:**
+
+| Rule | Targets | Severity |
+|------|---------|----------|
+| `no-arrow-effect-gen` | `(args) => Effect.gen(...)` — must use `Effect.fn("name")` | error |
+| `no-await-in-gen` | `await` inside `Effect.gen` — use `yield*` with `Effect.tryPromise` | error |
+| `no-bare-new-error` | `new Error(...)` — use `Schema.TaggedErrorClass` | error |
+| `no-call-tower` | `Effect.xx(Effect.yy(...))` — build inner first, then flat pipeline | error |
+| `no-console-log` | `console.*` — use `Effect.log*` | error |
+| `no-data-tagged-error` | `Data.TaggedError` — v3 API, use `Schema.TaggedErrorClass` | error |
+| `no-effect-all-step-sequencing` | `Effect.all(..., { concurrency: 1 })` for steps — use `andThen`/`flatMap` | error |
+| `no-effect-as` | `Effect.as(...)` — use `Effect.map` or `Effect.asVoid` | error |
+| `no-effect-async` | `Effect.async(...)` — use `Effect.tryPromise` or structured lifecycle | error |
+| `no-effect-bind` | `Effect.bind(...)` — use `yield*` inside `Effect.gen` | error |
+| `no-effect-do` | `Effect.Do` — use `Effect.gen` with generators | error |
+| `no-effect-fn-generator` | `Effect.fn(function*(){})` — use `Effect.fn("name")(impl)` | error |
+| `no-effect-never` | `Effect.never` — use structured lifecycle | error |
+| `no-effect-orElse-ladder` | `pipe(...).pipe(Effect.orElse(...))` — use `catchTag` at terminal | error |
+| `no-effect-succeed-variable` | `Effect.succeed(myVar)` placeholder — select value before entering Effect | warning |
+| `no-effect-sync-console` | `Effect.sync(() => console.*)` — use `Effect.log*` | error |
+| `no-effect-type-alias` | `type X = Effect.Effect<...>` — let TypeScript infer | error |
+| `no-effect-wrapper-alias` | `const x = pipe(Effect..., ...)` — use `Effect.fn("name")` | error |
+| `no-flatmap-ladder` | `Effect.flatMap(x, _ => Effect.flatMap(...))` — use `Effect.gen` | warning |
+| `no-fromnullable-nullish-coalesce` | `Option.fromNullable(x ?? null)` — redundant coalesce | error |
+| `no-if-statement` | `if (...)` in Effect code — use `Option.match`/`Match.value` | error |
+| `no-iife-wrapper` | `((x) => ...)(arg)` — bind with `const`, keep flat pipeline | error |
+| `no-interpolated-logging` | Template literals in `Effect.log*` — use structured args | error |
+| `no-json-parse-without-schema` | `JSON.parse` without schema decode | error |
+| `no-manual-tag-check` | `._tag === "..."` — use `Effect.catchTag` or `Match.tag` | error |
+| `no-match-void-branch` | `Match.orElse(() => Effect.void)` — remove no-op or restructure | error |
+| `no-model-overlay-cast` | `x as SomeType` — decode through schema, don't cast | error |
+| `no-nested-effect-call` | `Effect.a(Effect.b(Effect.c(...)))` — 3-level nesting | error |
+| `no-nested-effect-gen` | Nested `Effect.gen` inside `Effect.gen` — flatten | error |
+| `no-option-as` | `Option.as(...)` — use `Option.map` or `Option.getOrElse` | error |
+| `no-pipe-ladder` | `pipe(pipe(...))` — flatten into single pipeline | error |
+| `no-return-in-arrow` | `(x) => { return ... }` — use expression arrows | info |
+| `no-return-null` | `return null` inside Effect — use `Option.none()` or `Effect.fail` | error |
+| `no-runpromise-in-effect` | `Effect.runPromise/runSync` in interior code | error |
+| `no-runtime-runfork` | `Runtime.runFork` — use `forkScoped` at Layer boundary | error |
+| `no-silent-catch` | `catchAll` → `succeed` without logging | error |
+| `no-string-sentinel-const` | `const X = "literal"` — use tagged unions or branded types | warning |
+| `no-string-sentinel-return` | `Effect.succeed("string")` — use typed unions | error |
+| `no-switch-statement` | `switch (...)` — use `Match.value` or `Option.match` | error |
+| `no-ternary` | `x ? a : b` — use `Option.match`/`Match.value` | error |
+| `no-throw-in-effect` | `throw` inside `Effect.gen` — use `Effect.fail` | error |
+| `no-try-catch` | `try/catch` inside `Effect.gen` — use `Effect.try` / `catchTag` | error |
+| `no-typed-boundary-assignment` | Untyped external data assignment | error |
+| `no-unsafe-typecast-at-boundary` | `as SomeType` on external data | error |
+| `prevent-dynamic-imports` | `import(...)` — use static imports | error |
+| `tagged-error-location` | Error classes outside `errors.ts`/`errors/` | error |
+| `use-tagged-error` | `class X extends Error` — use `Schema.TaggedErrorClass` | error |
+| `warn-effect-sync-wrapper` | `Effect.sync(() => fn(...))` — use `Effect.log*` or explicit step | warning |
+
+**`rules/shared/` — general rules:**
+
+| Rule | Targets | Severity |
+|------|---------|----------|
+| `no-dynamic-import` | `import(...)` in worker/shared packages | error |
+| `no-else-after-return` | `if (x) { return } else { ... }` | error |
+| `no-foreach` | `.forEach(...)` — use `Effect.forEach` or `for...of` | error |
+| `no-hardcoded-colors` | Raw Tailwind color classes in tanstack-start | error |
+
+#### Enforcement Gaps (documented, not enforced)
+
+| Reference Rule | Reason Not Enforced |
+|---|---|
+| `no-branch-in-object` | AST complexity — object branching with Match/Option/Either needs type context |
+| `no-effect-side-effect-wrapper` | Covered by `no-effect-as` + `warn-effect-sync-wrapper` combined |
+| `no-match-effect-branch` | Multi-step detection inside Match branches needs type-aware analysis |
+| `no-react-state` / `no-atom-registry-*` | No effect-atom/React runtime in this Workers repo |
+| `no-render-side-effects` | No React render context in this Workers repo |
+| `no-wrapgraphql-catchall` | Domain-specific to GraphQL — not applicable |
+| `no-unknown-boolean-coercion-helper` | Highly specific pattern requiring domain knowledge of schema boundaries |
+| `no-option-boolean-normalization` | Very narrow pattern — low occurrence expected |
+| `no-inline-runtime-provide` | Atom runtime specific — not applicable |
+
 ## Troubleshooting
 
 - `env.HYPERDRIVE` is undefined: check the app `wrangler.jsonc` and your local Hyperdrive simulation variable `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE`.

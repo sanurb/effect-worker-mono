@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-type-alias
+language: tsx
+severity: error
+message: "Avoid type aliases for Effect.Effect<...>. Let TypeScript infer return types from the Effect returned, or use service method types directly."
+
+rule:
+  any:
+    - pattern: type $NAME = Effect.Effect<$$$CHANNELS>
+    - pattern: type $NAME = Effect.Effect<$$$CHANNELS>;
+
+note: |
+  Hand-written Effect type aliases drift from the implementation and obscure the real error/context channels.
+
+  WRONG:
+    type FindUserEffect = Effect.Effect<User, UserNotFoundError, UserRepo>
+    const findUser: FindUserEffect = ...
+
+  CORRECT:
+    // Let TypeScript infer — the return type is visible at the call site
+    const findUser = Effect.fn("findUser")(function*(id: UserId) {
+      const repo = yield* UserRepo
+      return yield* repo.findById(id)
+    })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-arrow-effect-gen
+language: tsx
+severity: error
+message: "Use Effect.fn(\"functionName\")(function*(args) { ... }) instead of (args) => Effect.gen(...). Effect.fn provides named spans for tracing."
+
+rule:
+  any:
+    - pattern: ($$$ARGS) => Effect.gen($$$BODY)
+    - pattern: ($$$ARGS) => Effect.gen($$$BODY).pipe($$$PIPES)
+
+note: |
+  Effect v4 mandate: all named effectful functions must use Effect.fn("name")(function*(args) {...}).
+  Arrow functions wrapping Effect.gen lose the function name for tracing and stack traces.
+
+  WRONG:
+    const findUser = (id: UserId) => Effect.gen(function*() { ... })
+
+  CORRECT:
+    const findUser = Effect.fn("findUser")(function*(id: UserId) { ... })
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

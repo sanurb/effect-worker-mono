@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-switch-statement
+language: tsx
+severity: error
+message: "Avoid imperative switch branching in Effect code. Use Match.value, Option.match, Either.match, or Effect.if, then run one explicit pipeline."
+
+rule:
+  kind: switch_statement
+
+note: |
+  Switch statements hide control flow and encourage case-by-case sequencing instead of declarative pipelines.
+
+  WRONG:
+    switch (event.type) {
+      case "created": return Effect.succeed(handleCreated(event))
+      case "deleted": return Effect.fail(new DeleteError())
+    }
+
+  CORRECT:
+    Match.value(event.type).pipe(
+      Match.when("created", () => Effect.succeed(handleCreated(event))),
+      Match.when("deleted", () => Effect.fail(new DeleteError())),
+      Match.exhaustive
+    )
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-effect-fn-generator
+language: tsx
+severity: error
+message: "Avoid Effect.fn(function*() {...}) generator wrappers. Keep a single flat pipeline or use one Effect.gen with Effect.fn('name') for named reusable operations."
+
+rule:
+  any:
+    - pattern: Effect.fn(function* () { $$$BLOCK })
+    - pattern: Effect.fn(function* ($$$PARAMS) { $$$BLOCK })
+
+note: |
+  Effect.fn should receive a named string plus the implementation, not a raw generator wrapper.
+  In Effect v4, named operations use Effect.fn("Name") with an arrow.
+
+  WRONG:
+    const findUser = Effect.fn(function*(id: UserId) {
+      return yield* db.query(id)
+    })
+
+  CORRECT:
+    const findUser = Effect.fn("findUser")(function*(id: UserId) {
+      return yield* db.query(id)
+    })
+    // or with named arrow:
+    const findUser = Effect.fn("findUser")((id: UserId) => Effect.gen(function*() {
+      return yield* db.query(id)
+    }))
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

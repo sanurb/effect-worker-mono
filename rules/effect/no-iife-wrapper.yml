@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-iife-wrapper
+language: tsx
+severity: error
+message: "Avoid immediately invoked function expressions (IIFEs). Bind a named context with const and keep one Match/Option decision in a flat pipeline."
+
+rule:
+  kind: call_expression
+  has:
+    kind: parenthesized_expression
+    field: function
+    has:
+      any:
+        - kind: arrow_function
+        - kind: function_expression
+
+note: |
+  IIFEs hide decisions and sequencing inside immediately evaluated closures.
+
+  WRONG:
+    const result = ((user) => Effect.succeed(user))(getUser())
+
+  CORRECT:
+    const user = getUser()
+    const result = Effect.succeed(user)
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

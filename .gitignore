@@ -24,5 +24,6 @@ scratchpad/*
 
 tm/
 .codemogger/
+.bg-shell/
 
 .traces/

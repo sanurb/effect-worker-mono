@@ -1,0 +1,20 @@
+id: no-effect-async
+
+valid:
+  - |
+      Effect.tryPromise(() => fetch(url).then(r => r.json()));
+  - |
+      Effect.acquireRelease(
+        Effect.sync(() => openConnection()),
+        (conn) => Effect.sync(() => conn.close())
+      );
+
+invalid:
+  - |
+      Effect.async((resume) => {
+        setTimeout(() => resume(Effect.succeed("done")), 1000);
+      });
+  - |
+      const e = Effect.async<string>((cb) => {
+        cb(Effect.succeed("value"));
+      });

@@ -1,0 +1,23 @@
+id: no-string-sentinel-return
+snapshots:
+  ? |
+    Effect.succeed("ok");
+  : labels:
+    - source: Effect.succeed("ok")
+      style: primary
+      start: 0
+      end: 20
+  ? |
+    return Effect.succeed("not_found");
+  : labels:
+    - source: Effect.succeed("not_found")
+      style: primary
+      start: 7
+      end: 34
+  ? |
+    return Effect.succeed("success");
+  : labels:
+    - source: Effect.succeed("success")
+      style: primary
+      start: 7
+      end: 32
