@@ -1,0 +1,27 @@
+id: no-else-after-return
+
+valid:
+  - |
+      if (status === "connected") {
+        return true;
+      }
+      return false;
+  - |
+      if (status === "connected") {
+        doSomething();
+      }
+
+invalid:
+  - |
+      if (status === "connected") {
+        return true;
+      } else {
+        return false;
+      }
+  - |
+      if (flag) {
+        doThing();
+        return value;
+      } else {
+        return fallback;
+      }

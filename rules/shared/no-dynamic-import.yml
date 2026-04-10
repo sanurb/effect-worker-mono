@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-dynamic-import
+language: tsx
+severity: error
+message: "Avoid dynamic imports in worker and shared runtime code"
+
+rule:
+  pattern: import($$$ARGS)
+
+files:
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+  - "apps/effect-worker-api/**/*.ts"
+  - "apps/effect-worker-api/**/*.tsx"
+  - "apps/effect-worker-rpc/**/*.ts"
+  - "apps/effect-worker-rpc/**/*.tsx"
+
+note: |
+  Dynamic imports make worker/runtime code harder to analyze and bundle.
+  Use static imports unless you are in a deliberate UI code-splitting boundary.
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

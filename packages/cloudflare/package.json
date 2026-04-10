@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "check": "tsc --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -24,6 +24,6 @@
     "effect": "catalog:"
   },
   "devDependencies": {
-    "typescript": "^5.6.3"
+    "typescript": "catalog:"
   }
 }

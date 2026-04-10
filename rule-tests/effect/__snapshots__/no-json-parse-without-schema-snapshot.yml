@@ -1,0 +1,17 @@
+id: no-json-parse-without-schema
+snapshots:
+  ? |
+    const data = JSON.parse(body);
+  : labels:
+    - source: JSON.parse(body)
+      style: primary
+      start: 13
+      end: 29
+  ? |
+    const raw = JSON.parse(body);
+    const data = yield* S.decodeUnknown(MySchema)(raw);
+  : labels:
+    - source: JSON.parse(body)
+      style: primary
+      start: 12
+      end: 28

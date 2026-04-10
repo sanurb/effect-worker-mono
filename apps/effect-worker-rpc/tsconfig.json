@@ -1,16 +1,9 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["ESNext"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "skipLibCheck": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "lib": ["ES2023"],
     "types": ["@cloudflare/workers-types", "node"],
+    "noEmit": true,
     "paths": {
       "@/*": ["./src/*"],
       "@repo/cloudflare": ["../../packages/cloudflare/src/index.ts"],

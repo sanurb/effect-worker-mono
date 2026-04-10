@@ -1,0 +1,19 @@
+id: no-silent-catch
+
+valid:
+  - |
+      program.pipe(
+        Effect.catchAll((error) =>
+          Effect.logWarning("Recovering from error", { error }).pipe(
+            Effect.andThen(Effect.succeed([])),
+          ),
+        ),
+      );
+  - |
+      program.pipe(Effect.catchTag("ValidationError", () => Effect.succeed([])));
+
+invalid:
+  - |
+      program.pipe(Effect.catchAll(() => Effect.succeed([])));
+  - |
+      Effect.catchAll((error) => Effect.succeed({ ok: false }));

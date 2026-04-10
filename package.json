@@ -9,20 +9,35 @@
   "scripts": {
     "build": "pnpm --filter '@repo/domain' run build && pnpm --filter '@repo/db' run build && pnpm --filter '@repo/cloudflare' run build && pnpm --filter '@repo/contracts' run build",
     "check": "pnpm -r run check",
+    "check:all": "pnpm run lint && pnpm run sg:check && pnpm run format:check",
     "clean": "pnpm --filter './packages/*' run clean",
-    "test": "vitest",
     "coverage": "vitest --coverage",
     "dev:api": "pnpm --filter effect-worker-api dev",
     "dev:rpc": "pnpm --filter effect-worker-rpc dev",
     "dev:traced:api": "pnpm dev:api 2>&1 | bun scripts/trace-sink.ts",
     "dev:traced:rpc": "pnpm dev:rpc 2>&1 | bun scripts/trace-sink.ts",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
+    "sg:check": "sg scan",
+    "sg:test": "sg test",
+    "test": "vitest",
     "trace:inspect": "cat .traces/spans.ndjson | jq .",
     "trace:clear": "rm -f .traces/spans.ndjson"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@ast-grep/cli"
+    ]
+  },
   "devDependencies": {
+    "@ast-grep/cli": "^0.42.1",
     "@effect/vitest": "catalog:",
     "@types/node": "^22.8.5",
     "effect": "catalog:",
+    "oxfmt": "0.43.0",
+    "oxlint": "1.58.0",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3",
     "vitest": "^3.2.0"

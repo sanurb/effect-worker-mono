@@ -1,0 +1,15 @@
+id: no-throw-in-effect-generator
+
+valid:
+  - |
+      Effect.gen(function* () {
+        yield* Effect.fail(new ValidationError({ message: "invalid", errors: [] }));
+      });
+  - |
+      throw new Error("allowed outside Effect.gen");
+
+invalid:
+  - |
+      Effect.gen(function* () {
+        throw new Error("Missing data");
+      });

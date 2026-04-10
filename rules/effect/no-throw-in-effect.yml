@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-throw-in-effect-generator
+language: tsx
+severity: error
+message: "Use Effect.fail or Effect.die instead of throw inside Effect.gen"
+
+rule:
+  pattern: throw $ERROR
+  inside:
+    pattern: Effect.gen($$$BODY)
+    stopBy: end
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

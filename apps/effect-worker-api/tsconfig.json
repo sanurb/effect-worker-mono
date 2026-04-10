@@ -1,67 +1,24 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2023",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "lib": [
-      "ES2023"
-    ],
-    "types": [
-      "@cloudflare/workers-types",
-      "node"
-    ],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "lib": ["ES2023"],
+    "types": ["@cloudflare/workers-types", "node"],
     "noEmit": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "noUnusedLocals": true,
-    "noFallthroughCasesInSwitch": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitReturns": false,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@repo/cloudflare": [
-        "../../packages/cloudflare/src/index.ts"
-      ],
-      "@repo/cloudflare/*": [
-        "../../packages/cloudflare/src/*"
-      ],
-      "@repo/contracts": [
-        "../../packages/contracts/src/index.ts"
-      ],
-      "@repo/contracts/*": [
-        "../../packages/contracts/src/*"
-      ],
-      "@repo/db": [
-        "../../packages/db/src/index.ts"
-      ],
-      "@repo/db/*": [
-        "../../packages/db/src/*"
-      ],
-      "@repo/domain": [
-        "../../packages/domain/src/index.ts"
-      ],
-      "@repo/domain/*": [
-        "../../packages/domain/src/*"
-      ]
-    },
-    "baseUrl": "."
+      "@/*": ["./src/*"],
+      "@repo/cloudflare": ["../../packages/cloudflare/src/index.ts"],
+      "@repo/cloudflare/*": ["../../packages/cloudflare/src/*"],
+      "@repo/contracts": ["../../packages/contracts/src/index.ts"],
+      "@repo/contracts/*": ["../../packages/contracts/src/*"],
+      "@repo/db": ["../../packages/db/src/index.ts"],
+      "@repo/db/*": ["../../packages/db/src/*"],
+      "@repo/domain": ["../../packages/domain/src/index.ts"],
+      "@repo/domain/*": ["../../packages/domain/src/*"]
+    }
   },
   "include": [
     "src/**/*",
-    "test/**/*",
     "worker-configuration.d.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "exclude": ["node_modules", "dist"]
 }

@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-try-catch-in-effect
+language: tsx
+severity: error
+message: "Avoid try/catch in Effect.gen - use Effect.try or catchTag instead"
+
+rule:
+  kind: try_statement
+  inside:
+    pattern: Effect.gen($$$BODY)
+    stopBy: end
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

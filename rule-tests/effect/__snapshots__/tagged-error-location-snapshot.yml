@@ -1,0 +1,25 @@
+id: tagged-error-location
+snapshots:
+  ? |
+    const InlineError = Data.TaggedError("InlineError")<{
+      readonly message: string;
+    }>();
+  : labels:
+    - source: Data.TaggedError("InlineError")
+      style: primary
+      start: 20
+      end: 51
+  ? |
+    export class InlineError extends S.TaggedErrorClass<InlineError>()(
+      "InlineError",
+      { message: S.String },
+    ) {}
+  : labels:
+    - source: |-
+        S.TaggedErrorClass<InlineError>()(
+          "InlineError",
+          { message: S.String },
+        )
+      style: primary
+      start: 33
+      end: 111

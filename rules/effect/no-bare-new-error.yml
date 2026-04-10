@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-bare-new-error
+language: tsx
+severity: error
+message: "Use tagged/domain errors instead of bare built-in Error constructors"
+
+rule:
+  any:
+    - pattern: new Error($$$ARGS)
+    - pattern: new TypeError($$$ARGS)
+    - pattern: new RangeError($$$ARGS)
+    - pattern: new ReferenceError($$$ARGS)
+    - pattern: new SyntaxError($$$ARGS)
+    - pattern: new URIError($$$ARGS)
+    - pattern: new EvalError($$$ARGS)
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

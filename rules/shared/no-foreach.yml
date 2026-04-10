@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-foreach
+language: tsx
+severity: error
+message: "Prefer for...of over Array.forEach for explicit control flow"
+
+rule:
+  pattern: $ARRAY.forEach($$$ARGS)
+  not:
+    pattern: Effect.forEach($$$ARGS)
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

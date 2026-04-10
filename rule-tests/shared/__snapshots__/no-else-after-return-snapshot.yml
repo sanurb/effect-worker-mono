@@ -1,0 +1,36 @@
+id: no-else-after-return
+snapshots:
+  ? |
+    if (flag) {
+      doThing();
+      return value;
+    } else {
+      return fallback;
+    }
+  : labels:
+    - source: |-
+        if (flag) {
+          doThing();
+          return value;
+        } else {
+          return fallback;
+        }
+      style: primary
+      start: 0
+      end: 70
+  ? |
+    if (status === "connected") {
+      return true;
+    } else {
+      return false;
+    }
+  : labels:
+    - source: |-
+        if (status === "connected") {
+          return true;
+        } else {
+          return false;
+        }
+      style: primary
+      start: 0
+      end: 71

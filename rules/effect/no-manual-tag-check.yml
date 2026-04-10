@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-manual-tag-check
+language: tsx
+severity: error
+message: "Use Effect.catchTag, Match.tag, or tagged union helpers instead of manual _tag checks"
+
+rule:
+  any:
+    - pattern: $VAR._tag === $TAG
+    - pattern: $VAR._tag == $TAG
+    - pattern: $TAG === $VAR._tag
+    - pattern: $TAG == $VAR._tag
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

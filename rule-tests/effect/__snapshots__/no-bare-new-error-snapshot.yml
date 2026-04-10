@@ -1,0 +1,16 @@
+id: no-bare-new-error
+snapshots:
+  ? |
+    return Effect.fail(new TypeError("bad input"));
+  : labels:
+    - source: new TypeError("bad input")
+      style: primary
+      start: 19
+      end: 45
+  ? |
+    throw new Error("boom");
+  : labels:
+    - source: new Error("boom")
+      style: primary
+      start: 6
+      end: 23

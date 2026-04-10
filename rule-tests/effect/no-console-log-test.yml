@@ -1,0 +1,13 @@
+id: no-console-log
+
+valid:
+  - |
+      yield* Effect.log("Processing request");
+  - |
+      yield* Effect.logError("Failed to process request");
+
+invalid:
+  - |
+      console.log("Processing request");
+  - |
+      console.error("Failed to process request", error);

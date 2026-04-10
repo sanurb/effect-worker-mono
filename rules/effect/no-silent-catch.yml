@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-silent-catch
+language: tsx
+severity: error
+message: "Silent error swallowing - log before recovering with catchAll"
+
+rule:
+  pattern: Effect.catchAll($FN)
+  has:
+    any:
+      - pattern: Effect.succeed($$$VAL)
+      - pattern: Effect.succeed<$TYPE>($$$VAL)
+    stopBy: end
+  not:
+    has:
+      any:
+        - pattern: Effect.log($$$ARGS)
+        - pattern: Effect.logWarning($$$ARGS)
+        - pattern: Effect.logError($$$ARGS)
+        - pattern: Effect.logDebug($$$ARGS)
+        - pattern: Effect.logInfo($$$ARGS)
+      stopBy: end
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

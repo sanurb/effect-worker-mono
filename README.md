@@ -15,6 +15,13 @@ cd apps/effect-worker-api
 pnpm dev              # Start dev server
 ```
 
+## Documentation Map
+
+- [`AGENTS.md`](./AGENTS.md) — agent-first repository navigation, package/app map, commands, troubleshooting
+- [`docs/architecture.md`](./docs/architecture.md) — boundaries, responsibilities, request/data flow
+- [`docs/observability.md`](./docs/observability.md) — NDJSON traces, local capture, optional OTLP
+
+
 ## Architecture Overview
 
 ```
@@ -231,44 +238,16 @@ export class UserNotFoundError extends S.TaggedError<UserNotFoundError>()(
 
 ## Project Structure
 
-```
-effect-worker-mono/
-├── apps/
-│   ├── effect-worker-api/     # HTTP REST API
-│   │   ├── src/
-│   │   │   ├── index.ts       # Worker entry point
-│   │   │   ├── runtime.ts     # Effect runtime
-│   │   │   ├── handlers/      # Handler implementations
-│   │   │   └── services/      # Middleware implementations
-│   │   └── wrangler.jsonc     # Cloudflare config
-│   ├── effect-worker-rpc/     # RPC API
-│   └── tanstack-start/        # Full-stack React app
-│       ├── src/
-│       │   ├── routes/        # File-based routes
-│       │   ├── components/    # React components
-│       │   └── server/        # Server-side code
-│       │       ├── middleware/  # Effect runtime middleware
-│       │       ├── functions/   # Server functions
-│       │       └── types.ts     # Effect service types
-│       └── wrangler.jsonc     # Cloudflare config
-├── packages/
-│   ├── domain/                # Domain types & schemas
-│   │   └── src/
-│   │       ├── schemas/       # Branded types
-│   │       └── errors/        # Domain errors
-│   ├── contracts/             # API definitions
-│   │   └── src/
-│   │       ├── http/          # HTTP endpoints
-│   │       └── rpc/           # RPC procedures
-│   ├── cloudflare/            # Worker infrastructure
-│   │   └── src/
-│   │       ├── fiber-ref.ts   # FiberRef bridge
-│   │       ├── services.ts    # Service tags
-│   │       └── database.ts    # Connection factory
-│   └── db/                    # Database schema
-│       └── src/schema.ts      # Drizzle tables
-└── reports/                   # Architecture decisions
-```
+The current source of truth is:
+- `apps/effect-worker-api` — HTTP worker (`src/index.ts`, `src/runtime.ts`, `src/handlers`, `src/services`)
+- `apps/effect-worker-rpc` — RPC worker (`src/index.ts`, `src/runtime.ts`, `src/handlers`, `src/services`)
+- `apps/tanstack-start` — TanStack Start app on Cloudflare (`src/server.ts`, `src/router.tsx`, `src/server`)
+- `packages/domain` — schemas and domain errors
+- `packages/db` — Drizzle schema, `PgDrizzle`, shared queries
+- `packages/cloudflare` — Worker bindings bridge, middleware factories, observability
+- `packages/contracts` — HTTP/RPC contracts and middleware tags
+
+For a file-by-file navigation guide, see [`AGENTS.md`](./AGENTS.md). For the deeper architectural explanation, see [`docs/architecture.md`](./docs/architecture.md).
 
 ## Configuration
 
@@ -325,13 +304,19 @@ return yield* makeDrizzle(env.HYPERDRIVE.connectionString)
 
 ## Scripts
 
+For the full command reference, including per-app commands, trace capture, and lint/format guidance, see [`AGENTS.md`](./AGENTS.md#common-commands).
+
+Core root scripts available now:
+
 | Command | Description |
 |---------|-------------|
-| `pnpm build` | Build all packages |
-| `pnpm check` | Type check all packages |
-| `pnpm test` | Run all tests |
+| `pnpm build` | Build shared packages |
+| `pnpm check` | Type check workspaces that define `check` |
+| `pnpm test` | Run tests from the workspace root |
 | `pnpm coverage` | Generate coverage report |
-| `pnpm clean` | Remove dist folders |
+| `pnpm clean` | Remove package `dist` folders |
+| `pnpm dev:api` / `pnpm dev:rpc` | Run the worker apps locally |
+| `pnpm dev:traced:api` / `pnpm dev:traced:rpc` | Run locally with NDJSON trace capture |
 
 ## Tech Stack
 
@@ -361,12 +346,10 @@ return yield* makeDrizzle(env.HYPERDRIVE.connectionString)
 
 ## Development Workflow
 
-1. **Make changes** to packages or apps
-2. **Build packages** if contract/domain/infra changed: `pnpm build`
-3. **Type check**: `pnpm check`
-4. **Run tests**: `pnpm test`
-5. **Dev server**: `cd apps/effect-worker-api && pnpm dev`
-6. **Deploy**: `pnpm deploy`
+1. Make changes in the relevant package or app.
+2. Run the narrowest useful verification for what you changed (`pnpm check`, package-specific tests, or trace-enabled local dev).
+3. Use `pnpm dev:api` or `pnpm dev:rpc` for worker development, and `pnpm dev:traced:api` / `pnpm dev:traced:rpc` when you need trace capture.
+4. Deploy from the target app package (`pnpm --filter effect-worker-api deploy`, `pnpm --filter effect-worker-rpc deploy`, or `pnpm --filter tanstack-start-on-cloudflare deploy`).
 
 ## Database Operations
 

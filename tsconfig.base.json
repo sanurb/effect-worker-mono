@@ -2,6 +2,7 @@
   "compilerOptions": {
     "strict": true,
     "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
     "moduleDetection": "force",
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -13,11 +14,10 @@
       "DOM.Iterable"
     ],
     "isolatedModules": true,
-    "noImplicitReturns": false,
+    "verbatimModuleSyntax": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": false,
+    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noErrorTruncation": false,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
     "noImplicitThis": true,

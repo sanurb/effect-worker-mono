@@ -1,0 +1,19 @@
+id: no-runpromise-in-effect
+snapshots:
+  ? |
+    Effect.gen(function* () {
+      const result = await Effect.runPromise(program);
+      return result;
+    });
+  : labels:
+    - source: Effect.runPromise(program)
+      style: primary
+      start: 49
+      end: 75
+  ? |
+    const value = Effect.runSync(program);
+  : labels:
+    - source: Effect.runSync(program)
+      style: primary
+      start: 14
+      end: 37

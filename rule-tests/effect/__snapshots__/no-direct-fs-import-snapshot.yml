@@ -1,0 +1,16 @@
+id: no-direct-fs-import
+snapshots:
+  ? |
+    const fs = require("fs");
+  : labels:
+    - source: require("fs")
+      style: primary
+      start: 11
+      end: 24
+  ? |
+    import fs from "node:fs";
+  : labels:
+    - source: import fs from "node:fs";
+      style: primary
+      start: 0
+      end: 25

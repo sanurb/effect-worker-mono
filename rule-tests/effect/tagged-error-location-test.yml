@@ -1,0 +1,21 @@
+id: tagged-error-location
+
+valid:
+  - |
+      import { ValidationError } from "@repo/domain/errors";
+      yield* Effect.fail(new ValidationError({ message: "invalid", errors: [] }));
+  - |
+      class ValidationError {
+        readonly _tag = "ValidationError";
+      }
+
+invalid:
+  - |
+      export class InlineError extends S.TaggedErrorClass<InlineError>()(
+        "InlineError",
+        { message: S.String },
+      ) {}
+  - |
+      const InlineError = Data.TaggedError("InlineError")<{
+        readonly message: string;
+      }>();

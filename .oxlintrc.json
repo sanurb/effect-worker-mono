@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "no-console": "off",
+    "oxc/no-accumulating-spread": "error",
+    "curly": "error"
+  },
+  "ignorePatterns": [
+    ".claude/",
+    ".agents/",
+    ".codex/",
+    ".codemogger/",
+    ".fp/",
+    ".pi/",
+    ".traces/",
+    "designs/",
+    "dist/",
+    "node_modules/",
+    "references/",
+    "**/*.d.ts",
+    "**/routeTree.gen.ts"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+      "rules": {
+        "typescript/no-explicit-any": "warn"
+      }
+    }
+  ]
+}

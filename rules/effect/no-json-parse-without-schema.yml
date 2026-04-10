@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-json-parse-without-schema
+language: tsx
+severity: error
+message: "Bare JSON.parse without schema validation - decode unknown data immediately"
+
+rule:
+  pattern: JSON.parse($$$ARGS)
+  not:
+    inside:
+      any:
+        - pattern: S.decodeUnknown($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: S.decode($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: S.decodeUnknownSync($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: S.decodeSync($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: S.decodeUnknownEither($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: S.decodeUnknownOption($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: Schema.decodeUnknown($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: Schema.decode($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: Schema.decodeUnknownSync($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: Schema.decodeSync($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: Schema.decodeUnknownEither($SCHEMA)(JSON.parse($$$ARGS))
+        - pattern: Schema.decodeUnknownOption($SCHEMA)(JSON.parse($$$ARGS))
+      stopBy: end
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

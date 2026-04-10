@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-unsafe-typecast-at-boundary
+language: tsx
+severity: error
+message: "Unsafe type assertion on external data - validate with Schema.decodeUnknown instead"
+
+rule:
+  any:
+    - pattern: JSON.parse($$$ARGS) as $TYPE
+    - pattern: $OBJ.json() as $TYPE
+    - pattern: (await $OBJ.json()) as $TYPE
+    - pattern: await $OBJ.json() as $TYPE
+    - pattern: $OBJ.body as $TYPE
+    - pattern: $OBJ.text() as $TYPE
+    - pattern: (await $OBJ.text()) as $TYPE
+    - pattern: await $OBJ.text() as $TYPE
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

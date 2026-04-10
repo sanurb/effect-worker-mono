@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: tagged-error-location
+language: tsx
+severity: error
+message: "Define tagged error classes in a dedicated errors module"
+
+rule:
+  any:
+    - pattern: Data.TaggedError($$$ARGS)
+    - pattern: Schema.ErrorClass($$$ARGS)
+    - pattern: $NS.TaggedErrorClass<$TYPE>()($$$ARGS)
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/errors.ts"
+  - "**/errors/**/*.ts"
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

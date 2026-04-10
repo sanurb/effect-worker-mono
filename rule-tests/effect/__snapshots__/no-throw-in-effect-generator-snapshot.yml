@@ -1,0 +1,18 @@
+id: no-throw-in-effect-generator
+snapshots:
+  ? |
+    Effect.gen(function* () {
+      throw new Error("Missing data");
+    });
+  : labels:
+    - source: throw new Error("Missing data");
+      style: primary
+      start: 28
+      end: 60
+    - source: |-
+        Effect.gen(function* () {
+          throw new Error("Missing data");
+        })
+      style: secondary
+      start: 0
+      end: 63

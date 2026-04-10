@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-runpromise-in-effect
+language: tsx
+severity: error
+message: "Avoid Effect.runPromise/runSync in interior code - yield effects or isolate boundary adapters"
+
+rule:
+  any:
+    - pattern: Effect.runPromise($$$ARGS)
+    - pattern: Effect.runSync($$$ARGS)
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"
+  - "**/index.ts"
+  - "**/runtime.ts"
+  - "packages/cloudflare/src/bindings.ts"
+  - "packages/db/src/pg-drizzle/index.ts"
+  - "**/test-utils/**"

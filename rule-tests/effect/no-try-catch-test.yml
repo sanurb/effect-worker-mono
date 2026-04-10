@@ -1,0 +1,26 @@
+id: no-try-catch-in-effect
+
+valid:
+  - |
+      Effect.gen(function* () {
+        return yield* Effect.try({
+          try: () => riskyOperation(),
+          catch: (error) => new ValidationError({ message: String(error), errors: [] }),
+        });
+      });
+  - |
+      try {
+        riskyOperation();
+      } catch (error) {
+        console.error(error);
+      }
+
+invalid:
+  - |
+      Effect.gen(function* () {
+        try {
+          return riskyOperation();
+        } catch (error) {
+          return fallback;
+        }
+      });

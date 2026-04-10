@@ -1,0 +1,19 @@
+id: no-runpromise-in-effect
+
+valid:
+  - |
+      Effect.gen(function* () {
+        const result = yield* someEffect;
+        return result;
+      });
+  - |
+      return Runtime.runPromise(runtime)(program);
+
+invalid:
+  - |
+      const value = Effect.runSync(program);
+  - |
+      Effect.gen(function* () {
+        const result = await Effect.runPromise(program);
+        return result;
+      });

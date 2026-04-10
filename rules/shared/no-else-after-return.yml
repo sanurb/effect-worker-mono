@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-else-after-return
+language: tsx
+severity: error
+message: "Unnecessary else after return - prefer early return"
+
+rule:
+  pattern: |
+    if ($COND) {
+      $$$BODY1
+      return $$$RET
+    } else {
+      $$$BODY2
+    }
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"

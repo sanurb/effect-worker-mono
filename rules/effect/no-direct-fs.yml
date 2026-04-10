@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ast-grep/ast-grep/main/schemas/typescript_rule.json
+
+id: no-direct-fs-import
+language: tsx
+severity: error
+message: "Use Effect services or boundary adapters instead of direct fs imports"
+
+rule:
+  any:
+    - pattern: import $_ from "node:fs"
+    - pattern: import $_ from "fs"
+    - pattern: import $_ from "node:fs/promises"
+    - pattern: import $_ from "fs/promises"
+    - pattern: require("node:fs")
+    - pattern: require("fs")
+
+files:
+  - "apps/**/*.ts"
+  - "apps/**/*.tsx"
+  - "packages/**/*.ts"
+  - "packages/**/*.tsx"
+
+ignores:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "**/node_modules/**"
+  - "**/test-utils/**"
