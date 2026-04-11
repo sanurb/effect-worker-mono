@@ -49,6 +49,12 @@
       "@repo/domain/*": [
         "./packages/domain/src/*"
       ]
-    }
-  }
+    },
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ]
+  },
+  "$schema": "https://raw.githubusercontent.com/Effect-TS/tsgo/refs/heads/main/schema.json"
 }

@@ -4,13 +4,14 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "prepare": "effect-tsgo patch",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "test": "vitest run",
     "test:watch": "vitest",
     "cf-typegen": "wrangler types --env-interface Env",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "build": "tsc -p tsconfig.json && wrangler deploy --dry-run"
+    "check": "tsgo -p tsconfig.json --noEmit",
+    "build": "tsgo -p tsconfig.json && wrangler deploy --dry-run"
   },
   "dependencies": {
     "@repo/cloudflare": "workspace:^",
@@ -23,7 +24,8 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241127.0",
     "@types/node": "^22.0.0",
-    "typescript": "catalog:",
+    "@typescript/native-preview": "latest",
+    "@effect/tsgo": "catalog:",
     "vitest": "^2.1.0",
     "wrangler": "^4.55.0"
   }

@@ -10,7 +10,11 @@ Navigation guide for humans and agents. Read this first, then jump to the source
 4. Cloudflare `env` and `ctx` are request-scoped. Never cache them globally.
 5. Put reusable queries in `@repo/db/src/queries/` — do not scatter raw Drizzle in app handlers.
 6. Use `fp issue` for all task tracking. See `FP_AGENTS.md`.
-7. Effect v4 reference: `~/.local/share/ai-references/effect/v4/LLMS.md`.
+7. Effect v4 reference: `~/.local/share/ai-references/effect/v4/LLMS.md`. is an authoritative source of information about the "effect" and "@effect/\*" packages. Read this before looking elsewhere for information about these packages. It contains the best practices for using effect.
+
+Use this for learning more about the library, rather than browsing the code in
+`node_modules/`.
+
 
 ## Package Index
 

@@ -35,12 +35,10 @@ const bindingsMiddlewareEffect = (effect: Effect.Effect<any, any, any>) =>
     const ctx = yield* currentCtx
 
     if (env === null || ctx === null) {
-      return yield* Effect.fail(
-        new CloudflareBindingsError({
-          message:
-            "Cloudflare bindings not available. Ensure withCloudflareBindings() wraps the handler."
-        })
-      )
+      return yield* new CloudflareBindingsError({
+        message:
+          "Cloudflare bindings not available. Ensure withCloudflareBindings() wraps the handler."
+      })
     }
 
     return yield* effect.pipe(
@@ -58,24 +56,20 @@ const databaseMiddlewareEffect = (
     Effect.gen(function* () {
       const env = yield* currentEnv
       if (env === null) {
-        return yield* Effect.fail(
-          new DatabaseConnectionError({
-            message:
-              "Cloudflare env not available. Ensure withCloudflareBindings() wraps the handler."
-          })
-        )
+        return yield* new DatabaseConnectionError({
+          message:
+            "Cloudflare env not available. Ensure withCloudflareBindings() wraps the handler."
+        })
       }
 
       const db = yield* makeDrizzle(getConnectionString(env))
 
       return yield* effect.pipe(Effect.provideService(PgDrizzle, db))
     }).pipe(
-      Effect.catch(() =>
-        Effect.fail(
-          new DatabaseConnectionError({
-            message: "Database connection failed"
-          })
-        )
+      Effect.mapError(() =>
+        new DatabaseConnectionError({
+          message: "Database connection failed"
+        })
       )
     )
 

@@ -17,8 +17,9 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "prepare": "effect-tsgo patch",
+    "build": "tsgo -p tsconfig.build.json",
+    "check": "tsgo -p tsconfig.json --noEmit",
     "test": "vitest",
     "clean": "rm -rf dist",
     "db:push": "drizzle-kit push",
@@ -33,6 +34,8 @@
     "@repo/domain": "workspace:*"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.8"
+    "drizzle-kit": "^0.31.8",
+    "@typescript/native-preview": "latest",
+    "@effect/tsgo": "catalog:"
   }
 }

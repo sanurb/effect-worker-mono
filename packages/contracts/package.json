@@ -25,8 +25,9 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "prepare": "effect-tsgo patch",
+    "build": "tsgo -p tsconfig.build.json",
+    "check": "tsgo -p tsconfig.json --noEmit",
     "test": "vitest",
     "clean": "rm -rf dist"
   },
@@ -35,5 +36,9 @@
     "@repo/db": "workspace:^",
     "@repo/domain": "workspace:^",
     "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@typescript/native-preview": "latest",
+    "@effect/tsgo": "catalog:"
   }
 }

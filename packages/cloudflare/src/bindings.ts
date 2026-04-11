@@ -72,14 +72,14 @@ export const waitUntil = <A, E>(
 ): Effect.Effect<void> =>
   Effect.gen(function* () {
     const ctx = yield* currentCtx
-    if (ctx) {
-      ctx.waitUntil(
-        Effect.runPromise(
-          effect.pipe(
-            Effect.tapCause(Effect.logError),
-            Effect.catch(() => Effect.void)
-          )
+    if (ctx === null) return
+    const services = yield* Effect.services<never>()
+    ctx.waitUntil(
+      Effect.runPromiseWith(services)(
+        effect.pipe(
+          Effect.tapCause(Effect.logError),
+          Effect.catch(() => Effect.void)
         )
       )
-    }
+    )
   })

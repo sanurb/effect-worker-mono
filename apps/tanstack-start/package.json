@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare": "effect-tsgo patch",
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "deploy": "pnpm run build && wrangler deploy",
@@ -42,7 +43,8 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
     "jsdom": "^26.1.0",
-    "typescript": "catalog:",
+    "@typescript/native-preview": "latest",
+    "@effect/tsgo": "catalog:",
     "vite": "7.1.2",
     "vitest": "^3.2.4",
     "web-vitals": "^4.2.4",
