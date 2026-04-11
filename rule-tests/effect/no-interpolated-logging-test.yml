@@ -2,12 +2,12 @@ id: no-interpolated-logging
 
 valid:
   - |
-      yield* Effect.log("Processing request", { requestId, userId });
+    yield* Effect.log("Processing request", { requestId, userId });
   - |
-      yield* Effect.logError("Request failed", { error });
+    yield* Effect.logError("Request failed", { error });
 
 invalid:
   - |
-      yield* Effect.log(`Processing ${requestId}`);
+    yield* Effect.log(`Processing ${requestId}`);
   - |
-      yield* Effect.logError("Request failed: " + error);
+    yield* Effect.logError("Request failed: " + error);

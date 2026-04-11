@@ -1,51 +1,48 @@
 {
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.14.0",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
   "scripts": {
     "build": "pnpm --filter '@repo/domain' run build && pnpm --filter '@repo/db' run build && pnpm --filter '@repo/cloudflare' run build && pnpm --filter '@repo/contracts' run build",
     "check": "pnpm -r run check",
-    "check:all": "pnpm run lint && pnpm run sg:check && pnpm run format:check",
+    "check:all": "vp check && pnpm run sg:check",
     "clean": "pnpm --filter './packages/*' run clean",
-    "coverage": "vitest --coverage",
+    "coverage": "vp test run --coverage",
     "dev:api": "pnpm --filter effect-worker-api dev",
     "dev:rpc": "pnpm --filter effect-worker-rpc dev",
     "dev:traced:api": "pnpm dev:api 2>&1 | bun scripts/trace-sink.ts",
     "dev:traced:rpc": "pnpm dev:rpc 2>&1 | bun scripts/trace-sink.ts",
-    "format": "oxfmt --write .",
-    "format:check": "oxfmt --check .",
-    "lint": "oxlint .",
-    "lint:fix": "oxlint . --fix",
+    "format": "vp fmt",
+    "format:check": "vp fmt --check",
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
     "sg:check": "sg scan",
     "sg:test": "sg test",
-    "test": "vitest",
+    "test": "vp test run",
+    "test:watch": "vp test",
     "trace:inspect": "cat .traces/spans.ndjson | jq .",
     "trace:clear": "rm -f .traces/spans.ndjson",
     "ci:local": "agent-ci run --workflow .github/workflows/check.yml --quiet --no-matrix",
     "ci:local:all": "agent-ci run --all --quiet --no-matrix",
     "ci:local:retry": "agent-ci retry"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@ast-grep/cli"
-    ]
-  },
   "devDependencies": {
     "@ast-grep/cli": "^0.42.1",
     "@effect/vitest": "catalog:",
     "@redwoodjs/agent-ci": "^0.8.2",
     "@types/node": "^22.8.5",
+    "@voidzero-dev/vite-plus-core": "0.1.16",
     "effect": "catalog:",
-    "oxfmt": "0.43.0",
-    "oxlint": "1.58.0",
     "tsx": "^4.19.2",
-    "vitest": "^3.2.0"
+    "vite-plus": "0.1.16",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.16"
   },
   "overrides": {
     "effect": "catalog:"
+  },
+  "packageManager": "pnpm@10.14.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@ast-grep/cli"
+    ]
   }
 }

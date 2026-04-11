@@ -11,15 +11,14 @@
     "ENVIRONMENT": "production",
     "LOG_LEVEL": "info",
     "OTLP_TRACES_URL": "",
-    "OTLP_SERVICE_NAME": ""
+    "OTLP_SERVICE_NAME": "",
   },
-
 
   // Hyperdrive for database connection pooling
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
-      "id": "your-hyperdrive-id"
-    }
-  ]
+      "id": "your-hyperdrive-id",
+    },
+  ],
 }

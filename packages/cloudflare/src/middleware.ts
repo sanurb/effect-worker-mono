@@ -1,3 +1,5 @@
+import { PgDrizzle, makeDrizzle } from "@repo/db";
+import { CloudflareBindingsError, DatabaseConnectionError } from "@repo/domain";
 /**
  * Middleware Factories
  *
@@ -7,10 +9,9 @@
  *
  * @module
  */
-import { Effect, Layer, ServiceMap } from "effect"
-import { CloudflareBindingsError, DatabaseConnectionError } from "@repo/domain"
-import { PgDrizzle, makeDrizzle } from "@repo/db"
-import { currentEnv, currentCtx, type WorkerExecutionContext } from "./bindings"
+import { Effect, Layer, ServiceMap } from "effect";
+
+import { currentEnv, currentCtx, type WorkerExecutionContext } from "./bindings";
 
 /**
  * CloudflareBindings service — provides access to Cloudflare env/ctx.
@@ -29,49 +30,47 @@ export class CloudflareBindings extends ServiceMap.Service<
 /**
  * Core bindings middleware effect — read env/ctx, null-check, provide.
  */
-const bindingsMiddlewareEffect = (effect: Effect.Effect<any, any, any>) =>
+const bindingsMiddlewareEffect = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
   Effect.gen(function* () {
-    const env = yield* currentEnv
-    const ctx = yield* currentCtx
+    const env = yield* currentEnv;
+    const ctx = yield* currentCtx;
 
     if (env === null || ctx === null) {
       return yield* new CloudflareBindingsError({
         message:
-          "Cloudflare bindings not available. Ensure withCloudflareBindings() wraps the handler."
-      })
+          "Cloudflare bindings not available. Ensure withCloudflareBindings() wraps the handler.",
+      });
     }
 
-    return yield* effect.pipe(
-      Effect.provideService(CloudflareBindings, { env, ctx })
-    )
-  })
+    return yield* effect.pipe(Effect.provideService(CloudflareBindings, { env, ctx }));
+  });
 
 /**
  * Core database middleware effect — read env, create connection, provide.
  */
-const databaseMiddlewareEffect = (
-  getConnectionString: (env: unknown) => string
-) =>
-  (effect: Effect.Effect<any, any, any>) =>
+const databaseMiddlewareEffect =
+  (getConnectionString: (env: unknown) => string) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>) =>
     Effect.gen(function* () {
-      const env = yield* currentEnv
+      const env = yield* currentEnv;
       if (env === null) {
         return yield* new DatabaseConnectionError({
           message:
-            "Cloudflare env not available. Ensure withCloudflareBindings() wraps the handler."
-        })
+            "Cloudflare env not available. Ensure withCloudflareBindings() wraps the handler.",
+        });
       }
 
-      const db = yield* makeDrizzle(getConnectionString(env))
+      const db = yield* makeDrizzle(getConnectionString(env));
 
-      return yield* effect.pipe(Effect.provideService(PgDrizzle, db))
+      return yield* effect.pipe(Effect.provideService(PgDrizzle, db));
     }).pipe(
-      Effect.mapError(() =>
-        new DatabaseConnectionError({
-          message: "Database connection failed"
-        })
-      )
-    )
+      Effect.mapError(
+        () =>
+          new DatabaseConnectionError({
+            message: "Database connection failed",
+          }),
+      ),
+    );
 
 // ---------------------------------------------------------------------------
 // Bindings middleware factory
@@ -93,10 +92,8 @@ const databaseMiddlewareEffect = (
  * const RpcCloudflareMiddlewareLive = makeBindingsMiddleware(RpcCloudflareMiddleware)
  * ```
  */
-export const makeBindingsMiddleware = <I, S>(
-  tag: ServiceMap.Key<I, S>
-): Layer.Layer<I> =>
-  Layer.succeed(tag)(bindingsMiddlewareEffect as unknown as S)
+export const makeBindingsMiddleware = <I, S>(tag: ServiceMap.Key<I, S>): Layer.Layer<I> =>
+  Layer.succeed(tag)(bindingsMiddlewareEffect as unknown as S);
 
 // ---------------------------------------------------------------------------
 // Database middleware factory
@@ -117,8 +114,6 @@ export const makeBindingsMiddleware = <I, S>(
  */
 export const makeDatabaseMiddleware = <I, S>(
   tag: ServiceMap.Key<I, S>,
-  getConnectionString: (env: unknown) => string
+  getConnectionString: (env: unknown) => string,
 ): Layer.Layer<I> =>
-  Layer.succeed(tag)(
-    databaseMiddlewareEffect(getConnectionString) as unknown as S
-  )
+  Layer.succeed(tag)(databaseMiddlewareEffect(getConnectionString) as unknown as S);

@@ -3,4 +3,4 @@
  *
  * @module
  */
-export * as UserQueries from "./users"
+export * as UserQueries from "./users";

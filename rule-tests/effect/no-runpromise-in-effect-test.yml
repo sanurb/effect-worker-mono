@@ -2,18 +2,18 @@ id: no-runpromise-in-effect
 
 valid:
   - |
-      Effect.gen(function* () {
-        const result = yield* someEffect;
-        return result;
-      });
+    Effect.gen(function* () {
+      const result = yield* someEffect;
+      return result;
+    });
   - |
-      return Runtime.runPromise(runtime)(program);
+    return Runtime.runPromise(runtime)(program);
 
 invalid:
   - |
-      const value = Effect.runSync(program);
+    const value = Effect.runSync(program);
   - |
-      Effect.gen(function* () {
-        const result = await Effect.runPromise(program);
-        return result;
-      });
+    Effect.gen(function* () {
+      const result = await Effect.runPromise(program);
+      return result;
+    });

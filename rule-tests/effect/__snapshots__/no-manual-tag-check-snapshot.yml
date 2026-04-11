@@ -5,16 +5,16 @@ snapshots:
       return Option.none();
     }
   : labels:
-    - source: '"UserNotFoundError" == cause._tag'
-      style: primary
-      start: 4
-      end: 37
+      - source: '"UserNotFoundError" == cause._tag'
+        style: primary
+        start: 4
+        end: 37
   ? |
     if (error._tag === "ValidationError") {
       return fallback;
     }
   : labels:
-    - source: error._tag === "ValidationError"
-      style: primary
-      start: 4
-      end: 36
+      - source: error._tag === "ValidationError"
+        style: primary
+        start: 4
+        end: 36

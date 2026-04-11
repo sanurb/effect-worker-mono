@@ -2,18 +2,18 @@ id: no-foreach
 
 valid:
   - |
-      for (const item of items) {
-        process(item);
-      }
+    for (const item of items) {
+      process(item);
+    }
   - |
-      const result = items.map((item) => item.name);
+    const result = items.map((item) => item.name);
   - |
-      const results = yield* Effect.forEach(items, (item) => processItem(item));
+    const results = yield* Effect.forEach(items, (item) => processItem(item));
 
 invalid:
   - |
-      items.forEach((item) => process(item));
+    items.forEach((item) => process(item));
   - |
-      users.forEach(function(user) {
-        console.log(user);
-      });
+    users.forEach(function(user) {
+      console.log(user);
+    });

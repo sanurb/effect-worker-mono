@@ -3,14 +3,15 @@
  *
  * @module
  */
-import { Layer } from "effect"
-import { HealthGroupLive } from "@/handlers/health"
-import { UsersGroupLive } from "@/handlers/users"
+import { Layer } from "effect";
 
-export { HealthGroupLive } from "@/handlers/health"
-export { UsersGroupLive } from "@/handlers/users"
+import { HealthGroupLive } from "@/handlers/health";
+import { UsersGroupLive } from "@/handlers/users";
+
+export { HealthGroupLive } from "@/handlers/health";
+export { UsersGroupLive } from "@/handlers/users";
 
 /**
  * Combined layer of all HTTP group handlers.
  */
-export const HttpGroupsLive = Layer.mergeAll(HealthGroupLive, UsersGroupLive)
+export const HttpGroupsLive = Layer.mergeAll(HealthGroupLive, UsersGroupLive);

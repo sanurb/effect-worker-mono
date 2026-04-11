@@ -60,10 +60,10 @@ The `wrangler.jsonc` file configures your Cloudflare deployment:
   "name": "tanstack-start-app",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "./src/server.ts",  // Custom server entry point
+  "main": "./src/server.ts", // Custom server entry point
   "vars": {
-    "MY_VAR": "Hello from Cloudflare"
-  }
+    "MY_VAR": "Hello from Cloudflare",
+  },
 }
 ```
 
@@ -94,6 +94,7 @@ export default {
 ## 🎨 Styling & Components
 
 ### Tailwind CSS v4
+
 This project uses the latest Tailwind CSS v4 with CSS variables for theming:
 
 ```bash
@@ -102,6 +103,7 @@ This project uses the latest Tailwind CSS v4 with CSS variables for theming:
 ```
 
 ### Shadcn/UI Components
+
 Add beautiful, accessible components using Shadcn/UI:
 
 ```bash
@@ -113,8 +115,6 @@ pnpx shadcn@latest add form
 # Components use semantic color tokens and CSS variables
 # Perfect for light/dark theme support
 ```
-
-
 
 ## 🗂️ File-Based Routing
 
@@ -153,8 +153,8 @@ In the File Based Routing setup the layout is located in `src/routes/__root.tsx`
 Here is an example layout that includes a header:
 
 ```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { Link } from "@tanstack/react-router";
 
@@ -171,13 +171,12 @@ export const Route = createRootRoute({
       <TanStackRouterDevtools />
     </>
   ),
-})
+});
 ```
 
 The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
 
 More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
 
 ## 🔄 Effect-TS Integration
 
@@ -189,29 +188,29 @@ The `effectRuntimeMiddleware` creates a per-request Effect runtime that provides
 
 ```typescript
 // src/server/middleware/effect-runtime.ts
-export const effectRuntimeMiddleware = createMiddleware().server(
-  async ({ next }) => {
-    // Define service layers (add PgDrizzle, custom services, etc.)
-    const servicesLayer = Layer.empty
+export const effectRuntimeMiddleware = createMiddleware().server(async ({ next }) => {
+  // Define service layers (add PgDrizzle, custom services, etc.)
+  const servicesLayer = Layer.empty;
 
-    return Effect.runPromise(
-      Effect.scoped(
-        Effect.gen(function* () {
-          const runtime = yield* Layer.toRuntime(servicesLayer)
+  return Effect.runPromise(
+    Effect.scoped(
+      Effect.gen(function* () {
+        const runtime = yield* Layer.toRuntime(servicesLayer);
 
-          const runEffect = <A, E>(effect: Effect.Effect<A, E, EffectServices>) => {
-            return Runtime.runPromise(runtime)(effect)
-          }
+        const runEffect = <A, E>(effect: Effect.Effect<A, E, EffectServices>) => {
+          return Runtime.runPromise(runtime)(effect);
+        };
 
-          return yield* Effect.tryPromise({
-            try: async () => await next({ context: { env, runEffect } }),
-            catch: (error) => { throw error }
-          })
-        })
-      )
-    )
-  }
-)
+        return yield* Effect.tryPromise({
+          try: async () => await next({ context: { env, runEffect } }),
+          catch: (error) => {
+            throw error;
+          },
+        });
+      }),
+    ),
+  );
+});
 ```
 
 ### Server Functions with Effect
@@ -220,25 +219,25 @@ Server functions use the middleware to access `runEffect` for executing Effect p
 
 ```typescript
 // src/server/functions/example-effect-function.ts
-const effectFunction = createServerFn().middleware([effectRuntimeMiddleware])
+const effectFunction = createServerFn().middleware([effectRuntimeMiddleware]);
 
 export const greetingFunction = effectFunction
   .inputValidator(validateWith(GreetingRequestSchema))
   .handler(async ({ data, context }) => {
     return context.runEffect(
       Effect.gen(function* () {
-        yield* Effect.log(`Processing: ${data.name}`)
+        yield* Effect.log(`Processing: ${data.name}`);
 
         // Access services via yield*
         // const db = yield* PgDrizzle
 
         return {
           message: `Hello, ${data.name}!`,
-          timestamp: new Date().toISOString()
-        }
-      })
-    )
-  })
+          timestamp: new Date().toISOString(),
+        };
+      }),
+    );
+  });
 ```
 
 ### Adding Services (e.g., Database)
@@ -246,31 +245,31 @@ export const greetingFunction = effectFunction
 To add services like `PgDrizzle` from `@repo/cloudflare`:
 
 1. **Update the middleware** (`src/server/middleware/effect-runtime.ts`):
-```typescript
-import { PgDrizzle, makeDrizzle } from "@repo/cloudflare"
 
-const dbLayer = Layer.scoped(
-  PgDrizzle,
-  makeDrizzle(env.HYPERDRIVE.connectionString)
-)
-const servicesLayer = Layer.mergeAll(dbLayer)
+```typescript
+import { PgDrizzle, makeDrizzle } from "@repo/cloudflare";
+
+const dbLayer = Layer.scoped(PgDrizzle, makeDrizzle(env.HYPERDRIVE.connectionString));
+const servicesLayer = Layer.mergeAll(dbLayer);
 ```
 
 2. **Update the types** (`src/server/types.ts`):
-```typescript
-import type { PgDrizzle } from "@repo/cloudflare"
 
-export type EffectServices = PgDrizzle // Add more services with |
+```typescript
+import type { PgDrizzle } from "@repo/cloudflare";
+
+export type EffectServices = PgDrizzle; // Add more services with |
 ```
 
 3. **Use in handlers**:
+
 ```typescript
 return context.runEffect(
   Effect.gen(function* () {
-    const db = yield* PgDrizzle
-    return yield* db.select().from(users)
-  })
-)
+    const db = yield* PgDrizzle;
+    return yield* db.select().from(users);
+  }),
+);
 ```
 
 ### Client Integration with TanStack Query
@@ -278,24 +277,21 @@ return context.runEffect(
 Server functions integrate seamlessly with TanStack Query:
 
 ```tsx
-import { useMutation } from '@tanstack/react-query'
-import { greetingFunction } from '@/server/functions/example-effect-function'
+import { useMutation } from "@tanstack/react-query";
+import { greetingFunction } from "@/server/functions/example-effect-function";
 
 function MyComponent() {
   const mutation = useMutation({
     mutationFn: (input: { name: string }) => greetingFunction({ data: input }),
-    onSuccess: (data) => console.log('Success:', data),
-    onError: (error) => console.error('Error:', error),
-  })
+    onSuccess: (data) => console.log("Success:", data),
+    onError: (error) => console.error("Error:", error),
+  });
 
   return (
-    <button
-      onClick={() => mutation.mutate({ name: 'World' })}
-      disabled={mutation.isPending}
-    >
-      {mutation.isPending ? 'Loading...' : 'Run Effect'}
+    <button onClick={() => mutation.mutate({ name: "World" })} disabled={mutation.isPending}>
+      {mutation.isPending ? "Loading..." : "Run Effect"}
     </button>
-  )
+  );
 }
 ```
 
@@ -343,26 +339,31 @@ pnpm test
 This template includes the latest and greatest from the React ecosystem:
 
 ### **Core Framework**
+
 - **TanStack Start** - Full-stack React framework with SSR
 - **React 19** - Latest React with concurrent features
 - **TypeScript** - Strict type checking enabled
 - **Effect-TS** - Type-safe functional programming and service composition
 
 ### **Routing & Data**
+
 - **TanStack Router** - Type-safe, file-based routing
 - **TanStack Query** - Server state management with SSR integration
 
 ### **Styling & UI**
+
 - **Tailwind CSS v4** - Utility-first CSS with CSS variables
 - **Shadcn/UI** - Beautiful, accessible component library
 - **Lucide React** - Consistent icon set
 
 ### **Development Tools**
+
 - **Vite** - Lightning-fast build tool and dev server
 - **Vitest** - Unit testing with jsdom
 - **TypeScript** - Full type safety across client and server
 
 ### **Deployment**
+
 - **Cloudflare Workers** - Edge computing platform
 - **Wrangler** - Cloudflare deployment and development CLI
 

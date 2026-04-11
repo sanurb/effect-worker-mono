@@ -5,25 +5,25 @@ snapshots:
       return count;
     }
   : labels:
-    - source: |-
-        if (count > 0) {
-          return count;
-        }
-      style: primary
-      start: 0
-      end: 34
+      - source: |-
+          if (count > 0) {
+            return count;
+          }
+        style: primary
+        start: 0
+        end: 34
   ? |
     if (isValid) {
       doSomething();
     }
   : labels:
-    - source: |-
-        if (isValid) {
-          doSomething();
-        }
-      style: primary
-      start: 0
-      end: 33
+      - source: |-
+          if (isValid) {
+            doSomething();
+          }
+        style: primary
+        start: 0
+        end: 33
   ? |
     if (user) {
       return Effect.succeed(user);
@@ -31,12 +31,12 @@ snapshots:
       return Effect.fail(new UserNotFoundError());
     }
   : labels:
-    - source: |-
-        if (user) {
-          return Effect.succeed(user);
-        } else {
-          return Effect.fail(new UserNotFoundError());
-        }
-      style: primary
-      start: 0
-      end: 100
+      - source: |-
+          if (user) {
+            return Effect.succeed(user);
+          } else {
+            return Effect.fail(new UserNotFoundError());
+          }
+        style: primary
+        start: 0
+        end: 100

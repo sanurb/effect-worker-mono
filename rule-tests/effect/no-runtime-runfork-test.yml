@@ -2,10 +2,10 @@ id: no-runtime-runfork
 
 valid:
   - |
-      Effect.gen(function*() {
-        const fiber = yield* Effect.forkScoped(backgroundTask);
-      });
+    Effect.gen(function*() {
+      const fiber = yield* Effect.forkScoped(backgroundTask);
+    });
 
 invalid:
   - |
-      const fiber = Runtime.runFork(myEffect);
+    const fiber = Runtime.runFork(myEffect);

@@ -3,15 +3,10 @@
  */
 
 // Middleware
-export { effectRuntimeMiddleware } from "./middleware"
+export { effectRuntimeMiddleware } from "./middleware";
 
 // Server Functions
-export { greetingFunction } from "./functions"
+export { greetingFunction } from "./functions";
 
 // Types
-export type {
-  CloudflareEnv,
-  EffectServices,
-  EffectContext,
-  WithEffect,
-} from "./types"
+export type { CloudflareEnv, EffectServices, EffectContext, WithEffect } from "./types";

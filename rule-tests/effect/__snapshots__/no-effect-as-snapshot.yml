@@ -3,14 +3,14 @@ snapshots:
   ? |
     Effect.as(getUser(id), "done");
   : labels:
-    - source: Effect.as(getUser(id), "done")
-      style: primary
-      start: 0
-      end: 30
+      - source: Effect.as(getUser(id), "done")
+        style: primary
+        start: 0
+        end: 30
   ? |
     Effect.as(someEffect, newValue);
   : labels:
-    - source: Effect.as(someEffect, newValue)
-      style: primary
-      start: 0
-      end: 31
+      - source: Effect.as(someEffect, newValue)
+        style: primary
+        start: 0
+        end: 31

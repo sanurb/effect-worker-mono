@@ -12,7 +12,5 @@
       "@repo/domain/*": ["../domain/dist/*"]
     }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

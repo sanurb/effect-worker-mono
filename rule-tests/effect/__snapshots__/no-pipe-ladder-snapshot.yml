@@ -6,11 +6,11 @@ snapshots:
       Effect.flatMap(processUser)
     );
   : labels:
-    - source: |-
-        pipe(
-          pipe(getUser(id), Effect.map(transform)),
-          Effect.flatMap(processUser)
-        )
-      style: primary
-      start: 0
-      end: 81
+      - source: |-
+          pipe(
+            pipe(getUser(id), Effect.map(transform)),
+            Effect.flatMap(processUser)
+          )
+        style: primary
+        start: 0
+        end: 81

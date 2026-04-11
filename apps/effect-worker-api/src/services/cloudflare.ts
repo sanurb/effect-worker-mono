@@ -5,4 +5,4 @@
  *
  * @module
  */
-export { currentEnv, currentCtx, withCloudflareBindings, waitUntil } from "@repo/cloudflare"
+export { currentEnv, currentCtx, withCloudflareBindings, waitUntil } from "@repo/cloudflare";

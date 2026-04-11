@@ -8,11 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "moduleResolution": "Bundler",
-    "lib": [
-      "ES2023",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "noUnusedLocals": true,
@@ -25,30 +21,14 @@
     "target": "ES2023",
     "module": "ESNext",
     "paths": {
-      "@repo/cloudflare": [
-        "./packages/cloudflare/src/index.ts"
-      ],
-      "@repo/cloudflare/*": [
-        "./packages/cloudflare/src/*"
-      ],
-      "@repo/contracts": [
-        "./packages/contracts/src/index.ts"
-      ],
-      "@repo/contracts/*": [
-        "./packages/contracts/src/*"
-      ],
-      "@repo/db": [
-        "./packages/db/src/index.ts"
-      ],
-      "@repo/db/*": [
-        "./packages/db/src/*"
-      ],
-      "@repo/domain": [
-        "./packages/domain/src/index.ts"
-      ],
-      "@repo/domain/*": [
-        "./packages/domain/src/*"
-      ]
+      "@repo/cloudflare": ["./packages/cloudflare/src/index.ts"],
+      "@repo/cloudflare/*": ["./packages/cloudflare/src/*"],
+      "@repo/contracts": ["./packages/contracts/src/index.ts"],
+      "@repo/contracts/*": ["./packages/contracts/src/*"],
+      "@repo/db": ["./packages/db/src/index.ts"],
+      "@repo/db/*": ["./packages/db/src/*"],
+      "@repo/domain": ["./packages/domain/src/index.ts"],
+      "@repo/domain/*": ["./packages/domain/src/*"]
     },
     "plugins": [
       {

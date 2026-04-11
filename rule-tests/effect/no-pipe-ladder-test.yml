@@ -2,20 +2,20 @@ id: no-pipe-ladder
 
 valid:
   - |
-      pipe(
-        getUser(id),
-        Effect.map(transform),
-        Effect.flatMap(processUser)
-      );
+    pipe(
+      getUser(id),
+      Effect.map(transform),
+      Effect.flatMap(processUser)
+    );
   - |
-      Effect.gen(function*() {
-        const user = yield* getUser(id);
-        return yield* processUser(transform(user));
-      });
+    Effect.gen(function*() {
+      const user = yield* getUser(id);
+      return yield* processUser(transform(user));
+    });
 
 invalid:
   - |
-      pipe(
-        pipe(getUser(id), Effect.map(transform)),
-        Effect.flatMap(processUser)
-      );
+    pipe(
+      pipe(getUser(id), Effect.map(transform)),
+      Effect.flatMap(processUser)
+    );

@@ -6,5 +6,5 @@
  *
  * @module
  */
-export { RpcCloudflareMiddleware } from "../middleware/cloudflare"
-export { RpcDatabaseMiddleware } from "../middleware/database"
+export { RpcCloudflareMiddleware } from "../middleware/cloudflare";
+export { RpcDatabaseMiddleware } from "../middleware/database";

@@ -2,18 +2,18 @@ id: no-effect-fn-generator
 
 valid:
   - |
-      const findUser = Effect.fn("findUser")((id: UserId) =>
-        Effect.gen(function*() {
-          return yield* db.query(id);
-        })
-      );
+    const findUser = Effect.fn("findUser")((id: UserId) =>
+      Effect.gen(function*() {
+        return yield* db.query(id);
+      })
+    );
 
 invalid:
   - |
-      const findUser = Effect.fn(function*(id) {
-        return yield* db.query(id);
-      });
+    const findUser = Effect.fn(function*(id) {
+      return yield* db.query(id);
+    });
   - |
-      const op = Effect.fn(function* () {
-        yield* Effect.log("running");
-      });
+    const op = Effect.fn(function* () {
+      yield* Effect.log("running");
+    });

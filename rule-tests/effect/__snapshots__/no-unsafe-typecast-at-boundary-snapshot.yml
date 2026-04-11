@@ -3,14 +3,14 @@ snapshots:
   ? |
     const input = JSON.parse(body) as CreateUser;
   : labels:
-    - source: JSON.parse(body) as CreateUser
-      style: primary
-      start: 14
-      end: 44
+      - source: JSON.parse(body) as CreateUser
+        style: primary
+        start: 14
+        end: 44
   ? |
     const payload = await request.json() as User;
   : labels:
-    - source: await request.json() as User
-      style: primary
-      start: 16
-      end: 44
+      - source: await request.json() as User
+        style: primary
+        start: 16
+        end: 44

@@ -3,45 +3,45 @@ snapshots:
   ? |
     const ERROR_CODE = "USER_NOT_FOUND";
   : labels:
-    - source: const ERROR_CODE = "USER_NOT_FOUND";
-      style: primary
-      start: 0
-      end: 36
-    - source: '"USER_NOT_FOUND"'
-      style: secondary
-      start: 19
-      end: 35
-    - source: ERROR_CODE = "USER_NOT_FOUND"
-      style: secondary
-      start: 6
-      end: 35
+      - source: const ERROR_CODE = "USER_NOT_FOUND";
+        style: primary
+        start: 0
+        end: 36
+      - source: '"USER_NOT_FOUND"'
+        style: secondary
+        start: 19
+        end: 35
+      - source: ERROR_CODE = "USER_NOT_FOUND"
+        style: secondary
+        start: 6
+        end: 35
   ? |
     const ROUTE = "/api/users";
   : labels:
-    - source: const ROUTE = "/api/users";
-      style: primary
-      start: 0
-      end: 27
-    - source: '"/api/users"'
-      style: secondary
-      start: 14
-      end: 26
-    - source: ROUTE = "/api/users"
-      style: secondary
-      start: 6
-      end: 26
+      - source: const ROUTE = "/api/users";
+        style: primary
+        start: 0
+        end: 27
+      - source: '"/api/users"'
+        style: secondary
+        start: 14
+        end: 26
+      - source: ROUTE = "/api/users"
+        style: secondary
+        start: 6
+        end: 26
   ? |
     const STATUS_ACTIVE = "active";
   : labels:
-    - source: const STATUS_ACTIVE = "active";
-      style: primary
-      start: 0
-      end: 31
-    - source: '"active"'
-      style: secondary
-      start: 22
-      end: 30
-    - source: STATUS_ACTIVE = "active"
-      style: secondary
-      start: 6
-      end: 30
+      - source: const STATUS_ACTIVE = "active";
+        style: primary
+        start: 0
+        end: 31
+      - source: '"active"'
+        style: secondary
+        start: 22
+        end: 30
+      - source: STATUS_ACTIVE = "active"
+        style: secondary
+        start: 6
+        end: 30

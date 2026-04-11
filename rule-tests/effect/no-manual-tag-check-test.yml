@@ -2,20 +2,20 @@ id: no-manual-tag-check
 
 valid:
   - |
-      program.pipe(Effect.catchTag("ValidationError", () => Effect.succeed([])));
+    program.pipe(Effect.catchTag("ValidationError", () => Effect.succeed([])));
   - |
-      return Match.value(result).pipe(
-        Match.tag("Success", ({ data }) => data),
-        Match.tag("Failure", ({ error }) => error),
-        Match.exhaustive,
-      );
+    return Match.value(result).pipe(
+      Match.tag("Success", ({ data }) => data),
+      Match.tag("Failure", ({ error }) => error),
+      Match.exhaustive,
+    );
 
 invalid:
   - |
-      if (error._tag === "ValidationError") {
-        return fallback;
-      }
+    if (error._tag === "ValidationError") {
+      return fallback;
+    }
   - |
-      if ("UserNotFoundError" == cause._tag) {
-        return Option.none();
-      }
+    if ("UserNotFoundError" == cause._tag) {
+      return Option.none();
+    }

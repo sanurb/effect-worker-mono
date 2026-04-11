@@ -17,10 +17,12 @@
  * const servicesLayer = Layer.mergeAll(dbLayer, otherServiceLayer)
  * ```
  */
-import { createMiddleware } from "@tanstack/react-start"
-import { Effect, Layer, ManagedRuntime } from "effect"
-import { env } from "cloudflare:workers"
-import type { EffectServices } from "../types"
+import { createMiddleware } from "@tanstack/react-start";
+import { env } from "cloudflare:workers";
+import type { Effect } from "effect";
+import { Layer, ManagedRuntime } from "effect";
+
+import type { EffectServices } from "../types";
 
 /**
  * Middleware that creates a scoped Effect runtime.
@@ -42,35 +44,31 @@ import type { EffectServices } from "../types"
  *   })
  * ```
  */
-export const effectRuntimeMiddleware = createMiddleware().server(
-  async ({ next }) => {
-    // Create service layers
-    // Add your service layers here and merge them:
-    //
-    // Example with PgDrizzle (uncomment when HYPERDRIVE is configured):
-    // const dbLayer = makePgDrizzleLayer(env.HYPERDRIVE.connectionString)
-    // const servicesLayer = Layer.mergeAll(dbLayer, otherServiceLayer)
+export const effectRuntimeMiddleware = createMiddleware().server(async ({ next }) => {
+  // Create service layers
+  // Add your service layers here and merge them:
+  //
+  // Example with PgDrizzle (uncomment when HYPERDRIVE is configured):
+  // const dbLayer = makePgDrizzleLayer(env.HYPERDRIVE.connectionString)
+  // const servicesLayer = Layer.mergeAll(dbLayer, otherServiceLayer)
 
-    // Empty layer - add your services above
-    const servicesLayer = Layer.empty
+  // Empty layer - add your services above
+  const servicesLayer = Layer.empty;
 
-    const runtime = ManagedRuntime.make(servicesLayer)
+  const runtime = ManagedRuntime.make(servicesLayer);
 
-    try {
-      const runEffect = <A, E>(
-        effect: Effect.Effect<A, E, EffectServices>
-      ) => {
-        return runtime.runPromise(effect)
-      }
+  try {
+    const runEffect = <A, E>(effect: Effect.Effect<A, E, EffectServices>) => {
+      return runtime.runPromise(effect);
+    };
 
-      return await next({
-        context: {
-          env,
-          runEffect,
-        },
-      })
-    } finally {
-      await runtime.dispose()
-    }
+    return await next({
+      context: {
+        env,
+        runEffect,
+      },
+    });
+  } finally {
+    await runtime.dispose();
   }
-)
+});

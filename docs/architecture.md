@@ -27,17 +27,20 @@ That diagram is intentionally honest about the current code, not the idealized v
 ### 1. Domain core — `@repo/domain`
 
 Responsibilities:
+
 - Own branded IDs, schemas, and domain-facing errors.
 - Express invariants without transport or runtime concerns.
 - Provide types that every other workspace package can trust.
 
 Key source files:
+
 - `packages/domain/src/schemas/user.ts`
 - `packages/domain/src/errors/user.ts`
 - `packages/domain/src/errors/common.ts`
 - `packages/domain/src/index.ts`
 
 What does not belong here:
+
 - Drizzle table definitions
 - Cloudflare bindings
 - HTTP or RPC route definitions
@@ -46,29 +49,34 @@ What does not belong here:
 ### 2. Persistence adapter — `@repo/db`
 
 Responsibilities:
+
 - Own the relational schema (`users` table).
 - Own the `PgDrizzle` service tag and connection-layer helpers.
 - Expose reusable Effect query programs that translate between storage rows and domain values.
 
 Key source files:
+
 - `packages/db/src/schema.ts`
 - `packages/db/src/queries/users.ts`
 - `packages/db/src/pg-drizzle/index.ts`
 - `packages/db/src/index.ts`
 
 Boundary rule:
+
 - This package may depend on `@repo/domain`.
 - Apps should prefer shared query programs here over duplicating raw Drizzle sequences in handlers.
 
 ### 3. Worker/runtime adapter — `@repo/cloudflare`
 
 Responsibilities:
+
 - Bridge Cloudflare `env` and `ctx` into Effect via request-scoped `ServiceMap` references.
 - Provide Worker-specific helpers like `waitUntil`.
 - Build reusable middleware factories for Cloudflare bindings and database access.
 - Host observability infrastructure: logger, tracer, NDJSON trace emission, optional OTLP delegation.
 
 Key source files:
+
 - `packages/cloudflare/src/bindings.ts`
 - `packages/cloudflare/src/middleware.ts`
 - `packages/cloudflare/src/observability/Observability.ts`
@@ -76,16 +84,19 @@ Key source files:
 - `packages/cloudflare/src/index.ts`
 
 Boundary rule:
+
 - This package is infrastructure. Keep Worker concerns here instead of scattering `env`/`ctx` handling through apps.
 
 ### 4. Transport contracts — `@repo/contracts`
 
 Responsibilities:
+
 - Define the HTTP API surface (`WorkerApi`, groups, schemas, middleware tags).
 - Define the RPC surface (`UsersRpc`, procedures, middleware tags).
 - Provide one shared contract package so transport implementations stay aligned.
 
 Key source files:
+
 - `packages/contracts/src/http/api.ts`
 - `packages/contracts/src/http/groups/*.ts`
 - `packages/contracts/src/rpc/procedures/users.ts`
@@ -93,22 +104,26 @@ Key source files:
 - `packages/contracts/src/index.ts`
 
 Boundary reality:
+
 - The contracts package is not pure schema-only code. Its middleware tags reference services from `@repo/cloudflare` and `@repo/db`.
 - Treat it as the shared transport boundary for the worker apps, not as a domain-only package.
 
 ### 5. Application composition — `apps/*`
 
 Responsibilities:
+
 - Turn shared contracts and infrastructure into deployed Cloudflare applications.
 - Compose live layers and handlers.
 - Own Wrangler config and runtime entrypoints.
 
 Current apps:
+
 - `apps/effect-worker-api` — HTTP API worker
 - `apps/effect-worker-rpc` — RPC worker
 - `apps/tanstack-start` — full-stack app on Cloudflare with local Effect middleware scaffolding
 
 Boundary rule:
+
 - App entrypoints (`src/index.ts` or `src/server.ts`) should stay thin. Runtime assembly belongs in `runtime.ts` or the server middleware layer.
 
 ## Request and Data Flow
@@ -153,6 +168,7 @@ These are the practical boundaries the codebase should preserve:
 - `apps/*` are delivery mechanisms that assemble concrete adapters and expose endpoints.
 
 Put differently:
+
 - Domain answers “what is a valid user and what errors exist?”
 - DB answers “how is that persisted and fetched?”
 - Cloudflare answers “how does Worker runtime state enter Effect?”

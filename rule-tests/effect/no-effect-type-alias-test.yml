@@ -2,18 +2,18 @@ id: no-effect-type-alias
 
 valid:
   - |
-      // Inferred return type via Effect.fn
-      const findUser = Effect.fn("findUser")(function*(id: UserId) {
-        return yield* repo.findById(id);
-      });
+    // Inferred return type via Effect.fn
+    const findUser = Effect.fn("findUser")(function*(id: UserId) {
+      return yield* repo.findById(id);
+    });
   - |
-      // Type parameter usage on a function is fine
-      function run<A>(effect: Effect.Effect<A>): Promise<A> {
-        return Effect.runPromise(effect);
-      }
+    // Type parameter usage on a function is fine
+    function run<A>(effect: Effect.Effect<A>): Promise<A> {
+      return Effect.runPromise(effect);
+    }
 
 invalid:
   - |
-      type FindUserEffect = Effect.Effect<User, UserNotFoundError, UserRepo>;
+    type FindUserEffect = Effect.Effect<User, UserNotFoundError, UserRepo>;
   - |
-      type ProcessEffect = Effect.Effect<void, ProcessingError>;
+    type ProcessEffect = Effect.Effect<void, ProcessingError>;

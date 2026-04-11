@@ -3,21 +3,21 @@ snapshots:
   ? |
     Effect.andThen(Effect.flatMap(source, step1), step2);
   : labels:
-    - source: Effect.andThen(Effect.flatMap(source, step1), step2)
-      style: primary
-      start: 0
-      end: 52
+      - source: Effect.andThen(Effect.flatMap(source, step1), step2)
+        style: primary
+        start: 0
+        end: 52
   ? |
     Effect.flatMap(Effect.map(getUser(id), transform), processUser);
   : labels:
-    - source: Effect.flatMap(Effect.map(getUser(id), transform), processUser)
-      style: primary
-      start: 0
-      end: 63
+      - source: Effect.flatMap(Effect.map(getUser(id), transform), processUser)
+        style: primary
+        start: 0
+        end: 63
   ? |
     Effect.map(Effect.succeed(value), fn);
   : labels:
-    - source: Effect.map(Effect.succeed(value), fn)
-      style: primary
-      start: 0
-      end: 37
+      - source: Effect.map(Effect.succeed(value), fn)
+        style: primary
+        start: 0
+        end: 37

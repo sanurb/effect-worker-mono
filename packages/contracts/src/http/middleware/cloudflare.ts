@@ -1,3 +1,4 @@
+import { CloudflareBindingsError } from "@repo/domain";
 /**
  * Cloudflare Bindings HTTP Middleware
  *
@@ -6,9 +7,9 @@
  *
  * @module
  */
-import { HttpApiMiddleware } from "effect/unstable/httpapi"
-import { CloudflareBindingsError } from "@repo/domain"
-import { CloudflareBindings } from "../../services"
+import { HttpApiMiddleware } from "effect/unstable/httpapi";
+
+import type { CloudflareBindings } from "../../services";
 
 /**
  * Middleware that provides CloudflareBindings to HTTP handlers.
@@ -28,8 +29,8 @@ export class CloudflareBindingsMiddleware extends HttpApiMiddleware.Service<
   CloudflareBindingsMiddleware,
   { provides: CloudflareBindings }
 >()("@repo/api/CloudflareBindingsMiddleware", {
-  error: CloudflareBindingsError
+  error: CloudflareBindingsError,
 }) {}
 
 // Re-export for convenience
-export { CloudflareBindingsError }
+export { CloudflareBindingsError };

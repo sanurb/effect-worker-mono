@@ -1,11 +1,12 @@
-import { mergeConfig, defineProject } from "vitest/config"
-import configShared from "../../vitest.shared"
+import { mergeConfig, defineProject } from "vitest/config";
+
+import configShared from "../../vitest.shared";
 
 export default mergeConfig(
   configShared,
   defineProject({
     test: {
-      include: ["test/**/*.test.ts"]
-    }
-  })
-)
+      include: ["test/**/*.test.ts"],
+    },
+  }),
+);

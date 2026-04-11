@@ -6,12 +6,6 @@
  *
  * @module
  */
-export {
-  CloudflareBindingsError,
-  CloudflareBindingsMiddleware
-} from "./cloudflare"
+export { CloudflareBindingsError, CloudflareBindingsMiddleware } from "./cloudflare";
 
-export {
-  DatabaseConnectionError,
-  DatabaseMiddleware
-} from "./database"
+export { DatabaseConnectionError, DatabaseMiddleware } from "./database";

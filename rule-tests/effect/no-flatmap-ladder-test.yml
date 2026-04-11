@@ -2,18 +2,18 @@ id: no-flatmap-ladder
 
 valid:
   - |
-      Effect.gen(function*() {
-        const users = yield* getUsers();
-        const posts = yield* getPosts(users[0].id);
-        return yield* process(posts);
-      });
+    Effect.gen(function*() {
+      const users = yield* getUsers();
+      const posts = yield* getPosts(users[0].id);
+      return yield* process(posts);
+    });
   - |
-      pipe(getUsers(), Effect.flatMap(processUsers));
+    pipe(getUsers(), Effect.flatMap(processUsers));
 
 invalid:
   - |
-      Effect.flatMap(users, (u) => Effect.flatMap(getPosts(u.id), process));
+    Effect.flatMap(users, (u) => Effect.flatMap(getPosts(u.id), process));
   - |
-      Effect.flatten(Effect.map(getUsers(), (u) => getPosts(u.id)));
+    Effect.flatten(Effect.map(getUsers(), (u) => getPosts(u.id)));
   - |
-      Effect.flatMap(source, Effect.flatMap(inner, fn));
+    Effect.flatMap(source, Effect.flatMap(inner, fn));

@@ -5,22 +5,22 @@ snapshots:
       setTimeout(() => resume(Effect.succeed("done")), 1000);
     });
   : labels:
-    - source: |-
-        Effect.async((resume) => {
-          setTimeout(() => resume(Effect.succeed("done")), 1000);
-        })
-      style: primary
-      start: 0
-      end: 87
+      - source: |-
+          Effect.async((resume) => {
+            setTimeout(() => resume(Effect.succeed("done")), 1000);
+          })
+        style: primary
+        start: 0
+        end: 87
   ? |
     const e = Effect.async<string>((cb) => {
       cb(Effect.succeed("value"));
     });
   : labels:
-    - source: |-
-        Effect.async<string>((cb) => {
-          cb(Effect.succeed("value"));
-        })
-      style: primary
-      start: 10
-      end: 74
+      - source: |-
+          Effect.async<string>((cb) => {
+            cb(Effect.succeed("value"));
+          })
+        style: primary
+        start: 10
+        end: 74

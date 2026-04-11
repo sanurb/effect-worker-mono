@@ -2,18 +2,18 @@ id: no-effect-never
 
 valid:
   - |
-      Effect.gen(function*() {
-        yield* Effect.forkScoped(
-          Effect.gen(function*() {
-            while (true) {
-              yield* processItem();
-            }
-          })
-        );
-      });
+    Effect.gen(function*() {
+      yield* Effect.forkScoped(
+        Effect.gen(function*() {
+          while (true) {
+            yield* processItem();
+          }
+        })
+      );
+    });
 
 invalid:
   - |
-      yield* Effect.never;
+    yield* Effect.never;
   - |
-      const blocker = Effect.never;
+    const blocker = Effect.never;

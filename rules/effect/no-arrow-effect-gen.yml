@@ -3,7 +3,7 @@
 id: no-arrow-effect-gen
 language: tsx
 severity: error
-message: "Use Effect.fn(\"functionName\")(function*(args) { ... }) instead of (args) => Effect.gen(...). Effect.fn provides named spans for tracing."
+message: 'Use Effect.fn("functionName")(function*(args) { ... }) instead of (args) => Effect.gen(...). Effect.fn provides named spans for tracing.'
 
 rule:
   any:

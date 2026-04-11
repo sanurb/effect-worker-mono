@@ -6,14 +6,14 @@ snapshots:
       return result;
     });
   : labels:
-    - source: Effect.runPromise(program)
-      style: primary
-      start: 49
-      end: 75
+      - source: Effect.runPromise(program)
+        style: primary
+        start: 49
+        end: 75
   ? |
     const value = Effect.runSync(program);
   : labels:
-    - source: Effect.runSync(program)
-      style: primary
-      start: 14
-      end: 37
+      - source: Effect.runSync(program)
+        style: primary
+        start: 14
+        end: 37

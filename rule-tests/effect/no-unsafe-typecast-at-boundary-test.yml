@@ -2,13 +2,13 @@ id: no-unsafe-typecast-at-boundary
 
 valid:
   - |
-      const payload: unknown = await request.json();
-      const data = yield* S.decodeUnknown(UserSchema)(payload);
+    const payload: unknown = await request.json();
+    const data = yield* S.decodeUnknown(UserSchema)(payload);
   - |
-      const raw: unknown = JSON.parse(body);
+    const raw: unknown = JSON.parse(body);
 
 invalid:
   - |
-      const payload = await request.json() as User;
+    const payload = await request.json() as User;
   - |
-      const input = JSON.parse(body) as CreateUser;
+    const input = JSON.parse(body) as CreateUser;

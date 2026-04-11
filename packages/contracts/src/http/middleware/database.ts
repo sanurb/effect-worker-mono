@@ -1,3 +1,5 @@
+import type { PgDrizzle } from "@repo/db/pg-drizzle/tag";
+import { DatabaseConnectionError } from "@repo/domain";
 /**
  * Database HTTP Middleware
  *
@@ -6,9 +8,7 @@
  *
  * @module
  */
-import { HttpApiMiddleware } from "effect/unstable/httpapi"
-import { PgDrizzle } from "@repo/db/pg-drizzle/tag"
-import { DatabaseConnectionError } from "@repo/domain"
+import { HttpApiMiddleware } from "effect/unstable/httpapi";
 
 /**
  * Middleware that provides PgDrizzle to HTTP handlers.
@@ -35,8 +35,8 @@ export class DatabaseMiddleware extends HttpApiMiddleware.Service<
   DatabaseMiddleware,
   { provides: PgDrizzle }
 >()("@repo/api/DatabaseMiddleware", {
-  error: DatabaseConnectionError
+  error: DatabaseConnectionError,
 }) {}
 
 // Re-export for convenience
-export { DatabaseConnectionError }
+export { DatabaseConnectionError };

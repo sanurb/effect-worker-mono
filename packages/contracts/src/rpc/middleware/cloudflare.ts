@@ -1,3 +1,4 @@
+import { CloudflareBindingsError } from "@repo/domain";
 /**
  * Cloudflare Bindings RPC Middleware Tag
  *
@@ -6,9 +7,9 @@
  *
  * @module
  */
-import { RpcMiddleware } from "effect/unstable/rpc"
-import { CloudflareBindings } from "../../services"
-import { CloudflareBindingsError } from "@repo/domain"
+import { RpcMiddleware } from "effect/unstable/rpc";
+
+import type { CloudflareBindings } from "../../services";
 
 /**
  * Middleware that provides CloudflareBindings to RPC handlers.
@@ -27,5 +28,5 @@ export class RpcCloudflareMiddleware extends RpcMiddleware.Service<
   { provides: CloudflareBindings }
 >()("@repo/rpc/RpcCloudflareMiddleware", {
   error: CloudflareBindingsError,
-  requiredForClient: false
+  requiredForClient: false,
 }) {}

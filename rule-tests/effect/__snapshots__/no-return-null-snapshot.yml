@@ -5,14 +5,14 @@ snapshots:
       if (!user) return null;
     });
   : labels:
-    - source: return null;
-      style: primary
-      start: 38
-      end: 50
-    - source: |-
-        Effect.gen(function*() {
-          if (!user) return null;
-        })
-      style: secondary
-      start: 0
-      end: 53
+      - source: return null;
+        style: primary
+        start: 38
+        end: 50
+      - source: |-
+          Effect.gen(function*() {
+            if (!user) return null;
+          })
+        style: secondary
+        start: 0
+        end: 53

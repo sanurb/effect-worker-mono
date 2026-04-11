@@ -11,5 +11,5 @@ export {
   listUsers,
   createUser,
   // Group
-  UsersRpc
-} from "./users"
+  UsersRpc,
+} from "./users";

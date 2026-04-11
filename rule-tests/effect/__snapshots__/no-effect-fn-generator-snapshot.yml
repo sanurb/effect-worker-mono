@@ -5,22 +5,22 @@ snapshots:
       return yield* db.query(id);
     });
   : labels:
-    - source: |-
-        Effect.fn(function*(id) {
-          return yield* db.query(id);
-        })
-      style: primary
-      start: 17
-      end: 75
+      - source: |-
+          Effect.fn(function*(id) {
+            return yield* db.query(id);
+          })
+        style: primary
+        start: 17
+        end: 75
   ? |
     const op = Effect.fn(function* () {
       yield* Effect.log("running");
     });
   : labels:
-    - source: |-
-        Effect.fn(function* () {
-          yield* Effect.log("running");
-        })
-      style: primary
-      start: 11
-      end: 70
+      - source: |-
+          Effect.fn(function* () {
+            yield* Effect.log("running");
+          })
+        style: primary
+        start: 11
+        end: 70

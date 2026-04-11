@@ -6,4 +6,4 @@
  *
  * @module
  */
-export { CloudflareBindings, type WorkerExecutionContext } from "@repo/cloudflare"
+export { CloudflareBindings, type WorkerExecutionContext } from "@repo/cloudflare";

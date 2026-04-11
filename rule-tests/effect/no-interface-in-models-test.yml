@@ -2,19 +2,19 @@ id: no-interface-in-models
 
 valid:
   - |
-      export const User = S.Struct({
-        id: S.String,
-        email: S.String,
-      });
-      export type User = S.Schema.Type<typeof User>;
+    export const User = S.Struct({
+      id: S.String,
+      email: S.String,
+    });
+    export type User = S.Schema.Type<typeof User>;
   - |
-      interface Props {
-        readonly children: React.ReactNode;
-      }
+    interface Props {
+      readonly children: React.ReactNode;
+    }
 
 invalid:
   - |
-      export interface User {
-        readonly id: string;
-        readonly email: string;
-      }
+    export interface User {
+      readonly id: string;
+      readonly email: string;
+    }

@@ -1,3 +1,11 @@
+import {
+  UserSchema,
+  UserIdPathSchema,
+  CreateUserSchema,
+  UserNotFoundError,
+  UserCreationError,
+} from "@repo/domain";
+import { Schema as S } from "effect";
 /**
  * Users RPC Procedures
  *
@@ -6,16 +14,9 @@
  *
  * @module
  */
-import { Rpc, RpcGroup } from "effect/unstable/rpc"
-import { Schema as S } from "effect"
-import {
-  UserSchema,
-  UserIdPathSchema,
-  CreateUserSchema,
-  UserNotFoundError,
-  UserCreationError
-} from "@repo/domain"
-import { RpcDatabaseMiddleware } from "../../middleware"
+import { Rpc, RpcGroup } from "effect/unstable/rpc";
+
+import { RpcDatabaseMiddleware } from "../../middleware";
 
 // ============================================================================
 // Response Schemas
@@ -27,8 +28,8 @@ import { RpcDatabaseMiddleware } from "../../middleware"
  */
 export const RpcUsersListSchema = S.Struct({
   users: S.Array(UserSchema),
-  total: S.Number
-})
+  total: S.Number,
+});
 
 // ============================================================================
 // RPC Procedure Definitions
@@ -40,15 +41,15 @@ export const RpcUsersListSchema = S.Struct({
 export const getUser = Rpc.make("getUser", {
   payload: S.Struct({ id: UserIdPathSchema.fields.id }),
   success: UserSchema,
-  error: UserNotFoundError
-}).middleware(RpcDatabaseMiddleware)
+  error: UserNotFoundError,
+}).middleware(RpcDatabaseMiddleware);
 
 /**
  * List all users.
  */
 export const listUsers = Rpc.make("listUsers", {
-  success: RpcUsersListSchema
-}).middleware(RpcDatabaseMiddleware)
+  success: RpcUsersListSchema,
+}).middleware(RpcDatabaseMiddleware);
 
 /**
  * Create a new user.
@@ -56,8 +57,8 @@ export const listUsers = Rpc.make("listUsers", {
 export const createUser = Rpc.make("createUser", {
   payload: CreateUserSchema,
   success: UserSchema,
-  error: UserCreationError
-}).middleware(RpcDatabaseMiddleware)
+  error: UserCreationError,
+}).middleware(RpcDatabaseMiddleware);
 
 // ============================================================================
 // RPC Group
@@ -66,4 +67,4 @@ export const createUser = Rpc.make("createUser", {
 /**
  * Users RPC group containing all user-related procedures.
  */
-export const UsersRpc = RpcGroup.make(getUser, listUsers, createUser)
+export const UsersRpc = RpcGroup.make(getUser, listUsers, createUser);

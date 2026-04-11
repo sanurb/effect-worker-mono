@@ -2,17 +2,17 @@ id: no-match-void-branch
 
 valid:
   - |
-      Match.value(event).pipe(
-        Match.when("update", () => handleUpdate(event)),
-        Match.when("delete", () => handleDelete(event)),
-        Match.exhaustive
-      );
+    Match.value(event).pipe(
+      Match.when("update", () => handleUpdate(event)),
+      Match.when("delete", () => handleDelete(event)),
+      Match.exhaustive
+    );
 
 invalid:
   - |
-      Match.value(event).pipe(
-        Match.when("update", () => handleUpdate(event)),
-        Match.orElse(() => Effect.void)
-      );
+    Match.value(event).pipe(
+      Match.when("update", () => handleUpdate(event)),
+      Match.orElse(() => Effect.void)
+    );
   - |
-      Match.when(true, () => Effect.void);
+    Match.when(true, () => Effect.void);

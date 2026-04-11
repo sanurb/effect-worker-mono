@@ -2,15 +2,15 @@ id: no-direct-fs-import
 
 valid:
   - |
-      const program = Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        return yield* fs.readFileString(path);
-      });
+    const program = Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      return yield* fs.readFileString(path);
+    });
   - |
-      import { FileSystem } from "@effect/platform";
+    import { FileSystem } from "@effect/platform";
 
 invalid:
   - |
-      import fs from "node:fs";
+    import fs from "node:fs";
   - |
-      const fs = require("fs");
+    const fs = require("fs");

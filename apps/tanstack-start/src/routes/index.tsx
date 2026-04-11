@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { NavigationBar } from "@/components/navigation";
+
 import { HeroSection, FeaturesSection, EffectDemo, Footer } from "@/components/landing";
+import { NavigationBar } from "@/components/navigation";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,

@@ -74,7 +74,7 @@ export function ThemeProvider({
       }
       setThemeState(newTheme);
     },
-    [storageKey]
+    [storageKey],
   );
 
   const applyTheme = React.useCallback(
@@ -87,8 +87,8 @@ export function ThemeProvider({
         const css = document.createElement("style");
         css.appendChild(
           document.createTextNode(
-            `*,*::before,*::after{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}`
-          )
+            `*,*::before,*::after{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}`,
+          ),
         );
         document.head.appendChild(css);
 
@@ -107,7 +107,7 @@ export function ThemeProvider({
         root.setAttribute(attribute, targetTheme);
       }
     },
-    [attribute, disableTransitionOnChange]
+    [attribute, disableTransitionOnChange],
   );
 
   // Apply theme on mount and when resolvedTheme changes
@@ -122,7 +122,7 @@ export function ThemeProvider({
     if (!enableSystem || typeof window === "undefined") return;
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    
+
     const handleSystemThemeChange = (e: MediaQueryListEvent) => {
       setSystemTheme(e.matches ? "dark" : "light");
     };
@@ -137,7 +137,7 @@ export function ThemeProvider({
   // Hydration effect - apply theme immediately on client
   React.useEffect(() => {
     setIsMounted(true);
-    
+
     // Immediately apply the correct theme on hydration
     const currentTheme = theme === "system" ? systemTheme : theme;
     applyTheme(currentTheme);
@@ -167,7 +167,7 @@ export function ThemeProvider({
 
     // Only add if not already present
     if (!document.querySelector(`script[data-theme-script]`)) {
-      script.setAttribute('data-theme-script', 'true');
+      script.setAttribute("data-theme-script", "true");
       document.head.appendChild(script);
     }
   }, [storageKey, defaultTheme]);
@@ -179,7 +179,7 @@ export function ThemeProvider({
       resolvedTheme: isMounted ? resolvedTheme : undefined,
       systemTheme: isMounted ? systemTheme : undefined,
     }),
-    [theme, setTheme, resolvedTheme, systemTheme, isMounted]
+    [theme, setTheme, resolvedTheme, systemTheme, isMounted],
   );
 
   return (

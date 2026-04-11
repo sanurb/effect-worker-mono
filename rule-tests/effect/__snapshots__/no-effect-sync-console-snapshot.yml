@@ -3,21 +3,21 @@ snapshots:
   ? |
     Effect.sync(() => console.error("failed"));
   : labels:
-    - source: Effect.sync(() => console.error("failed"))
-      style: primary
-      start: 0
-      end: 42
+      - source: Effect.sync(() => console.error("failed"))
+        style: primary
+        start: 0
+        end: 42
   ? |
     Effect.sync(() => console.log("processing", userId));
   : labels:
-    - source: Effect.sync(() => console.log("processing", userId))
-      style: primary
-      start: 0
-      end: 52
+      - source: Effect.sync(() => console.log("processing", userId))
+        style: primary
+        start: 0
+        end: 52
   ? |
     Effect.sync(() => { console.warn("deprecated") });
   : labels:
-    - source: Effect.sync(() => { console.warn("deprecated") })
-      style: primary
-      start: 0
-      end: 49
+      - source: Effect.sync(() => { console.warn("deprecated") })
+        style: primary
+        start: 0
+        end: 49

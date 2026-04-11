@@ -7,31 +7,30 @@
  *
  * @module
  */
-import { Effect, ServiceMap } from "effect"
+import { Effect, ServiceMap } from "effect";
 
 /**
  * ExecutionContext interface for Cloudflare Workers.
  */
 export interface WorkerExecutionContext {
-  waitUntil(promise: Promise<unknown>): void
-  passThroughOnException(): void
+  waitUntil(promise: Promise<unknown>): void;
+  passThroughOnException(): void;
 }
 
 /**
  * Reference holding the current request's Cloudflare environment bindings.
  */
-export const currentEnv = ServiceMap.Reference<unknown>(
-  "@repo/cloudflare/currentEnv",
-  { defaultValue: () => null }
-)
+export const currentEnv = ServiceMap.Reference<unknown>("@repo/cloudflare/currentEnv", {
+  defaultValue: () => null,
+});
 
 /**
  * Reference holding the current request's ExecutionContext.
  */
 export const currentCtx = ServiceMap.Reference<WorkerExecutionContext | null>(
   "@repo/cloudflare/currentCtx",
-  { defaultValue: () => null }
-)
+  { defaultValue: () => null },
+);
 
 /**
  * Set Cloudflare bindings for the scope of an effect.
@@ -54,12 +53,10 @@ export const currentCtx = ServiceMap.Reference<WorkerExecutionContext | null>(
  * )
  * ```
  */
-export const withCloudflareBindings = (env: unknown, ctx: WorkerExecutionContext) =>
+export const withCloudflareBindings =
+  (env: unknown, ctx: WorkerExecutionContext) =>
   <A, E, R>(effect: Effect.Effect<A, E, R>) =>
-    effect.pipe(
-      Effect.provideService(currentEnv, env),
-      Effect.provideService(currentCtx, ctx)
-    )
+    effect.pipe(Effect.provideService(currentEnv, env), Effect.provideService(currentCtx, ctx));
 
 /**
  * Schedule a background task that runs after the response is sent.
@@ -67,19 +64,17 @@ export const withCloudflareBindings = (env: unknown, ctx: WorkerExecutionContext
  * Uses ctx.waitUntil() to keep the Worker alive while the effect runs.
  * Errors are logged but don't affect the response.
  */
-export const waitUntil = <A, E>(
-  effect: Effect.Effect<A, E>
-): Effect.Effect<void> =>
+export const waitUntil = <A, E>(effect: Effect.Effect<A, E>): Effect.Effect<void> =>
   Effect.gen(function* () {
-    const ctx = yield* currentCtx
-    if (ctx === null) return
-    const services = yield* Effect.services<never>()
+    const ctx = yield* currentCtx;
+    if (ctx === null) return;
+    const services = yield* Effect.services<never>();
     ctx.waitUntil(
       Effect.runPromiseWith(services)(
         effect.pipe(
           Effect.tapCause(Effect.logError),
-          Effect.catch(() => Effect.void)
-        )
-      )
-    )
-  })
+          Effect.catch(() => Effect.void),
+        ),
+      ),
+    );
+  });

@@ -3,22 +3,22 @@ snapshots:
   ? |
     Effect.catchAll((error) => Effect.succeed({ ok: false }));
   : labels:
-    - source: 'Effect.catchAll((error) => Effect.succeed({ ok: false }))'
-      style: primary
-      start: 0
-      end: 57
-    - source: 'Effect.succeed({ ok: false })'
-      style: secondary
-      start: 27
-      end: 56
+      - source: "Effect.catchAll((error) => Effect.succeed({ ok: false }))"
+        style: primary
+        start: 0
+        end: 57
+      - source: "Effect.succeed({ ok: false })"
+        style: secondary
+        start: 27
+        end: 56
   ? |
     program.pipe(Effect.catchAll(() => Effect.succeed([])));
   : labels:
-    - source: Effect.catchAll(() => Effect.succeed([]))
-      style: primary
-      start: 13
-      end: 54
-    - source: Effect.succeed([])
-      style: secondary
-      start: 35
-      end: 53
+      - source: Effect.catchAll(() => Effect.succeed([]))
+        style: primary
+        start: 13
+        end: 54
+      - source: Effect.succeed([])
+        style: secondary
+        start: 35
+        end: 53

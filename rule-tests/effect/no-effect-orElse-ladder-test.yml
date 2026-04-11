@@ -2,21 +2,21 @@ id: no-effect-orElse-ladder
 
 valid:
   - |
-      pipe(
-        getUser(id),
-        Effect.flatMap(validateUser),
-        Effect.catchTag("NotFound", () => Effect.fail(new NotFoundError()))
-      );
+    pipe(
+      getUser(id),
+      Effect.flatMap(validateUser),
+      Effect.catchTag("NotFound", () => Effect.fail(new NotFoundError()))
+    );
 
 invalid:
   - |
-      pipe(
-        getUser(id),
-        Effect.flatMap(validateUser),
-        Effect.orElse(() => Effect.fail(new NotFoundError()))
-      );
+    pipe(
+      getUser(id),
+      Effect.flatMap(validateUser),
+      Effect.orElse(() => Effect.fail(new NotFoundError()))
+    );
   - |
-      effect.pipe(
-        Effect.map(transform),
-        Effect.orElse(() => fallback)
-      );
+    effect.pipe(
+      Effect.map(transform),
+      Effect.orElse(() => fallback)
+    );

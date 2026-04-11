@@ -2,23 +2,23 @@ id: no-return-in-arrow
 
 valid:
   - |
-      Effect.flatMap(effect, (user) => Effect.succeed(user.name.trim()));
+    Effect.flatMap(effect, (user) => Effect.succeed(user.name.trim()));
   - |
-      Effect.map(effect, (user) => user.name.trim());
+    Effect.map(effect, (user) => user.name.trim());
   - |
-      const users = [1, 2, 3].map((x) => x * 2);
+    const users = [1, 2, 3].map((x) => x * 2);
 
 invalid:
   - |
-      Effect.flatMap(effect, (user) => {
-        const name = user.name.trim();
-        return Effect.succeed(name);
-      });
+    Effect.flatMap(effect, (user) => {
+      const name = user.name.trim();
+      return Effect.succeed(name);
+    });
   - |
-      Effect.map(effect, (user) => {
-        return user.name.trim();
-      });
+    Effect.map(effect, (user) => {
+      return user.name.trim();
+    });
   - |
-      const fn = (x: number) => {
-        return x * 2;
-      };
+    const fn = (x: number) => {
+      return x * 2;
+    };

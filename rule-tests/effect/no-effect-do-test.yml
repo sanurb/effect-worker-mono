@@ -2,16 +2,16 @@ id: no-effect-do
 
 valid:
   - |
-      Effect.gen(function*() {
-        const user = yield* getUser(id);
-        const posts = yield* getPosts(user.id);
-        return { user, posts };
-      });
+    Effect.gen(function*() {
+      const user = yield* getUser(id);
+      const posts = yield* getPosts(user.id);
+      return { user, posts };
+    });
 
 invalid:
   - |
-      Effect.Do.pipe(
-        Effect.bind("user", () => getUser(id))
-      );
+    Effect.Do.pipe(
+      Effect.bind("user", () => getUser(id))
+    );
   - |
-      const program = Effect.Do;
+    const program = Effect.Do;

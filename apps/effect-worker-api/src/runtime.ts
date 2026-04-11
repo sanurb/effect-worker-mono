@@ -1,3 +1,5 @@
+import { makeObservabilityLayer } from "@repo/cloudflare";
+import { WorkerApi } from "@repo/contracts";
 /**
  * Effect Runtime Configuration
  *
@@ -5,13 +7,12 @@
  *
  * @module
  */
-import { Layer } from "effect"
-import { HttpRouter, HttpServer } from "effect/unstable/http"
-import { HttpApiBuilder } from "effect/unstable/httpapi"
-import { WorkerApi } from "@repo/contracts"
-import { makeObservabilityLayer } from "@repo/cloudflare"
-import { HttpGroupsLive } from "@/handlers"
-import { MiddlewareLive } from "@/services"
+import { Layer } from "effect";
+import { HttpRouter, HttpServer } from "effect/unstable/http";
+import { HttpApiBuilder } from "effect/unstable/httpapi";
+
+import { HttpGroupsLive } from "@/handlers";
+import { MiddlewareLive } from "@/services";
 
 // ============================================================================
 // Observability
@@ -23,8 +24,7 @@ import { MiddlewareLive } from "@/services"
  * Layer construction is memoized by HttpRouter.toWebHandler, so we keep
  * the runtime configuration static at module load.
  */
-const ObservabilityLive = makeObservabilityLayer()
-
+const ObservabilityLive = makeObservabilityLayer();
 
 /**
  * API routes layer.
@@ -33,11 +33,8 @@ const ObservabilityLive = makeObservabilityLayer()
  * The openapiPath option automatically serves the OpenAPI spec.
  */
 const ApiRoutes = HttpApiBuilder.layer(WorkerApi, {
-  openapiPath: "/api/openapi.json"
-}).pipe(
-  Layer.provide(HttpGroupsLive),
-  Layer.provide(MiddlewareLive)
-)
+  openapiPath: "/api/openapi.json",
+}).pipe(Layer.provide(HttpGroupsLive), Layer.provide(MiddlewareLive));
 
 /**
  * Web handler created from the API routes.
@@ -47,8 +44,5 @@ const ApiRoutes = HttpApiBuilder.layer(WorkerApi, {
  * parameter of the handler function.
  */
 export const { handler, dispose } = HttpRouter.toWebHandler(
-  ApiRoutes.pipe(
-    Layer.provide(HttpServer.layerServices),
-    Layer.provide(ObservabilityLive)
-  )
-)
+  ApiRoutes.pipe(Layer.provide(HttpServer.layerServices), Layer.provide(ObservabilityLive)),
+);

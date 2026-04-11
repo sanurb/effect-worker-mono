@@ -2,14 +2,14 @@ id: prevent-dynamic-imports
 
 valid:
   - |
-      import { findUser } from "./queries/users";
+    import { findUser } from "./queries/users";
   - |
-      import { Effect, pipe } from "effect";
+    import { Effect, pipe } from "effect";
 
 invalid:
   - |
-      const module = await import("./heavy-module");
+    const module = await import("./heavy-module");
   - |
-      const { fn } = await import("./utils");
+    const { fn } = await import("./utils");
   - |
-      import("./lazy-feature").then(m => m.init());
+    import("./lazy-feature").then(m => m.init());

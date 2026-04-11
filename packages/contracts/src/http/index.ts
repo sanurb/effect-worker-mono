@@ -5,6 +5,6 @@
  *
  * @module
  */
-export { WorkerApi } from "./api"
-export * from "./groups"
-export * from "./middleware"
+export { WorkerApi } from "./api";
+export * from "./groups";
+export * from "./middleware";

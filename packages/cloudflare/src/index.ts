@@ -15,13 +15,9 @@ export {
   currentCtx,
   withCloudflareBindings,
   waitUntil,
-  type WorkerExecutionContext
-} from "./bindings"
+  type WorkerExecutionContext,
+} from "./bindings";
 
-export {
-  CloudflareBindings,
-  makeBindingsMiddleware,
-  makeDatabaseMiddleware
-} from "./middleware"
+export { CloudflareBindings, makeBindingsMiddleware, makeDatabaseMiddleware } from "./middleware";
 
-export * from "./observability"
+export * from "./observability";

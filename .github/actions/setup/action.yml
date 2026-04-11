@@ -1,5 +1,5 @@
 name: Setup
-description: Perform standard setup and install dependencies using pnpm.
+description: Install pnpm, Node.js, Vite+ (`vp`), and project dependencies via `vp install`.
 inputs:
   node-version:
     description: The version of Node.js to install
@@ -9,13 +9,20 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Install pnpm
+    - name: Install pnpm CLI
+      # pnpm itself is still needed as a CLI for tools Vite+ does not wrap
+      # (`pnpm sg:check`, `pnpm -r run check`, `pnpm build`).
       uses: pnpm/action-setup@v3
-    - name: Install node
+    - name: Install Node.js
       uses: actions/setup-node@v4
       with:
         cache: pnpm
         node-version: ${{ inputs.node-version }}
-    - name: Install dependencies
+    - name: Install Vite+ (vp)
+      uses: voidzero-dev/setup-vp@v1
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: true
+    - name: Install dependencies via Vite+
       shell: bash
-      run: pnpm install
+      run: vp install

@@ -16,9 +16,6 @@
       "@repo/domain/*": ["../../packages/domain/src/*"]
     }
   },
-  "include": [
-    "src/**/*",
-    "worker-configuration.d.ts"
-  ],
+  "include": ["src/**/*", "worker-configuration.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

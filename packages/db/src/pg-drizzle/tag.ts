@@ -1,3 +1,4 @@
+import type { PgRemoteDatabase } from "drizzle-orm/pg-proxy";
 /**
  * PgDrizzle Service Tag
  *
@@ -8,13 +9,11 @@
  *
  * @module
  */
-import { ServiceMap } from "effect"
-import type { PgRemoteDatabase } from "drizzle-orm/pg-proxy"
+import { ServiceMap } from "effect";
 
 /**
  * PgDrizzle service tag — provides a Drizzle PgRemoteDatabase instance.
  */
-export class PgDrizzle extends ServiceMap.Service<
-  PgDrizzle,
-  PgRemoteDatabase
->()("@repo/db/PgDrizzle") {}
+export class PgDrizzle extends ServiceMap.Service<PgDrizzle, PgRemoteDatabase>()(
+  "@repo/db/PgDrizzle",
+) {}

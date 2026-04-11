@@ -2,18 +2,18 @@ id: no-string-sentinel-return
 
 valid:
   - |
-      Effect.succeed({ status: "ok" });
+    Effect.succeed({ status: "ok" });
   - |
-      Effect.succeed(42);
+    Effect.succeed(42);
   - |
-      Effect.succeed(Option.none());
+    Effect.succeed(Option.none());
   - |
-      Effect.fail(new UserNotFoundError({ id }));
+    Effect.fail(new UserNotFoundError({ id }));
 
 invalid:
   - |
-      Effect.succeed("ok");
+    Effect.succeed("ok");
   - |
-      return Effect.succeed("not_found");
+    return Effect.succeed("not_found");
   - |
-      return Effect.succeed("success");
+    return Effect.succeed("success");

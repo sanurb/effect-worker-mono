@@ -2,13 +2,13 @@ id: no-dynamic-import
 
 valid:
   - |
-      import { UserSchema } from "@repo/domain";
-      export const schema = UserSchema;
+    import { UserSchema } from "@repo/domain";
+    export const schema = UserSchema;
   - |
-      const loader = () => Promise.resolve(moduleFactory);
+    const loader = () => Promise.resolve(moduleFactory);
 
 invalid:
   - |
-      const module = await import("./module");
+    const module = await import("./module");
   - |
-      const page = lazy(() => import("./heavy"));
+    const page = lazy(() => import("./heavy"));

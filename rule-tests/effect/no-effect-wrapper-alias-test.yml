@@ -2,16 +2,16 @@ id: no-effect-wrapper-alias
 
 valid:
   - |
-      const findAndTransform = Effect.fn("findAndTransform")((id: UserId) =>
-        pipe(getUser(id), Effect.map(transform))
-      );
+    const findAndTransform = Effect.fn("findAndTransform")((id: UserId) =>
+      pipe(getUser(id), Effect.map(transform))
+    );
   - |
-      pipe(getUser(id), Effect.map(transform), Effect.flatMap(save));
+    pipe(getUser(id), Effect.map(transform), Effect.flatMap(save));
 
 invalid:
   - |
-      const withUser = pipe(getUser(id), Effect.map(transform));
+    const withUser = pipe(getUser(id), Effect.map(transform));
   - |
-      const wrappedOp = () => pipe(getUsers(), Effect.flatMap(process));
+    const wrappedOp = () => pipe(getUsers(), Effect.flatMap(process));
   - |
-      const handler = (id: string) => pipe(findUser(id), Effect.flatMap(validate));
+    const handler = (id: string) => pipe(findUser(id), Effect.flatMap(validate));

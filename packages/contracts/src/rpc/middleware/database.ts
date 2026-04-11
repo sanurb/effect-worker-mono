@@ -1,3 +1,5 @@
+import type { PgDrizzle } from "@repo/db/pg-drizzle/tag";
+import { DatabaseConnectionError } from "@repo/domain";
 /**
  * Database RPC Middleware Tag
  *
@@ -6,9 +8,7 @@
  *
  * @module
  */
-import { RpcMiddleware } from "effect/unstable/rpc"
-import { PgDrizzle } from "@repo/db/pg-drizzle/tag"
-import { DatabaseConnectionError } from "@repo/domain"
+import { RpcMiddleware } from "effect/unstable/rpc";
 
 /**
  * Middleware that provides PgDrizzle to RPC handlers.
@@ -34,5 +34,5 @@ export class RpcDatabaseMiddleware extends RpcMiddleware.Service<
   { provides: PgDrizzle }
 >()("@repo/rpc/RpcDatabaseMiddleware", {
   error: DatabaseConnectionError,
-  requiredForClient: false
+  requiredForClient: false,
 }) {}

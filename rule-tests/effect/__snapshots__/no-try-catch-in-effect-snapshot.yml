@@ -9,23 +9,23 @@ snapshots:
       }
     });
   : labels:
-    - source: |-
-        try {
-            return riskyOperation();
-          } catch (error) {
-            return fallback;
-          }
-      style: primary
-      start: 28
-      end: 107
-    - source: |-
-        Effect.gen(function* () {
+      - source: |-
           try {
-            return riskyOperation();
-          } catch (error) {
-            return fallback;
-          }
-        })
-      style: secondary
-      start: 0
-      end: 110
+              return riskyOperation();
+            } catch (error) {
+              return fallback;
+            }
+        style: primary
+        start: 28
+        end: 107
+      - source: |-
+          Effect.gen(function* () {
+            try {
+              return riskyOperation();
+            } catch (error) {
+              return fallback;
+            }
+          })
+        style: secondary
+        start: 0
+        end: 110

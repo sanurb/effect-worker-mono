@@ -1,3 +1,6 @@
+import { UserSchema, UserIdPathSchema, CreateUserSchema } from "@repo/domain";
+import { UserCreationError, UserNotFoundError } from "@repo/domain";
+import { Schema as S } from "effect";
 /**
  * Users Endpoint Definition
  *
@@ -6,24 +9,18 @@
  *
  * @module
  */
-import { HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi"
-import { Schema as S } from "effect"
-import {
-  UserSchema,
-  UserIdPathSchema,
-  CreateUserSchema
-} from "@repo/domain"
-import { UserCreationError, UserNotFoundError } from "@repo/domain"
-import { DatabaseMiddleware } from "../../middleware"
+import { HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi";
+
+import { DatabaseMiddleware } from "../../middleware";
 
 /**
  * Users list response schema.
  */
 export const UsersListSchema = S.Struct({
   users: S.Array(UserSchema),
-  total: S.Number
-})
-export type UsersList = typeof UsersListSchema.Type
+  total: S.Number,
+});
+export type UsersList = typeof UsersListSchema.Type;
 
 /**
  * Users endpoint group definition.
@@ -36,15 +33,15 @@ export const UsersGroup = HttpApiGroup.make("users")
     HttpApiEndpoint.get("get", "/:id", {
       params: { id: UserIdPathSchema.fields.id },
       success: UserSchema,
-      error: UserNotFoundError
-    })
+      error: UserNotFoundError,
+    }),
   )
   .add(
     HttpApiEndpoint.post("create", "/", {
       payload: CreateUserSchema,
       success: UserSchema,
-      error: UserCreationError
-    })
+      error: UserCreationError,
+    }),
   )
   .middleware(DatabaseMiddleware)
-  .prefix("/users")
+  .prefix("/users");

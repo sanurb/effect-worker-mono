@@ -1,49 +1,33 @@
-import * as React from "react"
-import { useMutation } from "@tanstack/react-query"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import {
-  Loader2,
-  Zap,
-  CheckCircle,
-  AlertCircle,
-  Code2,
-  Server,
-} from "lucide-react"
-import { greetingFunction } from "@/server/functions/example-effect-function"
+import { useMutation } from "@tanstack/react-query";
+import { Loader2, Zap, CheckCircle, AlertCircle, Code2, Server } from "lucide-react";
+import * as React from "react";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { greetingFunction } from "@/server/functions/example-effect-function";
 
 type GreetingResult = {
-  message: string
-  timestamp: string
-}
+  message: string;
+  timestamp: string;
+};
 
 export function EffectDemo() {
-  const [name, setName] = React.useState("World")
+  const [name, setName] = React.useState("World");
 
   const mutation = useMutation({
-    mutationFn: (input: { name: string }) =>
-      greetingFunction({ data: input }),
-  })
+    mutationFn: (input: { name: string }) => greetingFunction({ data: input }),
+  });
 
   const handleSubmit = () => {
-    mutation.mutate({ name })
-  }
+    mutation.mutate({ name });
+  };
 
-  const result = mutation.data as GreetingResult | undefined
+  const result = mutation.data as GreetingResult | undefined;
 
   return (
-    <section
-      id="effect-demo"
-      className="py-24 bg-gradient-to-b from-background to-muted/20"
-    >
+    <section id="effect-demo" className="py-24 bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <Badge variant="outline" className="mb-4">
@@ -54,8 +38,8 @@ export function EffectDemo() {
             Effect Server Functions
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Type-safe server functions powered by Effect-TS with schema validation
-            and composable pipelines.
+            Type-safe server functions powered by Effect-TS with schema validation and composable
+            pipelines.
           </p>
         </div>
 
@@ -68,16 +52,11 @@ export function EffectDemo() {
                   <Server className="w-5 h-5 mr-2 text-primary" />
                   Server Function
                 </CardTitle>
-                <CardDescription>
-                  Call an Effect server function via TanStack Query
-                </CardDescription>
+                <CardDescription>Call an Effect server function via TanStack Query</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label
-                    htmlFor="name-input"
-                    className="block text-sm font-medium mb-2"
-                  >
+                  <label htmlFor="name-input" className="block text-sm font-medium mb-2">
                     Your Name
                   </label>
                   <input
@@ -125,8 +104,7 @@ export function EffectDemo() {
                   <Alert className="border-red-200 bg-red-50 dark:bg-red-950/20">
                     <AlertCircle className="w-4 h-4 text-red-600" />
                     <AlertDescription className="text-red-800 dark:text-red-200">
-                      <strong>Error:</strong>{" "}
-                      {mutation.error?.message || "Something went wrong"}
+                      <strong>Error:</strong> {mutation.error?.message || "Something went wrong"}
                     </AlertDescription>
                   </Alert>
                 )}
@@ -140,14 +118,12 @@ export function EffectDemo() {
                   <Code2 className="w-5 h-5 mr-2 text-primary" />
                   Server Code
                 </CardTitle>
-                <CardDescription>
-                  Effect server function with schema validation
-                </CardDescription>
+                <CardDescription>Effect server function with schema validation</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="rounded-lg bg-muted p-4 font-mono text-xs overflow-x-auto">
                   <pre className="text-muted-foreground">
-{`export const greetingFunction = effectFunction
+                    {`export const greetingFunction = effectFunction
   .inputValidator(validateWith(Schema))
   .handler(async ({ data, context }) => {
     return context.runEffect(
@@ -170,8 +146,8 @@ export function EffectDemo() {
                 <div className="mt-4 text-sm text-muted-foreground">
                   <p className="mb-2">
                     <strong>API Route:</strong> See{" "}
-                    <code className="bg-muted px-1 rounded">/api/process</code> for
-                    a REST API example using the same Effect pattern.
+                    <code className="bg-muted px-1 rounded">/api/process</code> for a REST API
+                    example using the same Effect pattern.
                   </p>
                 </div>
               </CardContent>
@@ -180,5 +156,5 @@ export function EffectDemo() {
         </div>
       </div>
     </section>
-  )
+  );
 }

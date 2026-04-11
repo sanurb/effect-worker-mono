@@ -3,14 +3,14 @@ snapshots:
   ? |
     <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20" />
   : labels:
-    - source: border-green-200 bg-green-50 dark:bg-green-950/20
-      style: primary
-      start: 18
-      end: 67
+      - source: border-green-200 bg-green-50 dark:bg-green-950/20
+        style: primary
+        start: 18
+        end: 67
   ? |
     <div className="bg-red-500 text-white border-gray-200" />
   : labels:
-    - source: bg-red-500 text-white border-gray-200
-      style: primary
-      start: 16
-      end: 53
+      - source: bg-red-500 text-white border-gray-200
+        style: primary
+        start: 16
+        end: 53

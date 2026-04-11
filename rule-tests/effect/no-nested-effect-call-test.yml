@@ -2,14 +2,14 @@ id: no-nested-effect-call
 
 valid:
   - |
-      Effect.gen(function*() {
-        const a = yield* Effect.succeed(value);
-        const b = fn1(a);
-        return yield* fn2(b);
-      });
+    Effect.gen(function*() {
+      const a = yield* Effect.succeed(value);
+      const b = fn1(a);
+      return yield* fn2(b);
+    });
 
 invalid:
   - |
-      Effect.flatMap(Effect.map(Effect.succeed(value), fn1), fn2);
+    Effect.flatMap(Effect.map(Effect.succeed(value), fn1), fn2);
   - |
-      Effect.andThen(Effect.flatMap(Effect.succeed(x), f1), f2);
+    Effect.andThen(Effect.flatMap(Effect.succeed(x), f1), f2);

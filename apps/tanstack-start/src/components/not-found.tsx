@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Home, Search, FileQuestion } from "lucide-react";
+import type { ReactNode } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-export function NotFound({ children }: { children?: any }) {
+export function NotFound({ children }: { children?: ReactNode }) {
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -16,22 +18,16 @@ export function NotFound({ children }: { children?: any }) {
 
             {/* Heading */}
             <div className="space-y-2">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Page Not Found
-              </h1>
+              <h1 className="text-2xl font-semibold tracking-tight">Page Not Found</h1>
               <div className="text-muted-foreground">
-                {children || (
-                  <p>
-                    The page you're looking for doesn't exist or has been moved.
-                  </p>
-                )}
+                {children || <p>The page you're looking for doesn't exist or has been moved.</p>}
               </div>
             </div>
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <Button 
-                variant="default" 
+              <Button
+                variant="default"
                 onClick={() => window.history.back()}
                 className="flex items-center gap-2"
               >
@@ -50,9 +46,7 @@ export function NotFound({ children }: { children?: any }) {
             <div className="pt-4 border-t w-full">
               <div className="flex items-center gap-2 text-sm text-muted-foreground justify-center">
                 <Search className="h-4 w-4" />
-                <span>
-                  Try checking the URL or use the search functionality
-                </span>
+                <span>Try checking the URL or use the search functionality</span>
               </div>
             </div>
           </div>

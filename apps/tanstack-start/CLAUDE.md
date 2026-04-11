@@ -5,12 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ### Development
+
 - `pnpm dev` - Start development server on port 3000
 - `pnpm build` - Build for production
 - `pnpm serve` - Preview production build
 - `pnpm test` - Run tests with Vitest
 
 ### Shadcn Components
+
 - `pnpx shadcn@latest add <component>` - Add new Shadcn components (use latest version)
 
 ## Architecture
@@ -18,6 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a TanStack Start application - a type-safe, client-first, full-stack React framework built on top of:
 
 ### Core Stack
+
 - **TanStack Router**: File-based routing with type-safe navigation
 - **TanStack Query**: Server state management with SSR integration
 - **React 19**: Latest React with concurrent features
@@ -26,8 +29,9 @@ This is a TanStack Start application - a type-safe, client-first, full-stack Rea
 - **Tailwind CSS v4**: Utility-first styling with CSS variables
 
 ### Project Structure
+
 - `src/routes/` - File-based routes (auto-generates `routeTree.gen.ts`)
-- `src/components/` - Reusable React components  
+- `src/components/` - Reusable React components
 - `src/integrations/tanstack-query/` - Query client setup and providers
 - `src/lib/utils.ts` - Utility functions (includes clsx/tailwind-merge)
 - `src/utils/seo.ts` - SEO helper functions
@@ -46,6 +50,7 @@ This is a TanStack Start application - a type-safe, client-first, full-stack Rea
 **TypeScript**: Strict mode with additional linting rules (`noUnusedLocals`, `noUnusedParameters`, etc.). Uses modern ESNext module resolution.
 
 ### Development Notes
+
 - Demo files (prefixed with `demo`) can be safely deleted
 - The project uses pnpm as the package manager
 - Devtools are included for both Router and Query in development

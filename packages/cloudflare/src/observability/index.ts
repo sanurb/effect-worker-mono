@@ -4,7 +4,7 @@
  * @module
  */
 
-export * from "./TraceRecord"
-export * from "./Tracer"
-export * from "./Logger"
-export * from "./Observability"
+export * from "./TraceRecord";
+export * from "./Tracer";
+export * from "./Logger";
+export * from "./Observability";

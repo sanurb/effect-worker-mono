@@ -5,7 +5,7 @@
  *
  * @module
  */
-import { Schema as S } from "effect"
+import { Schema as S } from "effect";
 
 /**
  * Generic error returned when a resource or route is not found.
@@ -16,9 +16,9 @@ export class NotFoundError extends S.TaggedErrorClass<NotFoundError>()(
   "NotFoundError",
   {
     path: S.String,
-    message: S.String
+    message: S.String,
   },
-  { httpApiStatus: 404 }
+  { httpApiStatus: 404 },
 ) {}
 
 /**
@@ -30,9 +30,9 @@ export class ValidationError extends S.TaggedErrorClass<ValidationError>()(
   "ValidationError",
   {
     message: S.String,
-    errors: S.Array(S.String)
+    errors: S.Array(S.String),
   },
-  { httpApiStatus: 400 }
+  { httpApiStatus: 400 },
 ) {}
 
 /**
@@ -43,7 +43,7 @@ export class ValidationError extends S.TaggedErrorClass<ValidationError>()(
 export class CloudflareBindingsError extends S.TaggedErrorClass<CloudflareBindingsError>()(
   "CloudflareBindingsError",
   { message: S.String },
-  { httpApiStatus: 500 }
+  { httpApiStatus: 500 },
 ) {}
 
 /**
@@ -54,5 +54,5 @@ export class CloudflareBindingsError extends S.TaggedErrorClass<CloudflareBindin
 export class DatabaseConnectionError extends S.TaggedErrorClass<DatabaseConnectionError>()(
   "DatabaseConnectionError",
   { message: S.String },
-  { httpApiStatus: 503 }
+  { httpApiStatus: 503 },
 ) {}

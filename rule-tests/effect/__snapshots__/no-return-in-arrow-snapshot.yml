@@ -6,69 +6,69 @@ snapshots:
       return Effect.succeed(name);
     });
   : labels:
-    - source: |-
-        (user) => {
-          const name = user.name.trim();
-          return Effect.succeed(name);
-        }
-      style: primary
-      start: 23
-      end: 100
-    - source: return Effect.succeed(name);
-      style: secondary
-      start: 70
-      end: 98
-    - source: |-
-        {
-          const name = user.name.trim();
-          return Effect.succeed(name);
-        }
-      style: secondary
-      start: 33
-      end: 100
+      - source: |-
+          (user) => {
+            const name = user.name.trim();
+            return Effect.succeed(name);
+          }
+        style: primary
+        start: 23
+        end: 100
+      - source: return Effect.succeed(name);
+        style: secondary
+        start: 70
+        end: 98
+      - source: |-
+          {
+            const name = user.name.trim();
+            return Effect.succeed(name);
+          }
+        style: secondary
+        start: 33
+        end: 100
   ? |
     Effect.map(effect, (user) => {
       return user.name.trim();
     });
   : labels:
-    - source: |-
-        (user) => {
-          return user.name.trim();
-        }
-      style: primary
-      start: 19
-      end: 59
-    - source: return user.name.trim();
-      style: secondary
-      start: 33
-      end: 57
-    - source: |-
-        {
-          return user.name.trim();
-        }
-      style: secondary
-      start: 29
-      end: 59
+      - source: |-
+          (user) => {
+            return user.name.trim();
+          }
+        style: primary
+        start: 19
+        end: 59
+      - source: return user.name.trim();
+        style: secondary
+        start: 33
+        end: 57
+      - source: |-
+          {
+            return user.name.trim();
+          }
+        style: secondary
+        start: 29
+        end: 59
   ? |
     const fn = (x: number) => {
       return x * 2;
     };
   : labels:
-    - source: |-
-        (x: number) => {
-          return x * 2;
-        }
-      style: primary
-      start: 11
-      end: 45
-    - source: return x * 2;
-      style: secondary
-      start: 30
-      end: 43
-    - source: |-
-        {
-          return x * 2;
-        }
-      style: secondary
-      start: 26
-      end: 45
+      - source: |-
+          (x: number) => {
+            return x * 2;
+          }
+        style: primary
+        start: 11
+        end: 45
+      - source: return x * 2;
+        style: secondary
+        start: 30
+        end: 43
+      - source: |-
+          {
+            return x * 2;
+          }
+        style: secondary
+        start: 26
+        end: 45

@@ -2,24 +2,24 @@ id: no-await-in-gen
 
 valid:
   - |
-      Effect.gen(function*() {
-        const data = yield* Effect.tryPromise({
-          try: () => fetch(url).then(r => r.json()),
-          catch: (e) => new NetworkError({ cause: e }),
-        });
+    Effect.gen(function*() {
+      const data = yield* Effect.tryPromise({
+        try: () => fetch(url).then(r => r.json()),
+        catch: (e) => new NetworkError({ cause: e }),
       });
+    });
   - |
-      // await outside Effect.gen is fine (at runtime boundary)
-      async function main() {
-        const result = await Effect.runPromise(myEffect);
-      }
+    // await outside Effect.gen is fine (at runtime boundary)
+    async function main() {
+      const result = await Effect.runPromise(myEffect);
+    }
 
 invalid:
   - |
-      Effect.gen(function*() {
-        const data = await fetch(url);
-      });
+    Effect.gen(function*() {
+      const data = await fetch(url);
+    });
   - |
-      Effect.gen(function*() {
-        const result = await Promise.resolve(42);
-      });
+    Effect.gen(function*() {
+      const result = await Promise.resolve(42);
+    });

@@ -1,3 +1,5 @@
+import { makeObservabilityLayer } from "@repo/cloudflare";
+import { UsersRpc } from "@repo/contracts";
 /**
  * RPC Runtime Configuration
  *
@@ -5,13 +7,12 @@
  *
  * @module
  */
-import { Layer } from "effect"
-import { HttpRouter, HttpServer } from "effect/unstable/http"
-import { RpcServer, RpcSerialization } from "effect/unstable/rpc"
-import { UsersRpc } from "@repo/contracts"
-import { makeObservabilityLayer } from "@repo/cloudflare"
-import { UsersRpcHandlersLive } from "@/handlers"
-import { RpcMiddlewareLive } from "@/services"
+import { Layer } from "effect";
+import { HttpRouter, HttpServer } from "effect/unstable/http";
+import { RpcServer, RpcSerialization } from "effect/unstable/rpc";
+
+import { UsersRpcHandlersLive } from "@/handlers";
+import { RpcMiddlewareLive } from "@/services";
 
 // ============================================================================
 // Observability
@@ -23,8 +24,7 @@ import { RpcMiddlewareLive } from "@/services"
  * Layer construction is memoized by HttpRouter.toWebHandler, so we keep
  * the runtime configuration static at module load.
  */
-const ObservabilityLive = makeObservabilityLayer()
-
+const ObservabilityLive = makeObservabilityLayer();
 
 // ============================================================================
 // Layer Composition
@@ -37,8 +37,8 @@ const ObservabilityLive = makeObservabilityLayer()
  * We provide RpcSerialization here; HttpRouter is provided by toWebHandler.
  */
 const ProtocolLayer = RpcServer.layerProtocolHttp({ path: "/rpc" }).pipe(
-  Layer.provide(RpcSerialization.layerNdjson)
-)
+  Layer.provide(RpcSerialization.layerNdjson),
+);
 
 /**
  * Full RPC routes layer.
@@ -50,8 +50,8 @@ const ProtocolLayer = RpcServer.layerProtocolHttp({ path: "/rpc" }).pipe(
 const RpcRoutes = RpcServer.layer(UsersRpc).pipe(
   Layer.provide(UsersRpcHandlersLive),
   Layer.provide(RpcMiddlewareLive),
-  Layer.provide(ProtocolLayer)
-)
+  Layer.provide(ProtocolLayer),
+);
 
 /**
  * Web handler for RPC requests.
@@ -60,8 +60,5 @@ const RpcRoutes = RpcServer.layer(UsersRpc).pipe(
  * Per-request services (env/ctx) are passed via the ServiceMap context.
  */
 export const { handler: rpcHandler, dispose } = HttpRouter.toWebHandler(
-  RpcRoutes.pipe(
-    Layer.provide(HttpServer.layerServices),
-    Layer.provide(ObservabilityLive)
-  )
-)
+  RpcRoutes.pipe(Layer.provide(HttpServer.layerServices), Layer.provide(ObservabilityLive)),
+);

@@ -21,9 +21,10 @@ Run this loop for every feature, fix, or refactor:
 2. **Implement** the change.
 3. **Validate** with the fast gate and then the full sequence:
    ```bash
-   pnpm check:all   # lint + ast-grep + format
-   pnpm check       # tsc
-   pnpm test        # vitest
+   vp check          # vp fmt + vp lint + type-aware lint
+   pnpm sg:check     # ast-grep architecture rules (not wrapped by Vite+)
+   pnpm -r run check # tsgo type check across all packages
+   vp test           # vitest via Vite+
    ```
 4. **Capture** what you learned: update a doc, add a test, or add a lint rule.
 5. **Promote** repeated guidance into mechanical enforcement (see below).
@@ -32,12 +33,12 @@ Run this loop for every feature, fix, or refactor:
 
 When a mistake repeats, move the advice into a stronger guardrail. Use this ladder:
 
-| Recurrence | Response |
-|------------|----------|
-| First time | Fix inline, add a doc note |
-| Second time | Document explicitly in `docs/agents/patterns/` |
-| Third time | Add an ast-grep rule in `rules/effect/` or `rules/shared/` with a test in `rule-tests/` |
-| Systemic | Add a lint rule or encode the pattern in a script |
+| Recurrence  | Response                                                                                |
+| ----------- | --------------------------------------------------------------------------------------- |
+| First time  | Fix inline, add a doc note                                                              |
+| Second time | Document explicitly in `docs/agents/patterns/`                                          |
+| Third time  | Add an ast-grep rule in `rules/effect/` or `rules/shared/` with a test in `rule-tests/` |
+| Systemic    | Add a lint rule or encode the pattern in a script                                       |
 
 **Rule of thumb**: if a review comment appears twice, encode it. The toolchain already supports this — adding a new ast-grep rule is three files: the rule YAML, a test case, and optionally a doc update.
 
@@ -64,8 +65,8 @@ See `sgconfig.yml` for the directory layout. Each rule targets a structural code
 
 Signals should be easy to run and interpret locally:
 
-- `pnpm check:all` is the single command any contributor can run to know if their change is clean for style and structure.
-- Failure messages from oxlint and ast-grep should include enough context to fix the problem without searching docs.
+- `vp check && pnpm sg:check` is the single combo any contributor can run to know if their change is clean for style and structure.
+- Failure messages from `vp lint` (Oxlint) and `sg scan` (ast-grep) should include enough context to fix the problem without searching docs.
 - Keep PRs small with clear intent. Include the verification commands you ran in the PR description.
 - Link to relevant docs near the code that needs context (inline comments or the nearest `README`).
 

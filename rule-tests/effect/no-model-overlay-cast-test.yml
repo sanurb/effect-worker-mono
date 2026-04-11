@@ -2,18 +2,18 @@ id: no-model-overlay-cast
 
 valid:
   - |
-      const user = yield* Schema.decode(UserSchema)(rawData);
+    const user = yield* Schema.decode(UserSchema)(rawData);
   - |
-      const values = [1, 2, 3] as const;
+    const values = [1, 2, 3] as const;
   - |
-      const config = { debug: true } as const;
+    const config = { debug: true } as const;
   - |
-      const x = value satisfies SomeType;
+    const x = value satisfies SomeType;
 
 invalid:
   - |
-      const user = rawData as User;
+    const user = rawData as User;
   - |
-      const env = process.env as Env;
+    const env = process.env as Env;
   - |
-      const result = response as ApiResponse<User>;
+    const result = response as ApiResponse<User>;

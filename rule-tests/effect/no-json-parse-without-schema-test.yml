@@ -2,13 +2,13 @@ id: no-json-parse-without-schema
 
 valid:
   - |
-      const data = yield* S.decodeUnknown(MySchema)(JSON.parse(body));
+    const data = yield* S.decodeUnknown(MySchema)(JSON.parse(body));
   - |
-      const data = Schema.decodeUnknownSync(MySchema)(JSON.parse(body));
+    const data = Schema.decodeUnknownSync(MySchema)(JSON.parse(body));
 
 invalid:
   - |
-      const data = JSON.parse(body);
+    const data = JSON.parse(body);
   - |
-      const raw = JSON.parse(body);
-      const data = yield* S.decodeUnknown(MySchema)(raw);
+    const raw = JSON.parse(body);
+    const data = yield* S.decodeUnknown(MySchema)(raw);

@@ -35,7 +35,20 @@ Captured spans are written to `.traces/spans.ndjson`.
 Each line in `.traces/spans.ndjson` is a complete JSON span record.
 
 ```json
-{"_tag":"span","name":"UserQueries.findUserById","traceId":"4bf92f3577b34da6a3ce929d0e0e4736","spanId":"00f067aa0ba902b7","startTimeUnixNano":"1712797510000000000","endTimeUnixNano":"1712797510012300000","durationMs":12.3,"status":"ok","attributes":{},"events":[],"links":[],"kind":"internal"}
+{
+  "_tag": "span",
+  "name": "UserQueries.findUserById",
+  "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
+  "spanId": "00f067aa0ba902b7",
+  "startTimeUnixNano": "1712797510000000000",
+  "endTimeUnixNano": "1712797510012300000",
+  "durationMs": 12.3,
+  "status": "ok",
+  "attributes": {},
+  "events": [],
+  "links": [],
+  "kind": "internal"
+}
 ```
 
 Important fields:
@@ -71,10 +84,10 @@ Example shape:
 
 ```ts
 const program = Effect.gen(function* () {
-  yield* Effect.annotateCurrentSpan({ userId })
-  yield* Effect.log("Loading user")
-  return yield* UserQueries.findUserById(userId)
-}).pipe(Effect.withSpan("UsersService.getUser"))
+  yield* Effect.annotateCurrentSpan({ userId });
+  yield* Effect.log("Loading user");
+  return yield* UserQueries.findUserById(userId);
+}).pipe(Effect.withSpan("UsersService.getUser"));
 ```
 
 Prefer naming spans after the business operation, not the transport detail. `UserQueries.findUserById` tells the truth; `handleGet` does not.
@@ -83,11 +96,11 @@ Prefer naming spans after the business operation, not the transport detail. `Use
 
 Set observability configuration through Wrangler vars or `.dev.vars` secrets:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `LOG_LEVEL` | `info` | Minimum log level (`trace`, `debug`, `info`, `warn`, `error`, `fatal`, `none`) |
-| `OTLP_TRACES_URL` | _(empty)_ | OTLP endpoint for remote trace export |
-| `OTLP_SERVICE_NAME` | _(empty)_ | Service name used in OTLP resource attributes |
+| Variable            | Default   | Description                                                                    |
+| ------------------- | --------- | ------------------------------------------------------------------------------ |
+| `LOG_LEVEL`         | `info`    | Minimum log level (`trace`, `debug`, `info`, `warn`, `error`, `fatal`, `none`) |
+| `OTLP_TRACES_URL`   | _(empty)_ | OTLP endpoint for remote trace export                                          |
+| `OTLP_SERVICE_NAME` | _(empty)_ | Service name used in OTLP resource attributes                                  |
 
 Set these in the `vars` section of `wrangler.jsonc`, or use `.dev.vars` when you do not want local values committed.
 

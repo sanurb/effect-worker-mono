@@ -2,13 +2,13 @@ id: no-effect-bind
 
 valid:
   - |
-      Effect.gen(function*() {
-        const user = yield* getUser(id);
-      });
+    Effect.gen(function*() {
+      const user = yield* getUser(id);
+    });
 
 invalid:
   - |
-      pipe(
-        Effect.Do,
-        Effect.bind("user", () => getUser(id))
-      );
+    pipe(
+      Effect.Do,
+      Effect.bind("user", () => getUser(id))
+    );

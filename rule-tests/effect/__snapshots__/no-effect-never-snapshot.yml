@@ -3,14 +3,14 @@ snapshots:
   ? |
     const blocker = Effect.never;
   : labels:
-    - source: Effect.never
-      style: primary
-      start: 16
-      end: 28
+      - source: Effect.never
+        style: primary
+        start: 16
+        end: 28
   ? |
     yield* Effect.never;
   : labels:
-    - source: Effect.never
-      style: primary
-      start: 7
-      end: 19
+      - source: Effect.never
+        style: primary
+        start: 7
+        end: 19

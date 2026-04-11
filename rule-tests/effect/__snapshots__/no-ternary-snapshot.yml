@@ -3,21 +3,21 @@ snapshots:
   ? |
     const label = count > 0 ? "has items" : "empty";
   : labels:
-    - source: 'count > 0 ? "has items" : "empty"'
-      style: primary
-      start: 14
-      end: 47
+      - source: 'count > 0 ? "has items" : "empty"'
+        style: primary
+        start: 14
+        end: 47
   ? |
     const result = isValid ? Effect.succeed(value) : Effect.fail(new ValidationError());
   : labels:
-    - source: 'isValid ? Effect.succeed(value) : Effect.fail(new ValidationError())'
-      style: primary
-      start: 15
-      end: 83
+      - source: "isValid ? Effect.succeed(value) : Effect.fail(new ValidationError())"
+        style: primary
+        start: 15
+        end: 83
   ? |
     return flag ? "yes" : "no";
   : labels:
-    - source: 'flag ? "yes" : "no"'
-      style: primary
-      start: 7
-      end: 26
+      - source: 'flag ? "yes" : "no"'
+        style: primary
+        start: 7
+        end: 26

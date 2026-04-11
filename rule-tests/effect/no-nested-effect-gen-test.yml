@@ -2,19 +2,19 @@ id: no-nested-effect-gen
 
 valid:
   - |
-      Effect.gen(function*() {
-        const user = yield* userRepo.findById(id);
-        return user;
-      });
+    Effect.gen(function*() {
+      const user = yield* userRepo.findById(id);
+      return user;
+    });
   - |
-      // Two separate top-level Effect.gen calls are fine
-      const a = Effect.gen(function*() { return 1; });
-      const b = Effect.gen(function*() { return 2; });
+    // Two separate top-level Effect.gen calls are fine
+    const a = Effect.gen(function*() { return 1; });
+    const b = Effect.gen(function*() { return 2; });
 
 invalid:
   - |
-      Effect.gen(function*() {
-        const result = yield* Effect.gen(function*() {
-          return yield* someService.method();
-        });
+    Effect.gen(function*() {
+      const result = yield* Effect.gen(function*() {
+        return yield* someService.method();
       });
+    });

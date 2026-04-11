@@ -508,21 +508,21 @@ Silent `catchAll` hides failures and makes debugging impossible. Always log the 
 
 ### Effect rules (`rules/effect/`) -- apply to `apps/**` and `packages/**`:
 
-| Rule                      | Severity | What it catches                                                                                                                              |
-| ------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `no-throw-in-effect`      | error    | `throw` inside `Effect.gen` -- use `Effect.fail`                                                                                             |
-| `no-try-catch`            | error    | `try-catch` in Effect code -- use `Effect.try` or `Effect.catchTag`                                                                          |
-| `no-manual-tag-check`     | warning  | Manual `._tag` checking -- use `Effect.catchTag` or `Match`                                                                                  |
-| `no-direct-fs`            | error    | `import from "node:fs"` -- use Effect's `FileSystem` service                                                                                 |
-| `use-tagged-error`        | error    | `extends Error` -- use `Data.TaggedError`                                                                                                    |
-| `no-bare-new-error`       | error    | `new Error(...)` -- use tagged/domain error types                                                                                            |
-| `no-console-log`          | error    | `console.log/warn/error/info` -- use `Effect.log`/`logWarning`/`logError`                                                                    |
-| `no-runpromise-in-effect` | error    | `Effect.runPromise`/`runSync` -- use `yield*` inside Effect; `Runtime.runPromise` at boundary files only (see `docs/patterns/boundaries.md`) |
-| `no-silent-catch`         | error    | `Effect.catchAll(() => Effect.succeed(...))` without logging -- no silent error swallowing                                                   |
-| `no-interface-in-models`  | error    | `export interface` in models -- use `Schema.Struct` for domain types                                                                         |
-| `no-unsafe-typecast-at-boundary` | error | `as` casts on JSON.parse, .json(), .text(), .body -- use `Schema.decodeUnknown` (see `docs/patterns/data-validation.md`)              |
-| `no-json-parse-without-schema`   | error | Bare `JSON.parse` without `Schema.decode*` wrapper -- validate parsed data through Schema                                             |
-| `no-typed-boundary-assignment`   | error | Typed variable assignment from JSON.parse, .json(), .body -- decode first, then assign                                                |
+| Rule                             | Severity | What it catches                                                                                                                              |
+| -------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `no-throw-in-effect`             | error    | `throw` inside `Effect.gen` -- use `Effect.fail`                                                                                             |
+| `no-try-catch`                   | error    | `try-catch` in Effect code -- use `Effect.try` or `Effect.catchTag`                                                                          |
+| `no-manual-tag-check`            | warning  | Manual `._tag` checking -- use `Effect.catchTag` or `Match`                                                                                  |
+| `no-direct-fs`                   | error    | `import from "node:fs"` -- use Effect's `FileSystem` service                                                                                 |
+| `use-tagged-error`               | error    | `extends Error` -- use `Data.TaggedError`                                                                                                    |
+| `no-bare-new-error`              | error    | `new Error(...)` -- use tagged/domain error types                                                                                            |
+| `no-console-log`                 | error    | `console.log/warn/error/info` -- use `Effect.log`/`logWarning`/`logError`                                                                    |
+| `no-runpromise-in-effect`        | error    | `Effect.runPromise`/`runSync` -- use `yield*` inside Effect; `Runtime.runPromise` at boundary files only (see `docs/patterns/boundaries.md`) |
+| `no-silent-catch`                | error    | `Effect.catchAll(() => Effect.succeed(...))` without logging -- no silent error swallowing                                                   |
+| `no-interface-in-models`         | error    | `export interface` in models -- use `Schema.Struct` for domain types                                                                         |
+| `no-unsafe-typecast-at-boundary` | error    | `as` casts on JSON.parse, .json(), .text(), .body -- use `Schema.decodeUnknown` (see `docs/patterns/data-validation.md`)                     |
+| `no-json-parse-without-schema`   | error    | Bare `JSON.parse` without `Schema.decode*` wrapper -- validate parsed data through Schema                                                    |
+| `no-typed-boundary-assignment`   | error    | Typed variable assignment from JSON.parse, .json(), .body -- decode first, then assign                                                       |
 
 **After writing any code**, run `ast-grep scan` from the repo root to check for these anti-patterns.
 

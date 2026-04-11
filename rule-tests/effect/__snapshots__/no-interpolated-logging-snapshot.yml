@@ -3,18 +3,18 @@ snapshots:
   ? |
     yield* Effect.log(`Processing ${requestId}`);
   : labels:
-    - source: Effect.log(`Processing ${requestId}`)
-      style: primary
-      start: 7
-      end: 44
-    - source: ${requestId}
-      style: secondary
-      start: 30
-      end: 42
+      - source: Effect.log(`Processing ${requestId}`)
+        style: primary
+        start: 7
+        end: 44
+      - source: ${requestId}
+        style: secondary
+        start: 30
+        end: 42
   ? |
     yield* Effect.logError("Request failed: " + error);
   : labels:
-    - source: 'Effect.logError("Request failed: " + error)'
-      style: primary
-      start: 7
-      end: 50
+      - source: 'Effect.logError("Request failed: " + error)'
+        style: primary
+        start: 7
+        end: 50

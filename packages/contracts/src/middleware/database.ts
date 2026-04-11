@@ -1,3 +1,5 @@
+import type { PgDrizzle } from "@repo/db/pg-drizzle/tag";
+import { DatabaseConnectionError } from "@repo/domain";
 /**
  * Database Middleware Tags
  *
@@ -7,10 +9,8 @@
  *
  * @module
  */
-import { HttpApiMiddleware } from "effect/unstable/httpapi"
-import { RpcMiddleware } from "effect/unstable/rpc"
-import { PgDrizzle } from "@repo/db/pg-drizzle/tag"
-import { DatabaseConnectionError } from "@repo/domain"
+import { HttpApiMiddleware } from "effect/unstable/httpapi";
+import { RpcMiddleware } from "effect/unstable/rpc";
 
 // ============================================================================
 // HTTP
@@ -32,7 +32,7 @@ export class DatabaseMiddleware extends HttpApiMiddleware.Service<
   DatabaseMiddleware,
   { provides: PgDrizzle }
 >()("@repo/api/DatabaseMiddleware", {
-  error: DatabaseConnectionError
+  error: DatabaseConnectionError,
 }) {}
 
 // ============================================================================
@@ -54,8 +54,8 @@ export class RpcDatabaseMiddleware extends RpcMiddleware.Service<
   { provides: PgDrizzle }
 >()("@repo/rpc/RpcDatabaseMiddleware", {
   error: DatabaseConnectionError,
-  requiredForClient: false
+  requiredForClient: false,
 }) {}
 
 // Re-export for convenience
-export { DatabaseConnectionError }
+export { DatabaseConnectionError };

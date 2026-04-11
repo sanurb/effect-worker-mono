@@ -1,4 +1,4 @@
 /**
  * Server Functions Exports
  */
-export { greetingFunction } from "./example-effect-function"
+export { greetingFunction } from "./example-effect-function";

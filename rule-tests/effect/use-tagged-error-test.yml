@@ -2,19 +2,19 @@ id: use-tagged-error
 
 valid:
   - |
-      export class ValidationError extends S.TaggedErrorClass<ValidationError>()(
-        "ValidationError",
-        { message: S.String, errors: S.Array(S.String) },
-      ) {}
+    export class ValidationError extends S.TaggedErrorClass<ValidationError>()(
+      "ValidationError",
+      { message: S.String, errors: S.Array(S.String) },
+    ) {}
   - |
-      export class ValidationError {
-        readonly _tag = "ValidationError";
-      }
+    export class ValidationError {
+      readonly _tag = "ValidationError";
+    }
 
 invalid:
   - |
-      class ValidationError extends Error {
-        constructor(message: string) {
-          super(message);
-        }
+    class ValidationError extends Error {
+      constructor(message: string) {
+        super(message);
       }
+    }

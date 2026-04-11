@@ -5,5 +5,5 @@
  *
  * @module
  */
-export * from "./schemas"
-export * from "./errors"
+export * from "./schemas";
+export * from "./errors";

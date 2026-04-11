@@ -2,16 +2,16 @@ id: no-effect-sync-console
 
 valid:
   - |
-      Effect.logInfo("processing user");
+    Effect.logInfo("processing user");
   - |
-      Effect.logDebug("value").pipe(Effect.annotateLogs({ key: "val" }));
+    Effect.logDebug("value").pipe(Effect.annotateLogs({ key: "val" }));
   - |
-      Effect.sync(() => metrics.increment("counter"));
+    Effect.sync(() => metrics.increment("counter"));
 
 invalid:
   - |
-      Effect.sync(() => console.log("processing", userId));
+    Effect.sync(() => console.log("processing", userId));
   - |
-      Effect.sync(() => console.error("failed"));
+    Effect.sync(() => console.error("failed"));
   - |
-      Effect.sync(() => { console.warn("deprecated") });
+    Effect.sync(() => { console.warn("deprecated") });

@@ -2,12 +2,12 @@ id: no-bare-new-error
 
 valid:
   - |
-      yield* Effect.fail(new ValidationError({ message: "invalid", errors: [] }));
+    yield* Effect.fail(new ValidationError({ message: "invalid", errors: [] }));
   - |
-      return Effect.try(() => riskyOperation());
+    return Effect.try(() => riskyOperation());
 
 invalid:
   - |
-      throw new Error("boom");
+    throw new Error("boom");
   - |
-      return Effect.fail(new TypeError("bad input"));
+    return Effect.fail(new TypeError("bad input"));

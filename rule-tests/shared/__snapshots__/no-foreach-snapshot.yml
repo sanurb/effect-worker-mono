@@ -3,19 +3,19 @@ snapshots:
   ? |
     items.forEach((item) => process(item));
   : labels:
-    - source: items.forEach((item) => process(item))
-      style: primary
-      start: 0
-      end: 38
+      - source: items.forEach((item) => process(item))
+        style: primary
+        start: 0
+        end: 38
   ? |
     users.forEach(function(user) {
       console.log(user);
     });
   : labels:
-    - source: |-
-        users.forEach(function(user) {
-          console.log(user);
-        })
-      style: primary
-      start: 0
-      end: 54
+      - source: |-
+          users.forEach(function(user) {
+            console.log(user);
+          })
+        style: primary
+        start: 0
+        end: 54

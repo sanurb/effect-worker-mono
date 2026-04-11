@@ -4,9 +4,10 @@
  * Demonstrates Effect-TS in a standard API route pattern.
  * POST JSON data, process with Effect, return Response.
  */
-import { createFileRoute } from "@tanstack/react-router"
-import { Effect, Schema as S } from "effect"
-import { effectRuntimeMiddleware } from "@/server/middleware"
+import { createFileRoute } from "@tanstack/react-router";
+import { Effect, Schema as S } from "effect";
+
+import { effectRuntimeMiddleware } from "@/server/middleware";
 
 // ============================================================================
 // Request/Response Schemas
@@ -17,24 +18,24 @@ const ProcessRequestSchema = S.Struct({
     S.Struct({
       id: S.String,
       value: S.Number,
-    })
+    }),
   ),
   operation: S.Literal("sum", "average", "max", "min"),
-})
+});
 
-type ProcessRequest = S.Schema.Type<typeof ProcessRequestSchema>
+type ProcessRequest = S.Schema.Type<typeof ProcessRequestSchema>;
 
 // ============================================================================
 // Typed Errors
 // ============================================================================
 
 class ValidationError {
-  readonly _tag = "ValidationError"
+  readonly _tag = "ValidationError";
   constructor(readonly message: string) {}
 }
 
 class ProcessingError {
-  readonly _tag = "ProcessingError"
+  readonly _tag = "ProcessingError";
   constructor(readonly message: string) {}
 }
 
@@ -46,43 +47,38 @@ const parseRequestBody = (request: Request) =>
   Effect.tryPromise({
     try: () => request.json(),
     catch: () => new ValidationError("Invalid JSON body"),
-  })
+  });
 
 const validateRequest = (body: unknown) =>
   Effect.try({
     try: () => S.decodeUnknownSync(ProcessRequestSchema)(body),
     catch: (error) =>
       new ValidationError(
-        `Invalid request: ${error instanceof Error ? error.message : "Unknown error"}`
+        `Invalid request: ${error instanceof Error ? error.message : "Unknown error"}`,
       ),
-  })
+  });
 
-const processItems = (
-  items: ProcessRequest["items"],
-  operation: ProcessRequest["operation"]
-) =>
+const processItems = (items: ProcessRequest["items"], operation: ProcessRequest["operation"]) =>
   Effect.gen(function* () {
     if (items.length === 0) {
-      return yield* Effect.fail(
-        new ProcessingError("Cannot process empty array")
-      )
+      return yield* Effect.fail(new ProcessingError("Cannot process empty array"));
     }
 
-    const values = items.map((item) => item.value)
+    const values = items.map((item) => item.value);
 
-    yield* Effect.log(`Processing ${operation} on ${values.length} items`)
+    yield* Effect.log(`Processing ${operation} on ${values.length} items`);
 
     switch (operation) {
       case "sum":
-        return values.reduce((a, b) => a + b, 0)
+        return values.reduce((a, b) => a + b, 0);
       case "average":
-        return values.reduce((a, b) => a + b, 0) / values.length
+        return values.reduce((a, b) => a + b, 0) / values.length;
       case "max":
-        return Math.max(...values)
+        return Math.max(...values);
       case "min":
-        return Math.min(...values)
+        return Math.min(...values);
     }
-  })
+  });
 
 // ============================================================================
 // Response Helpers
@@ -92,10 +88,10 @@ const jsonResponse = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
     headers: { "Content-Type": "application/json" },
-  })
+  });
 
 const errorResponse = (error: string, status = 400) =>
-  jsonResponse({ success: false, error }, status)
+  jsonResponse({ success: false, error }, status);
 
 // ============================================================================
 // Route Definition
@@ -140,7 +136,7 @@ export const Route = createFileRoute("/api/process")({
               itemCount: 3,
             },
           },
-        })
+        });
       },
 
       /**
@@ -151,15 +147,15 @@ export const Route = createFileRoute("/api/process")({
         return await context.runEffect(
           Effect.gen(function* () {
             // Parse JSON body
-            const body = yield* parseRequestBody(request)
+            const body = yield* parseRequestBody(request);
 
             // Validate against schema
-            const data = yield* validateRequest(body)
+            const data = yield* validateRequest(body);
 
             // Process the data
-            const result = yield* processItems(data.items, data.operation)
+            const result = yield* processItems(data.items, data.operation);
 
-            yield* Effect.log(`Completed: ${data.operation} = ${result}`)
+            yield* Effect.log(`Completed: ${data.operation} = ${result}`);
 
             return jsonResponse({
               success: true,
@@ -167,28 +163,28 @@ export const Route = createFileRoute("/api/process")({
               operation: data.operation,
               itemCount: data.items.length,
               processedAt: new Date().toISOString(),
-            })
+            });
           }).pipe(
             // Handle validation errors (400)
             Effect.catchTag("ValidationError", (error) =>
-              Effect.succeed(errorResponse(error.message, 400))
+              Effect.succeed(errorResponse(error.message, 400)),
             ),
             // Handle processing errors (422)
             Effect.catchTag("ProcessingError", (error) =>
-              Effect.succeed(errorResponse(error.message, 422))
+              Effect.succeed(errorResponse(error.message, 422)),
             ),
             // Handle unexpected errors (500)
             Effect.catchDefect((defect) =>
               Effect.succeed(
                 errorResponse(
                   defect instanceof Error ? defect.message : "Internal server error",
-                  500
-                )
-              )
-            )
-          )
-        )
+                  500,
+                ),
+              ),
+            ),
+          ),
+        );
       },
     },
   },
-})
+});

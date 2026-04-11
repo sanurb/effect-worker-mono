@@ -3,9 +3,9 @@
  *
  * @module
  */
-export { currentEnv, currentCtx, withCloudflareBindings, waitUntil } from "@/services/cloudflare"
+export { currentEnv, currentCtx, withCloudflareBindings, waitUntil } from "@/services/cloudflare";
 export {
   RpcCloudflareMiddlewareLive,
   RpcDatabaseMiddlewareLive,
-  RpcMiddlewareLive
-} from "@/services/middleware"
+  RpcMiddlewareLive,
+} from "@/services/middleware";

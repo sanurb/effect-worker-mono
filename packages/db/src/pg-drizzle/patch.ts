@@ -1,3 +1,5 @@
+import { QueryPromise } from "drizzle-orm";
+import { PgSelectBase } from "drizzle-orm/pg-core";
 /**
  * Drizzle ORM Effect Patch
  *
@@ -6,48 +8,64 @@
  *
  * @module
  */
-import { Effect } from "effect"
-import { pipeArguments } from "effect/Pipeable"
-import { SingleShotGen } from "effect/Utils"
-import { SqlError } from "effect/unstable/sql"
-import { QueryPromise } from "drizzle-orm"
-import { PgSelectBase } from "drizzle-orm/pg-core"
+import { Effect } from "effect";
+import { pipeArguments } from "effect/Pipeable";
+import { SqlError } from "effect/unstable/sql";
+import { SingleShotGen } from "effect/Utils";
 
 declare module "drizzle-orm" {
-  export interface QueryPromise<T>
-    extends Effect.Effect<T, SqlError.SqlError> {}
+  export interface QueryPromise<T> extends Effect.Effect<T, SqlError.SqlError> {}
 }
 
-const proto = QueryPromise.prototype as any
+// Monkey-patch QueryPromise / PgSelectBase so Drizzle query objects are
+// yieldable in `Effect.gen()`. The runtime prototype is augmented with three
+// methods; the matching type contract lives in the `declare module` above.
+//
+// We use a typed cast (no `any`) instead of `Object.assign`, because
+// `Object.assign` returns the patched prototype which TypeScript then sees as
+// a floating Effect-able value (`@effect/tsgo` rule TS377058).
+type DrizzlePatchProto = {
+  [Symbol.iterator]: (this: QueryPromise<unknown>) => SingleShotGen<unknown, unknown>;
+  asEffect: (this: { execute: () => Promise<unknown> }) => Effect.Effect<
+    unknown,
+    SqlError.SqlError
+  >;
+  pipe: (this: QueryPromise<unknown>) => unknown;
+};
 
-proto[Symbol.iterator] = function () {
-  return new SingleShotGen(this.asEffect())
-}
+const queryPromiseProto = QueryPromise.prototype as unknown as DrizzlePatchProto;
 
-proto.asEffect = function () {
+queryPromiseProto[Symbol.iterator] = function (this: QueryPromise<unknown>) {
+  return new SingleShotGen(this.asEffect());
+};
+
+queryPromiseProto.asEffect = function (this: { execute: () => Promise<unknown> }) {
   return Effect.tryPromise({
     try: () => this.execute(),
-    catch: (cause) => new SqlError.SqlError({ cause })
-  })
-}
+    catch: (cause) => new SqlError.SqlError({ cause }),
+  });
+};
 
-proto.pipe = function () {
-  return pipeArguments(this.asEffect(), arguments)
-}
+queryPromiseProto.pipe = function (this: QueryPromise<unknown>) {
+  // `pipeArguments` requires the live `IArguments` object, not a rest array.
+  // eslint-disable-next-line prefer-rest-params -- effect/Pipeable contract
+  return pipeArguments(this.asEffect(), arguments);
+};
 
-const selectProto = PgSelectBase.prototype as any
+const pgSelectProto = PgSelectBase.prototype as unknown as DrizzlePatchProto;
 
-selectProto[Symbol.iterator] = function () {
-  return new SingleShotGen(this.asEffect())
-}
+pgSelectProto[Symbol.iterator] = function (this: QueryPromise<unknown>) {
+  return new SingleShotGen(this.asEffect());
+};
 
-selectProto.asEffect = function () {
+pgSelectProto.asEffect = function (this: { execute: () => Promise<unknown> }) {
   return Effect.tryPromise({
     try: () => this.execute(),
-    catch: (cause) => new SqlError.SqlError({ cause })
-  })
-}
+    catch: (cause) => new SqlError.SqlError({ cause }),
+  });
+};
 
-selectProto.pipe = function () {
-  return pipeArguments(this.asEffect(), arguments)
-}
+pgSelectProto.pipe = function (this: QueryPromise<unknown>) {
+  // eslint-disable-next-line prefer-rest-params -- effect/Pipeable contract
+  return pipeArguments(this.asEffect(), arguments);
+};

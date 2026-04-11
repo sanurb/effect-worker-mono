@@ -16,7 +16,5 @@
       "@repo/cloudflare/*": ["../cloudflare/dist/*"]
     }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

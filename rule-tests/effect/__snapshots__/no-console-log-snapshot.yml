@@ -3,14 +3,14 @@ snapshots:
   ? |
     console.error("Failed to process request", error);
   : labels:
-    - source: console.error("Failed to process request", error)
-      style: primary
-      start: 0
-      end: 49
+      - source: console.error("Failed to process request", error)
+        style: primary
+        start: 0
+        end: 49
   ? |
     console.log("Processing request");
   : labels:
-    - source: console.log("Processing request")
-      style: primary
-      start: 0
-      end: 33
+      - source: console.log("Processing request")
+        style: primary
+        start: 0
+        end: 33

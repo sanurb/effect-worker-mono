@@ -12,5 +12,5 @@ export {
   type User,
   CreateUserSchema,
   type CreateUser,
-  UserIdPathSchema
-} from "./user"
+  UserIdPathSchema,
+} from "./user";

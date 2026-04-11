@@ -6,14 +6,14 @@ snapshots:
       Match.orElse(() => Effect.void)
     );
   : labels:
-    - source: Match.orElse(() => Effect.void)
-      style: primary
-      start: 78
-      end: 109
+      - source: Match.orElse(() => Effect.void)
+        style: primary
+        start: 78
+        end: 109
   ? |
     Match.when(true, () => Effect.void);
   : labels:
-    - source: Match.when(true, () => Effect.void)
-      style: primary
-      start: 0
-      end: 35
+      - source: Match.when(true, () => Effect.void)
+        style: primary
+        start: 0
+        end: 35

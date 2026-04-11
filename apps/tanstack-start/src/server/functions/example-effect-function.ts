@@ -5,6 +5,7 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { Effect, Schema as S } from "effect";
+
 import { effectRuntimeMiddleware } from "../middleware";
 
 /**
@@ -25,10 +26,7 @@ const validateWith =
  * Request schema
  */
 const GreetingRequestSchema = S.Struct({
-  name: S.String.pipe(
-    S.check(S.isMinLength(1)),
-    S.check(S.isMaxLength(100))
-  ),
+  name: S.String.pipe(S.check(S.isMinLength(1)), S.check(S.isMaxLength(100))),
 });
 
 /**

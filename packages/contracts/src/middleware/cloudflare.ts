@@ -1,3 +1,4 @@
+import { CloudflareBindingsError } from "@repo/domain";
 /**
  * Cloudflare Bindings Middleware Tags
  *
@@ -7,10 +8,10 @@
  *
  * @module
  */
-import { HttpApiMiddleware } from "effect/unstable/httpapi"
-import { RpcMiddleware } from "effect/unstable/rpc"
-import { CloudflareBindingsError } from "@repo/domain"
-import { CloudflareBindings } from "../services"
+import { HttpApiMiddleware } from "effect/unstable/httpapi";
+import { RpcMiddleware } from "effect/unstable/rpc";
+
+import type { CloudflareBindings } from "../services";
 
 // ============================================================================
 // HTTP
@@ -32,7 +33,7 @@ export class CloudflareBindingsMiddleware extends HttpApiMiddleware.Service<
   CloudflareBindingsMiddleware,
   { provides: CloudflareBindings }
 >()("@repo/api/CloudflareBindingsMiddleware", {
-  error: CloudflareBindingsError
+  error: CloudflareBindingsError,
 }) {}
 
 // ============================================================================
@@ -54,8 +55,8 @@ export class RpcCloudflareMiddleware extends RpcMiddleware.Service<
   { provides: CloudflareBindings }
 >()("@repo/rpc/RpcCloudflareMiddleware", {
   error: CloudflareBindingsError,
-  requiredForClient: false
+  requiredForClient: false,
 }) {}
 
 // Re-export for convenience
-export { CloudflareBindingsError }
+export { CloudflareBindingsError };

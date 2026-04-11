@@ -5,22 +5,22 @@ snapshots:
       return yield* repo.create(data);
     }).pipe(Effect.withSpan("createUser"));
   : labels:
-    - source: |-
-        (data) => Effect.gen(function*() {
-          return yield* repo.create(data);
-        }).pipe(Effect.withSpan("createUser"))
-      style: primary
-      start: 19
-      end: 127
+      - source: |-
+          (data) => Effect.gen(function*() {
+            return yield* repo.create(data);
+          }).pipe(Effect.withSpan("createUser"))
+        style: primary
+        start: 19
+        end: 127
   ? |
     const findUser = (id) => Effect.gen(function*() {
       return yield* repo.findById(id);
     });
   : labels:
-    - source: |-
-        (id) => Effect.gen(function*() {
-          return yield* repo.findById(id);
-        })
-      style: primary
-      start: 17
-      end: 87
+      - source: |-
+          (id) => Effect.gen(function*() {
+            return yield* repo.findById(id);
+          })
+        style: primary
+        start: 17
+        end: 87

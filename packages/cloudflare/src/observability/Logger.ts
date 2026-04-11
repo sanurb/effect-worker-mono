@@ -4,7 +4,7 @@
  * @module
  */
 
-import { Layer, Logger, References, type LogLevel } from "effect"
+import { Layer, Logger, References, type LogLevel } from "effect";
 
 // ============================================================================
 // Logger layer
@@ -13,7 +13,7 @@ import { Layer, Logger, References, type LogLevel } from "effect"
 export const makeLoggerLayer = (logLevel: LogLevel.LogLevel = "Info") =>
   Layer.mergeAll(
     Logger.layer([Logger.consolePretty(), Logger.tracerLogger], {
-      mergeWithExisting: false
+      mergeWithExisting: false,
     }),
-    Layer.succeed(References.MinimumLogLevel)(logLevel)
-  )
+    Layer.succeed(References.MinimumLogLevel)(logLevel),
+  );

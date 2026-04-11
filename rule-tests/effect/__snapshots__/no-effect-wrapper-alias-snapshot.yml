@@ -3,21 +3,21 @@ snapshots:
   ? |
     const handler = (id: string) => pipe(findUser(id), Effect.flatMap(validate));
   : labels:
-    - source: 'const handler = (id: string) => pipe(findUser(id), Effect.flatMap(validate));'
-      style: primary
-      start: 0
-      end: 77
+      - source: "const handler = (id: string) => pipe(findUser(id), Effect.flatMap(validate));"
+        style: primary
+        start: 0
+        end: 77
   ? |
     const withUser = pipe(getUser(id), Effect.map(transform));
   : labels:
-    - source: const withUser = pipe(getUser(id), Effect.map(transform));
-      style: primary
-      start: 0
-      end: 58
+      - source: const withUser = pipe(getUser(id), Effect.map(transform));
+        style: primary
+        start: 0
+        end: 58
   ? |
     const wrappedOp = () => pipe(getUsers(), Effect.flatMap(process));
   : labels:
-    - source: const wrappedOp = () => pipe(getUsers(), Effect.flatMap(process));
-      style: primary
-      start: 0
-      end: 66
+      - source: const wrappedOp = () => pipe(getUsers(), Effect.flatMap(process));
+        style: primary
+        start: 0
+        end: 66

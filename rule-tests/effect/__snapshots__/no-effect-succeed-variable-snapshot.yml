@@ -3,21 +3,21 @@ snapshots:
   ? |
     Effect.succeed(result);
   : labels:
-    - source: Effect.succeed(result)
-      style: primary
-      start: 0
-      end: 22
+      - source: Effect.succeed(result)
+        style: primary
+        start: 0
+        end: 22
   ? |
     Effect.succeed(user);
   : labels:
-    - source: Effect.succeed(user)
-      style: primary
-      start: 0
-      end: 20
+      - source: Effect.succeed(user)
+        style: primary
+        start: 0
+        end: 20
   ? |
     const x = Effect.succeed(someVar);
   : labels:
-    - source: Effect.succeed(someVar)
-      style: primary
-      start: 10
-      end: 33
+      - source: Effect.succeed(someVar)
+        style: primary
+        start: 10
+        end: 33

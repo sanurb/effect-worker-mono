@@ -2,12 +2,12 @@ id: no-effect-as
 
 valid:
   - |
-      someEffect.pipe(Effect.map(() => newValue));
+    someEffect.pipe(Effect.map(() => newValue));
   - |
-      someEffect.pipe(Effect.asVoid);
+    someEffect.pipe(Effect.asVoid);
 
 invalid:
   - |
-      Effect.as(someEffect, newValue);
+    Effect.as(someEffect, newValue);
   - |
-      Effect.as(getUser(id), "done");
+    Effect.as(getUser(id), "done");

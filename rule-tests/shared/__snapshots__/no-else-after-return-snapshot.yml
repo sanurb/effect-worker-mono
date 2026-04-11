@@ -8,16 +8,16 @@ snapshots:
       return fallback;
     }
   : labels:
-    - source: |-
-        if (flag) {
-          doThing();
-          return value;
-        } else {
-          return fallback;
-        }
-      style: primary
-      start: 0
-      end: 70
+      - source: |-
+          if (flag) {
+            doThing();
+            return value;
+          } else {
+            return fallback;
+          }
+        style: primary
+        start: 0
+        end: 70
   ? |
     if (status === "connected") {
       return true;
@@ -25,12 +25,12 @@ snapshots:
       return false;
     }
   : labels:
-    - source: |-
-        if (status === "connected") {
-          return true;
-        } else {
-          return false;
-        }
-      style: primary
-      start: 0
-      end: 71
+      - source: |-
+          if (status === "connected") {
+            return true;
+          } else {
+            return false;
+          }
+        style: primary
+        start: 0
+        end: 71

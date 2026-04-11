@@ -36,8 +36,8 @@ apps/<name>/
   "scripts": {
     "dev": "bun run src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
-    "lint": "oxlint src/",
-    "format": "oxfmt --write src/",
+    "lint": "vp lint src/",
+    "format": "vp fmt src/",
     "typecheck": "tsgo --noEmit",
     "test": "bun test"
   },

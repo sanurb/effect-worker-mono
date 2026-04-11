@@ -1,3 +1,5 @@
+import { UsersRpc } from "@repo/contracts";
+import { UserQueries } from "@repo/db";
 /**
  * Users RPC Handlers
  *
@@ -6,9 +8,7 @@
  *
  * @module
  */
-import { Effect } from "effect"
-import { UsersRpc } from "@repo/contracts"
-import { UserQueries } from "@repo/db"
+import { Effect } from "effect";
 
 /**
  * Users RPC handler layer.
@@ -18,9 +18,9 @@ export const UsersRpcHandlersLive = UsersRpc.toLayer({
 
   listUsers: () =>
     Effect.gen(function* () {
-      const users = yield* UserQueries.findAllUsers
-      return { users, total: users.length }
+      const users = yield* UserQueries.findAllUsers;
+      return { users, total: users.length };
     }),
 
-  createUser: (data) => UserQueries.createUser(data)
-})
+  createUser: (data) => UserQueries.createUser(data),
+});

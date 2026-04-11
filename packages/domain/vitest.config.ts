@@ -1,6 +1,7 @@
-import { mergeConfig, type UserConfigExport } from "vitest/config"
-import shared from "../../vitest.shared"
+import { mergeConfig, type UserConfigExport } from "vitest/config";
 
-const config: UserConfigExport = {}
+import shared from "../../vitest.shared";
 
-export default mergeConfig(shared, config)
+const config: UserConfigExport = {};
+
+export default mergeConfig(shared, config);

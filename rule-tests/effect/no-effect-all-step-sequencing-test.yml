@@ -2,19 +2,19 @@ id: no-effect-all-step-sequencing
 
 valid:
   - |
-      Effect.all([getUser(id1), getUser(id2), getUser(id3)]);
+    Effect.all([getUser(id1), getUser(id2), getUser(id3)]);
   - |
-      pipe(
-        Effect.log("step 1"),
-        Effect.andThen(saveUser(user)),
-        Effect.andThen(Effect.log("step 2"))
-      );
+    pipe(
+      Effect.log("step 1"),
+      Effect.andThen(saveUser(user)),
+      Effect.andThen(Effect.log("step 2"))
+    );
 
 invalid:
   - |
-      Effect.all([
-        Effect.log("step 1"),
-        saveUser(user),
-      ], { concurrency: 1 });
+    Effect.all([
+      Effect.log("step 1"),
+      saveUser(user),
+    ], { concurrency: 1 });
   - |
-      Effect.all([step1, step2, step3], { concurrency: 1, discard: true });
+    Effect.all([step1, step2, step3], { concurrency: 1, discard: true });

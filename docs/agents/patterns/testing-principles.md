@@ -127,7 +127,7 @@ E.1. IMPORTANT: Mock only the code that calls external collaborators outside our
 
 E.3. Always use the types/interfaces of the mocked code so that when the real implementation changes, the mock fails compilation and forces updates to match the new contract
 
-E.5. Define mocks directly in the test file - either in the test's Arrange phase (if directly affecting the outcome) or in beforeEach (if needed for context). Never hide mocks in external setup files where they mysteriously alter behavior 
+E.5. Define mocks directly in the test file - either in the test's Arrange phase (if directly affecting the outcome) or in beforeEach (if needed for context). Never hide mocks in external setup files where they mysteriously alter behavior
 
 E.7. Reset all mocks in beforeEach to ensure a clean slate
 

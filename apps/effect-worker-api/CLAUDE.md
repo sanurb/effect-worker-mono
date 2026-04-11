@@ -45,10 +45,8 @@ Cloudflare bindings flow into Effect context via FiberRef:
 
 ```typescript
 // Entry point wraps effect with bindings
-const effect = handleRequest(request).pipe(
-  withCloudflareBindings(env, ctx)
-)
-return runtime.runPromise(effect)
+const effect = handleRequest(request).pipe(withCloudflareBindings(env, ctx));
+return runtime.runPromise(effect);
 ```
 
 ### 2. Middleware Pattern
@@ -98,6 +96,7 @@ pnpm deploy           # Deploy to Cloudflare
 ```
 
 Database operations are centralized in `@repo/db`:
+
 ```bash
 cd packages/db
 DATABASE_URL=... pnpm db:push    # Push schema to database

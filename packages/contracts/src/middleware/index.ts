@@ -9,11 +9,7 @@
 export {
   CloudflareBindingsError,
   CloudflareBindingsMiddleware,
-  RpcCloudflareMiddleware
-} from "./cloudflare"
+  RpcCloudflareMiddleware,
+} from "./cloudflare";
 
-export {
-  DatabaseConnectionError,
-  DatabaseMiddleware,
-  RpcDatabaseMiddleware
-} from "./database"
+export { DatabaseConnectionError, DatabaseMiddleware, RpcDatabaseMiddleware } from "./database";

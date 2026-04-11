@@ -2,12 +2,12 @@ id: no-hardcoded-colors
 
 valid:
   - |
-      <div className="bg-background text-foreground border-border" />
+    <div className="bg-background text-foreground border-border" />
   - |
-      <div className="bg-primary/10 text-primary" />
+    <div className="bg-primary/10 text-primary" />
 
 invalid:
   - |
-      <div className="bg-red-500 text-white border-gray-200" />
+    <div className="bg-red-500 text-white border-gray-200" />
   - |
-      <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20" />
+    <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20" />

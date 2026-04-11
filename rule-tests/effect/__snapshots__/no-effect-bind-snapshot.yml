@@ -6,7 +6,7 @@ snapshots:
       Effect.bind("user", () => getUser(id))
     );
   : labels:
-    - source: Effect.bind("user", () => getUser(id))
-      style: primary
-      start: 21
-      end: 59
+      - source: Effect.bind("user", () => getUser(id))
+        style: primary
+        start: 21
+        end: 59

@@ -2,20 +2,20 @@ id: no-ternary
 
 valid:
   - |
-      Option.match(validated, {
-        onSome: (value) => Effect.succeed(value),
-        onNone: () => Effect.fail(new ValidationError())
-      });
+    Option.match(validated, {
+      onSome: (value) => Effect.succeed(value),
+      onNone: () => Effect.fail(new ValidationError())
+    });
   - |
-      Match.value(status).pipe(
-        Match.when("active", () => Effect.succeed(user)),
-        Match.orElse(() => Effect.fail(new NotFoundError()))
-      );
+    Match.value(status).pipe(
+      Match.when("active", () => Effect.succeed(user)),
+      Match.orElse(() => Effect.fail(new NotFoundError()))
+    );
 
 invalid:
   - |
-      const result = isValid ? Effect.succeed(value) : Effect.fail(new ValidationError());
+    const result = isValid ? Effect.succeed(value) : Effect.fail(new ValidationError());
   - |
-      return flag ? "yes" : "no";
+    return flag ? "yes" : "no";
   - |
-      const label = count > 0 ? "has items" : "empty";
+    const label = count > 0 ? "has items" : "empty";

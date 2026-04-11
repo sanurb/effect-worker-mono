@@ -10,10 +10,10 @@
  */
 
 // Schema exports
-export { users, type User as DbUser, type NewUser } from "./schema"
+export { users, type User as DbUser, type NewUser } from "./schema";
 
 // Query exports
-export * from "./queries"
+export * from "./queries";
 
 // PgDrizzle service and layers
 export {
@@ -22,5 +22,5 @@ export {
   PgDrizzleLiveWithConfig,
   makePgDrizzleLayer,
   makeDrizzle,
-  makeRemoteCallback
-} from "./pg-drizzle/index.js"
+  makeRemoteCallback,
+} from "./pg-drizzle/index.js";

@@ -2,13 +2,13 @@ id: no-typed-boundary-assignment
 
 valid:
   - |
-      const payload: unknown = await request.json();
-      const data = yield* S.decodeUnknown(UserSchema)(payload);
+    const payload: unknown = await request.json();
+    const data = yield* S.decodeUnknown(UserSchema)(payload);
   - |
-      const raw: unknown = JSON.parse(body);
+    const raw: unknown = JSON.parse(body);
 
 invalid:
   - |
-      const payload: User = await request.json();
+    const payload: User = await request.json();
   - |
-      let body: CreateUser = JSON.parse(text);
+    let body: CreateUser = JSON.parse(text);

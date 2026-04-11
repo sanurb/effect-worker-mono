@@ -3,14 +3,14 @@ snapshots:
   ? |
     Option.as(maybeUser, defaultUser);
   : labels:
-    - source: Option.as(maybeUser, defaultUser)
-      style: primary
-      start: 0
-      end: 33
+      - source: Option.as(maybeUser, defaultUser)
+        style: primary
+        start: 0
+        end: 33
   ? |
     const x = Option.as(opt, 42);
   : labels:
-    - source: Option.as(opt, 42)
-      style: primary
-      start: 10
-      end: 28
+      - source: Option.as(opt, 42)
+        style: primary
+        start: 10
+        end: 28

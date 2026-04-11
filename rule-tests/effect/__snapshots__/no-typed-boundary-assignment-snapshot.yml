@@ -3,14 +3,14 @@ snapshots:
   ? |
     const payload: User = await request.json();
   : labels:
-    - source: 'const payload: User = await request.json();'
-      style: primary
-      start: 0
-      end: 43
+      - source: "const payload: User = await request.json();"
+        style: primary
+        start: 0
+        end: 43
   ? |
     let body: CreateUser = JSON.parse(text);
   : labels:
-    - source: 'let body: CreateUser = JSON.parse(text);'
-      style: primary
-      start: 0
-      end: 40
+      - source: "let body: CreateUser = JSON.parse(text);"
+        style: primary
+        start: 0
+        end: 40
