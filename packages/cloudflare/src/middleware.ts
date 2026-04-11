@@ -1,119 +1,112 @@
-import { PgDrizzle, makeDrizzle } from "@repo/db";
-import { CloudflareBindingsError, DatabaseConnectionError } from "@repo/domain";
 /**
- * Middleware Factories
+ * Middleware Building Blocks
  *
- * Generic factories that produce middleware Layer implementations.
- * Each factory encapsulates the shared "read from ServiceMap.Reference,
- * null-check, provide service" pattern that was copy-pasted across apps.
+ * Shared Effect programs that an app-level middleware implementation composes
+ * over its transport-specific tag (HTTP or RPC). The previous factory API
+ * produced Layers via `as unknown as S` widening — that cast silenced a real
+ * type mismatch between a single-arg effect function and the two-arg
+ * middleware service contract. This module instead exports the *inner*
+ * effect programs and lets each app wire them through `tag.of(...)` in its
+ * own `services/middleware.ts`, where the tag's service shape is concrete
+ * and no cast is needed.
  *
  * @module
  */
-import { Effect, Layer, ServiceMap } from "effect";
+
+import { PgDrizzle, makeDrizzle } from "@repo/db";
+import { CloudflareBindingsError, DatabaseConnectionError } from "@repo/domain";
+import { Context, Effect, Option } from "effect";
 
 import { currentEnv, currentCtx, type WorkerExecutionContext } from "./bindings";
+
+// ============================================================================
+// CloudflareBindings service tag
+// ============================================================================
 
 /**
  * CloudflareBindings service — provides access to Cloudflare env/ctx.
  *
  * This is the contract service that middleware "provides" to handlers.
  */
-export class CloudflareBindings extends ServiceMap.Service<
+export class CloudflareBindings extends Context.Service<
   CloudflareBindings,
   { readonly env: unknown; readonly ctx: WorkerExecutionContext }
 >()("@repo/cloudflare/CloudflareBindings") {}
 
-// ---------------------------------------------------------------------------
-// Shared effects used by factories
-// ---------------------------------------------------------------------------
+// ============================================================================
+// Bindings middleware effect
+// ============================================================================
 
 /**
- * Core bindings middleware effect — read env/ctx, null-check, provide.
+ * Wraps an Effect in Cloudflare bindings resolution: reads `currentEnv` /
+ * `currentCtx` from the request-scoped References, fails with
+ * `CloudflareBindingsError` if the request entrypoint never set them, or
+ * otherwise provides `CloudflareBindings` to the inner effect.
+ *
+ * Apps compose this into their HTTP or RPC middleware tag via
+ * `tag.of((effect, _options) => provideBindings(effect))`.
  */
-const bindingsMiddlewareEffect = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+export const provideBindings = Effect.fn("cloudflare.provideBindings")(function* <A, E, R>(
+  effect: Effect.Effect<A, E, R>,
+) {
+  const env = yield* currentEnv;
+  const ctx = yield* currentCtx;
+
+  return yield* Option.match(
+    Option.all([Option.fromNullishOr(env), Option.fromNullishOr(ctx)]),
+    {
+      onNone: () =>
+        new CloudflareBindingsError({
+          message:
+            "Cloudflare bindings not available. Ensure withCloudflareBindings() wraps the handler.",
+        }),
+      onSome: ([resolvedEnv, resolvedCtx]) =>
+        effect.pipe(
+          Effect.provideService(CloudflareBindings, {
+            env: resolvedEnv,
+            ctx: resolvedCtx,
+          }),
+        ),
+    },
+  );
+});
+
+// ============================================================================
+// Database middleware effect
+// ============================================================================
+
+/**
+ * Wraps an Effect in PgDrizzle provision: reads `currentEnv` from the
+ * request-scoped Reference, derives a connection string via the caller's
+ * extractor, opens a scoped PgDrizzle, and provides it to the inner effect.
+ *
+ * Any failure in the resolution or connection phase is mapped to
+ * `DatabaseConnectionError` so the transport layer sees a single typed
+ * failure.
+ */
+export const provideDatabase = <A, E, R>(
+  getConnectionString: (env: unknown) => string,
+  effect: Effect.Effect<A, E, R>,
+): Effect.Effect<A, E | DatabaseConnectionError, Exclude<R, PgDrizzle>> =>
   Effect.gen(function* () {
     const env = yield* currentEnv;
-    const ctx = yield* currentCtx;
-
-    if (env === null || ctx === null) {
-      return yield* new CloudflareBindingsError({
-        message:
-          "Cloudflare bindings not available. Ensure withCloudflareBindings() wraps the handler.",
-      });
-    }
-
-    return yield* effect.pipe(Effect.provideService(CloudflareBindings, { env, ctx }));
-  });
-
-/**
- * Core database middleware effect — read env, create connection, provide.
- */
-const databaseMiddlewareEffect =
-  (getConnectionString: (env: unknown) => string) =>
-  <A, E, R>(effect: Effect.Effect<A, E, R>) =>
-    Effect.gen(function* () {
-      const env = yield* currentEnv;
-      if (env === null) {
-        return yield* new DatabaseConnectionError({
+    return yield* Option.match(Option.fromNullishOr(env), {
+      onNone: () =>
+        new DatabaseConnectionError({
           message:
             "Cloudflare env not available. Ensure withCloudflareBindings() wraps the handler.",
-        });
-      }
-
-      const db = yield* makeDrizzle(getConnectionString(env));
-
-      return yield* effect.pipe(Effect.provideService(PgDrizzle, db));
-    }).pipe(
-      Effect.mapError(
-        () =>
-          new DatabaseConnectionError({
-            message: "Database connection failed",
-          }),
-      ),
-    );
-
-// ---------------------------------------------------------------------------
-// Bindings middleware factory
-// ---------------------------------------------------------------------------
-
-/**
- * Creates a Layer that implements a middleware tag by reading env/ctx from
- * ServiceMap.Reference and providing CloudflareBindings to the wrapped effect.
- *
- * Works for both HttpApiMiddleware.Service and RpcMiddleware.Service tags
- * because they share the same `(effect) => Effect` shape.
- *
- * @example
- * ```ts
- * // HTTP app
- * const CloudflareBindingsMiddlewareLive = makeBindingsMiddleware(CloudflareBindingsMiddleware)
- *
- * // RPC app
- * const RpcCloudflareMiddlewareLive = makeBindingsMiddleware(RpcCloudflareMiddleware)
- * ```
- */
-export const makeBindingsMiddleware = <I, S>(tag: ServiceMap.Key<I, S>): Layer.Layer<I> =>
-  Layer.succeed(tag)(bindingsMiddlewareEffect as unknown as S);
-
-// ---------------------------------------------------------------------------
-// Database middleware factory
-// ---------------------------------------------------------------------------
-
-/**
- * Creates a Layer that implements a database middleware tag by reading env
- * from ServiceMap.Reference, creating a PgDrizzle connection, and providing
- * it to the wrapped effect.
- *
- * @example
- * ```ts
- * const DatabaseMiddlewareLive = makeDatabaseMiddleware(
- *   DatabaseMiddleware,
- *   (env) => (env as Env).HYPERDRIVE.connectionString
- * )
- * ```
- */
-export const makeDatabaseMiddleware = <I, S>(
-  tag: ServiceMap.Key<I, S>,
-  getConnectionString: (env: unknown) => string,
-): Layer.Layer<I> =>
-  Layer.succeed(tag)(databaseMiddlewareEffect(getConnectionString) as unknown as S);
+        }),
+      onSome: (resolvedEnv) =>
+        Effect.gen(function* () {
+          const db = yield* makeDrizzle(getConnectionString(resolvedEnv));
+          return yield* effect.pipe(Effect.provideService(PgDrizzle, db));
+        }),
+    });
+  }).pipe(
+    Effect.mapError(
+      () =>
+        new DatabaseConnectionError({
+          message: "Database connection failed",
+        }),
+    ),
+  );

@@ -9,11 +9,11 @@ import type { PgRemoteDatabase } from "drizzle-orm/pg-proxy";
  *
  * @module
  */
-import { ServiceMap } from "effect";
+import { Context } from "effect";
 
 /**
  * PgDrizzle service tag — provides a Drizzle PgRemoteDatabase instance.
  */
-export class PgDrizzle extends ServiceMap.Service<PgDrizzle, PgRemoteDatabase>()(
+export class PgDrizzle extends Context.Service<PgDrizzle, PgRemoteDatabase>()(
   "@repo/db/PgDrizzle",
 ) {}

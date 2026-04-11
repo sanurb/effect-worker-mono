@@ -4,9 +4,9 @@
  * Shared Cloudflare Workers integration for Effect.
  *
  * Provides:
- * - ServiceMap.Reference bridge for request-scoped env/ctx
+ * - Context.Reference bridge for request-scoped env/ctx
  * - CloudflareBindings service tag
- * - Middleware factories for bindings and database
+ * - Middleware building blocks (provideBindings, provideDatabase)
  *
  * @module
  */
@@ -18,6 +18,6 @@ export {
   type WorkerExecutionContext,
 } from "./bindings";
 
-export { CloudflareBindings, makeBindingsMiddleware, makeDatabaseMiddleware } from "./middleware";
+export { CloudflareBindings, provideBindings, provideDatabase } from "./middleware";
 
 export * from "./observability";

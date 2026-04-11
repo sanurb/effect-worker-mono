@@ -33,6 +33,8 @@ ignores:
   - "**/*.spec.ts"
   - "**/*.spec.tsx"
   - "**/*.d.ts"
+  - "**/*.gen.ts"
+  - "**/*.gen.tsx"
   - "**/node_modules/**"
   - "**/runtime.ts"
   - "**/index.ts"

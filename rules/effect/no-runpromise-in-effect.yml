@@ -22,6 +22,8 @@ ignores:
   - "**/*.spec.ts"
   - "**/*.spec.tsx"
   - "**/*.d.ts"
+  - "**/*.gen.ts"
+  - "**/*.gen.tsx"
   - "**/node_modules/**"
   - "**/index.ts"
   - "**/runtime.ts"

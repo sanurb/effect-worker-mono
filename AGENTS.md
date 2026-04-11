@@ -73,15 +73,15 @@ Vite+ wraps the underlying package manager (pnpm here, via `packageManager` in `
 | `sg` (`@ast-grep/cli`)                                | Effect architecture rules. Run via `pnpm sg:check` / `pnpm sg:test`.                              |
 | `agent-ci`                                            | Local CI runner (`pnpm ci:local`).                                                                |
 
-Per-package `tsgo` checks remain in each package's `check` script and run together via `pnpm -r run check` (also exposed as `vp run types:check`).
+Per-package `tsgo` checks remain in each package's `check` script and run together via the `types:check` task (`vp run types:check`).
 
 ### Common Pitfalls
 
-- **Do not call pnpm/npm/yarn directly** for normal dependency operations. Use `vp install`, `vp add`, `vp remove`. The remaining `pnpm`-prefixed scripts in `package.json` exist only because they wrap tools Vite+ does not own (`sg`, `tsgo`, `wrangler`, `agent-ci`).
+- **Do not call pnpm/npm/yarn directly** for normal dependency operations. Use `vp install`, `vp add`, `vp remove`. The remaining `pnpm`-prefixed entries in `package.json` exist only for per-package targeting (`pnpm --filter <pkg>`) of tools Vite+ does not own (`sg`, `tsgo`, `wrangler`, `agent-ci`).
 - **Do not run `vp vitest` or `vp oxlint`** — they do not exist. Use `vp test`, `vp lint`, `vp fmt`.
-- **Do not install `vitest`, `oxlint`, `oxfmt`, or `tsdown` directly.** Vite+ wraps them. They are pinned via the pnpm overrides in `pnpm-workspace.yaml`. Upgrade them through `vp upgrade` (and the corresponding `vite-plus` / `@voidzero-dev/vite-plus-core` versions in root `package.json`).
+- **Do not install `vite`, `vitest`, `oxlint`, `oxfmt`, or `tsdown` directly.** Vite+ wraps them. The only Vite+ direct dependencies in this repo are `vite-plus` and the `vitest` alias to `@voidzero-dev/vite-plus-test` (used as the package name plain tests would import). Upgrade them through `vp upgrade` and bump both pinned versions together.
 - **Use `vp dlx` instead of `pnpm dlx` / `npx`.**
-- **Importing test utilities:** Effect-aware tests import from `@effect/vitest`. Plain tests, if added, import from `vite-plus/test` — never directly from `vitest`. The `vitest` package name resolves to `@voidzero-dev/vite-plus-test` via the pnpm override.
+- **Importing test utilities:** Effect-aware tests import from `@effect/vitest`. Plain tests, if added, import from `vite-plus/test` — never from `vitest`. The pnpm override redirects the literal `vitest` package name to `@voidzero-dev/vite-plus-test`, so a stray `from "vitest"` still resolves but is forbidden by harness rules.
 - **Type-aware lint:** `vp lint --type-aware` works out of the box. Do not install `oxlint-tsgolint` separately.
 
 ### Review Checklist for Agents
@@ -89,8 +89,8 @@ Per-package `tsgo` checks remain in each package's `check` script and run togeth
 - [ ] Run `vp install` after pulling remote changes and before getting started.
 - [ ] Run `vp check` and `vp test` to validate changes.
 - [ ] Run `pnpm sg:check` for ast-grep architecture rules.
-- [ ] For per-package type checks: `pnpm -r run check` (or `vp run types:check`).
-- [ ] For build: `pnpm build` (the dependency-ordered tsgo build) — `vp build` is reserved for Vite-driven apps.
+- [ ] For per-package type checks: `vp run types:check` (wraps `pnpm -r run check`).
+- [ ] For build of shared packages: `vp run build:packages` (wraps the dependency-ordered tsgo build). `vp build` is reserved for Vite-driven apps (currently `tanstack-start`).
 
 <!--VITE PLUS END-->
 
@@ -133,12 +133,12 @@ Per-package `tsgo` checks remain in each package's `check` script and run togeth
 ## Verification (run before declaring done)
 
 ```bash
-vp install         # restore deps with overrides applied
-vp check           # vp fmt + vp lint (+ type-aware lint)
-pnpm sg:check      # ast-grep architecture rules (not wrapped by Vite+)
-vp test            # vitest via Vite+
-pnpm -r run check  # tsgo type check across every package
-pnpm build         # build shared packages in dependency order
+vp install              # restore deps with overrides applied
+vp check                # vp fmt + vp lint (+ type-aware lint)
+pnpm sg:check           # ast-grep architecture rules (not wrapped by Vite+)
+vp test                 # vitest via Vite+
+vp run types:check      # tsgo type check across every workspace package
+vp run build:packages   # dependency-ordered tsgo build of @repo/* packages
 ```
 
 ### Local CI (run the real GitHub Actions workflow locally)
@@ -156,8 +156,8 @@ See `docs/agents/validation.md` for per-package and per-tool breakdowns.
 ## Troubleshooting
 
 - `vp` not found → install Vite+: `curl -fsSL https://vite.plus | bash`. The repo expects `vp` to be on `PATH`.
-- `vp install` fails on peer mismatch for `vitest` → confirm `pnpm-workspace.yaml` still contains the `peerDependencyRules` override; the `@effect/vitest` peer on `vitest@^3.2.0` is intentionally satisfied by `@voidzero-dev/vite-plus-test`.
-- A Vite plugin in `tanstack-start` complains about a missing `vite` export → the override redirects `vite` to `@voidzero-dev/vite-plus-core`. Upgrade `vite-plus` (`vp upgrade` + bump the root `vite-plus` / `@voidzero-dev/vite-plus-core` versions) before reverting the override.
+- `vp install` fails on a peer mismatch for `vitest` → confirm `pnpm-workspace.yaml` still contains the `peerDependencyRules.allowedVersions.vitest: "*"` entry. `@voidzero-dev/vite-plus-test` is versioned independently of upstream Vitest (`0.1.x` vs `4.x`), so any peer that demands a numeric `vitest` range needs this rule. Bump it through `vp upgrade`, never by adding more `peerDependencyRules` entries.
+- A Vite plugin in `tanstack-start` complains about a missing `vite` export → the override redirects `vite` to `@voidzero-dev/vite-plus-core@0.1.16`. Run `vp upgrade` and bump the pinned `vite-plus` version in root `package.json` and `apps/tanstack-start/package.json` together; do not edit the override version by hand.
 - `env.HYPERDRIVE` undefined → check `wrangler.jsonc` and `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` in `.env`.
 - `/api/openapi.json` missing → OpenAPI is registered in `apps/effect-worker-api/src/runtime.ts`, not the entrypoint.
 - RPC returns 404 → handler is at `/rpc`; `/health` is the only non-RPC route in `effect-worker-rpc`.

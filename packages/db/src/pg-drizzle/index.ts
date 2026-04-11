@@ -10,7 +10,7 @@ import "./patch.js";
 import { PgClient } from "@effect/sql-pg";
 import type { DrizzleConfig } from "drizzle-orm";
 import { drizzle, type RemoteCallback } from "drizzle-orm/pg-proxy";
-import { Effect, Layer, Redacted, ServiceMap } from "effect";
+import { Context, Effect, Layer, Redacted } from "effect";
 import { SqlClient } from "effect/unstable/sql";
 
 export { PgDrizzle } from "./tag.js";
@@ -101,6 +101,6 @@ export const makePgDrizzleLayer = (
 export const makeDrizzle = (connectionString: string, config: DrizzleConfig = defaultConfig) =>
   Effect.gen(function* () {
     const services = yield* Layer.build(PgClient.layer({ url: Redacted.make(connectionString) }));
-    const client = ServiceMap.get(services, SqlClient.SqlClient);
+    const client = Context.get(services, SqlClient.SqlClient);
     return drizzle(buildRemoteCallback(client), config);
   });

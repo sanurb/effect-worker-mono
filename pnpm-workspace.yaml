@@ -3,26 +3,29 @@ packages:
   - apps/*
 
 catalog:
-  effect: 4.0.0-beta.20
+  effect: 4.0.0-beta.47
   "@effect/tsgo": 0.3.1
-  "@effect/sql-pg": 4.0.0-beta.20
-  "@effect/vitest": 4.0.0-beta.20
-  "@effect/atom-react": 4.0.0-beta.20
+  "@effect/sql-pg": 4.0.0-beta.47
+  "@effect/vitest": 4.0.0-beta.47
+  "@effect/atom-react": 4.0.0-beta.47
   typescript: 6.0.2
 
-# Vite+ wraps `vite` and `vitest` and ships them as `@voidzero-dev/vite-plus-core`
-# and `@voidzero-dev/vite-plus-test`. These overrides force every transitive
-# consumer (including `@effect/vitest` and Vite plugins) to resolve through the
-# Vite+ versions so the toolchain stays unified behind `vp`.
+# Vite+ ships `vite` and `vitest` as `@voidzero-dev/vite-plus-core` and
+# `@voidzero-dev/vite-plus-test`. These overrides force every transitive
+# consumer (Vite plugins, `@effect/vitest`, etc.) to resolve through the
+# Vite+ packages so the toolchain stays unified behind `vp`. Pin them to the
+# same version `vite-plus` itself depends on so a downstream `npm publish`
+# cannot bump them silently — `vp upgrade` is the only supported bump path.
 overrides:
-  vite: npm:@voidzero-dev/vite-plus-core@latest
-  vitest: npm:@voidzero-dev/vite-plus-test@latest
+  vite: npm:@voidzero-dev/vite-plus-core@0.1.16
+  vitest: npm:@voidzero-dev/vite-plus-test@0.1.16
 
-# `@effect/vitest` declares a peer on `vitest@^3.2.0`. Once the override above
-# replaces `vitest` with `@voidzero-dev/vite-plus-test`, the resolved version
-# (0.1.x) no longer satisfies the literal range. Tell pnpm that this is
-# intentional so installs do not fail on the peer mismatch.
+# `@voidzero-dev/vite-plus-test` is versioned independently of upstream
+# `vitest` (`0.1.x` vs `4.x`). After the override above any package that
+# peer-depends on `vitest@^3.0.0 || ^4.0.0` (e.g. `@effect/vitest@4.0.0-beta.47+`)
+# resolves a literal `0.1.16`, which never satisfies a numeric range. This rule
+# tells pnpm the mismatch is intentional. It is the only Vite+ peer band-aid
+# this repo carries — do not extend it without justification.
 peerDependencyRules:
   allowedVersions:
-    "@effect/vitest>vitest": "*"
     vitest: "*"

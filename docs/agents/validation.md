@@ -20,12 +20,12 @@ If both pass, the change is clean for style and structure. They do not compile o
 Run all of these for any non-trivial change:
 
 ```bash
-vp install        # restore deps (resolves the vite/vitest overrides)
-vp check          # format, lint, type-aware lint
-pnpm sg:check     # ast-grep architecture rules
-pnpm -r run check # tsgo type check across every workspace package
-vp test           # vitest via Vite+ (bundled in vp)
-pnpm build        # tsgo build of shared packages in dependency order
+vp install              # restore deps (resolves the vite/vitest overrides)
+vp check                # format, lint, type-aware lint
+pnpm sg:check           # ast-grep architecture rules (not wrapped by Vite+)
+vp run types:check      # tsgo type check across every workspace package
+vp test                 # vitest via Vite+ (bundled in vp)
+vp run build:packages   # tsgo build of shared packages in dependency order
 ```
 
 For a specific package only:
@@ -90,19 +90,21 @@ Effect-aware tests import from `@effect/vitest`. Plain tests, if added, **must**
 ### Build (per-package, via `tsgo`)
 
 ```bash
-pnpm build             # builds: domain → db → cloudflare → contracts (in order)
+vp run build:packages  # builds: domain → db → cloudflare → contracts (in order)
 pnpm clean             # remove dist output under packages/*
 ```
 
-Apps are not built by `pnpm build` at the root. Build them individually:
+Both targets are declared in `vite.config.ts` `run.tasks` and dispatched through Vite+'s task runner. The underlying command is still a `pnpm --filter` chain because tsgo is not wrapped by Vite+; routing through `vp run` keeps the entry point coherent.
+
+Apps are not built by `vp run build:packages`. Build them individually:
 
 ```bash
 pnpm --filter effect-worker-api run build
 pnpm --filter effect-worker-rpc run build
-pnpm --filter tanstack-start-on-cloudflare run build
+pnpm --filter tanstack-start-on-cloudflare run build   # this one is a real Vite app
 ```
 
-> `vp build` is reserved for Vite-driven apps (currently `tanstack-start`). The shared packages do not use Vite for their build pipeline.
+> `vp build` is reserved for Vite-driven apps (currently `tanstack-start`, which now imports `defineConfig` from `vite-plus`). The shared packages do not use Vite for their build pipeline.
 
 ## Observability Check
 
@@ -126,15 +128,15 @@ DATABASE_URL=postgres://... pnpm db:studio     # open Drizzle Studio
 
 ## What Each Gate Catches
 
-| Gate                | Catches                                                           |
-| ------------------- | ----------------------------------------------------------------- |
-| `vp lint`           | Unused vars, eval, console, type-unsafe patterns, type-aware lint |
-| `vp fmt --check`    | Formatting drift                                                  |
-| `vp check`          | Lint + format + type-aware lint in one pass                       |
-| `pnpm sg:check`     | Effect anti-patterns, architecture violations, structural rules   |
-| `pnpm -r run check` | TypeScript type errors across all packages (via `tsgo`)           |
-| `vp test`           | Behavioural regressions                                           |
-| `pnpm build`        | Build-breaking import or export errors                            |
+| Gate                    | Catches                                                           |
+| ----------------------- | ----------------------------------------------------------------- |
+| `vp lint`               | Unused vars, eval, console, type-unsafe patterns, type-aware lint |
+| `vp fmt --check`        | Formatting drift                                                  |
+| `vp check`              | Lint + format + type-aware lint in one pass                       |
+| `pnpm sg:check`         | Effect anti-patterns, architecture violations, structural rules   |
+| `vp run types:check`    | TypeScript type errors across all packages (via `tsgo`)           |
+| `vp test`               | Behavioural regressions                                           |
+| `vp run build:packages` | Build-breaking import or export errors                            |
 
 No single gate catches everything. Run all of them for non-trivial changes.
 

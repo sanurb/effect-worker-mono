@@ -3,7 +3,7 @@ import { CloudflareBindingsError } from "@repo/domain";
  * Cloudflare Bindings RPC Middleware Tag
  *
  * RpcMiddleware tag that provides CloudflareBindings to RPC handlers.
- * The implementation is provided by the app using ServiceMap.Reference.
+ * The implementation is provided by the app using Context.Reference.
  *
  * @module
  */

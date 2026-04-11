@@ -1,13 +1,13 @@
 /**
  * Cloudflare Bindings Bridge
  *
- * Shared ServiceMap.Reference bridge for providing Cloudflare's `env` and
+ * Shared Context.Reference bridge for providing Cloudflare's `env` and
  * `ExecutionContext` to Effect handlers. Extracted from app-level duplication
  * so every Cloudflare Worker app can reuse the same bridge.
  *
  * @module
  */
-import { Effect, ServiceMap } from "effect";
+import { Context, Effect } from "effect";
 
 /**
  * ExecutionContext interface for Cloudflare Workers.
@@ -20,14 +20,14 @@ export interface WorkerExecutionContext {
 /**
  * Reference holding the current request's Cloudflare environment bindings.
  */
-export const currentEnv = ServiceMap.Reference<unknown>("@repo/cloudflare/currentEnv", {
+export const currentEnv = Context.Reference<unknown>("@repo/cloudflare/currentEnv", {
   defaultValue: () => null,
 });
 
 /**
  * Reference holding the current request's ExecutionContext.
  */
-export const currentCtx = ServiceMap.Reference<WorkerExecutionContext | null>(
+export const currentCtx = Context.Reference<WorkerExecutionContext | null>(
   "@repo/cloudflare/currentCtx",
   { defaultValue: () => null },
 );
@@ -39,8 +39,8 @@ export const currentCtx = ServiceMap.Reference<WorkerExecutionContext | null>(
  *
  * ```typescript
  * const services = pipe(
- *   ServiceMap.make(currentEnv, env),
- *   ServiceMap.add(currentCtx, ctx)
+ *   Context.make(currentEnv, env),
+ *   Context.add(currentCtx, ctx)
  * )
  * return handler(request, services)
  * ```
@@ -68,7 +68,7 @@ export const waitUntil = <A, E>(effect: Effect.Effect<A, E>): Effect.Effect<void
   Effect.gen(function* () {
     const ctx = yield* currentCtx;
     if (ctx === null) return;
-    const services = yield* Effect.services<never>();
+    const services = yield* Effect.context<never>();
     ctx.waitUntil(
       Effect.runPromiseWith(services)(
         effect.pipe(

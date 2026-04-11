@@ -70,7 +70,7 @@ Boundary rule:
 
 Responsibilities:
 
-- Bridge Cloudflare `env` and `ctx` into Effect via request-scoped `ServiceMap` references.
+- Bridge Cloudflare `env` and `ctx` into Effect via request-scoped `Context.Reference`s.
 - Provide Worker-specific helpers like `waitUntil`.
 - Build reusable middleware factories for Cloudflare bindings and database access.
 - Host observability infrastructure: logger, tracer, NDJSON trace emission, optional OTLP delegation.
@@ -131,7 +131,7 @@ Boundary rule:
 ### HTTP API flow
 
 1. Cloudflare invokes `apps/effect-worker-api/src/index.ts`.
-2. The entrypoint stores `env` and `ctx` in request-scoped `ServiceMap` references.
+2. The entrypoint stores `env` and `ctx` in request-scoped `Context.Reference`s.
 3. `apps/effect-worker-api/src/runtime.ts` creates the web handler from `WorkerApi` plus `HttpGroupsLive` and `MiddlewareLive`.
 4. HTTP contract definitions come from `@repo/contracts`.
 5. App middleware implementations bind contract middleware tags to live factories from `@repo/cloudflare`.

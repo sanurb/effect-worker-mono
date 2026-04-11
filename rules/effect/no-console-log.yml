@@ -24,4 +24,10 @@ ignores:
   - "**/*.spec.ts"
   - "**/*.spec.tsx"
   - "**/*.d.ts"
+  - "**/*.gen.ts"
+  - "**/*.gen.tsx"
+  # `ndjson-sink.ts` is the designated I/O boundary where the NDJSON
+  # tracer calls through to the worker's `console.log`/`console.warn`
+  # streams. Every other file must route through these helpers.
+  - "packages/cloudflare/src/observability/ndjson-sink.ts"
   - "**/node_modules/**"

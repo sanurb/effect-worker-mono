@@ -5,7 +5,7 @@
  *
  * @module
  */
-import { pipe, ServiceMap } from "effect";
+import { Context, pipe } from "effect";
 
 import { handler } from "@/runtime";
 import { currentEnv, currentCtx } from "@/services/cloudflare";
@@ -15,8 +15,8 @@ import { currentEnv, currentCtx } from "@/services/cloudflare";
  */
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    // Pass per-request Cloudflare bindings via ServiceMap context
-    const services = pipe(ServiceMap.make(currentEnv, env), ServiceMap.add(currentCtx, ctx));
+    // Pass per-request Cloudflare bindings via Context
+    const services = pipe(Context.make(currentEnv, env), Context.add(currentCtx, ctx));
 
     return handler(request, services);
   },

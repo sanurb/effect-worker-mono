@@ -342,17 +342,17 @@ Core root scripts available now:
 
 ## Tech Stack
 
-| Category      | Technology                                        |
-| ------------- | ------------------------------------------------- |
-| Runtime       | Cloudflare Workers                                |
-| Framework     | Effect-TS                                         |
-| HTTP          | @effect/platform                                  |
-| RPC           | @effect/rpc                                       |
-| Full-Stack UI | TanStack Start + TanStack Router + TanStack Query |
-| Database      | Drizzle ORM + PostgreSQL                          |
-| Build         | pnpm workspaces + TypeScript                      |
-| Testing       | Vitest + @effect/vitest                           |
-| Deployment    | Wrangler                                          |
+| Category      | Technology                                                |
+| ------------- | --------------------------------------------------------- |
+| Runtime       | Cloudflare Workers                                        |
+| Framework     | Effect-TS                                                 |
+| HTTP          | @effect/platform                                          |
+| RPC           | @effect/rpc                                               |
+| Full-Stack UI | TanStack Start + TanStack Router + TanStack Query         |
+| Database      | Drizzle ORM + PostgreSQL                                  |
+| Toolchain     | Vite+ (`vp`) wrapping Vite, Vitest, Oxlint, Oxfmt, tsdown |
+| Testing       | Vite+ Vitest + @effect/vitest                             |
+| Deployment    | Wrangler                                                  |
 
 ## Key Dependencies
 

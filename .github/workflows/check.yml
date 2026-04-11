@@ -33,9 +33,10 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/setup
       - name: Build packages
-        # `pnpm build` runs the dependency-ordered tsgo build of shared
-        # packages. Vite+ does not wrap tsgo.
-        run: pnpm build
+        # `vp run build:packages` dispatches the dependency-ordered tsgo
+        # build defined in vite.config.ts run.tasks. Vite+ does not wrap
+        # tsgo, but it owns the entry point.
+        run: vp run build:packages
   types:
     name: Types
     runs-on: ubuntu-latest
@@ -45,7 +46,9 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/setup
       - name: Type check (tsgo)
-        run: pnpm check
+        # `vp run types:check` dispatches `pnpm -r run check` (tsgo) via
+        # vite.config.ts run.tasks.
+        run: vp run types:check
   test:
     name: Test
     runs-on: ubuntu-latest

@@ -42,7 +42,7 @@ queryPromiseProto[Symbol.iterator] = function (this: QueryPromise<unknown>) {
 queryPromiseProto.asEffect = function (this: { execute: () => Promise<unknown> }) {
   return Effect.tryPromise({
     try: () => this.execute(),
-    catch: (cause) => new SqlError.SqlError({ cause }),
+    catch: (cause) => new SqlError.SqlError({ reason: new SqlError.UnknownError({ cause }) }),
   });
 };
 
@@ -61,7 +61,7 @@ pgSelectProto[Symbol.iterator] = function (this: QueryPromise<unknown>) {
 pgSelectProto.asEffect = function (this: { execute: () => Promise<unknown> }) {
   return Effect.tryPromise({
     try: () => this.execute(),
-    catch: (cause) => new SqlError.SqlError({ cause }),
+    catch: (cause) => new SqlError.SqlError({ reason: new SqlError.UnknownError({ cause }) }),
   });
 };
 

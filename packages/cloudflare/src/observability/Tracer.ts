@@ -1,12 +1,14 @@
 /**
  * NDJSON Tracer
- * Emits completed spans as newline-delimited JSON records to stdout.
+ * Emits completed spans as newline-delimited JSON records through the
+ * designated stdout sink.
  * @module
  */
 
-import type { ServiceMap } from "effect";
-import { Cause, Exit, Layer, Tracer } from "effect";
+import type { Context } from "effect";
+import { Boolean, Cause, Exit, Layer, Match, Option, Predicate, Tracer } from "effect";
 
+import { reportSinkError, writeNdjsonLine } from "./ndjson-sink";
 import {
   SPAN_STATUS,
   type SpanEvent as TraceRecordSpanEvent,
@@ -26,44 +28,51 @@ class NdjsonSpan implements Tracer.Span {
   readonly _tag = "Span";
   readonly traceId: string;
   readonly spanId: string;
-  readonly status: Tracer.SpanStatus;
   readonly attributes = new Map<string, unknown>();
   readonly events: Array<TraceRecordSpanEvent> = [];
   readonly links: Array<Tracer.SpanLink>;
 
-  private ended = false;
+  // `status` is declared non-readonly here. The `Tracer.Span` interface marks
+  // it `readonly`, but the class is allowed to widen that contract so `end()`
+  // can transition Started -> Ended without a cast — the same shape Effect's
+  // own `NativeSpan` uses.
+  status: Tracer.SpanStatus;
 
   constructor(
     readonly name: string,
-    readonly parent: Tracer.AnySpan | undefined,
-    readonly annotations: ServiceMap.ServiceMap<never>,
+    readonly parent: Option.Option<Tracer.AnySpan>,
+    readonly annotations: Context.Context<never>,
     readonly sampled: boolean,
     readonly kind: Tracer.SpanKind,
     readonly startTime: bigint,
     links: ReadonlyArray<Tracer.SpanLink>,
     private readonly delegateSpan?: Tracer.Span,
   ) {
-    this.traceId = parent ? parent.traceId : randomTraceId();
+    this.traceId = Option.getOrUndefined(parent)?.traceId ?? randomTraceId();
     this.spanId = randomSpanId();
     this.status = { _tag: "Started", startTime };
     this.links = Array.from(links);
   }
 
   end(endTime: bigint, exit: Exit.Exit<unknown, unknown>): void {
-    if (this.ended) {
-      return;
-    }
-
-    this.ended = true;
-    (this as { status: Tracer.SpanStatus }).status = {
-      _tag: "Ended",
-      startTime: this.startTime,
-      endTime,
-      exit,
-    };
-
-    this.delegateSpan?.end(endTime, exit);
-    writeTraceRecord(this);
+    // Idempotent: the first Started -> Ended transition emits and forwards;
+    // any subsequent end() call is a no-op. Dispatch via Match.tag keeps the
+    // decision declarative and exhaustive across the span status union.
+    Match.value(this.status).pipe(
+      Match.tag("Started", (started) => {
+        this.status = {
+          _tag: "Ended",
+          startTime: started.startTime,
+          endTime,
+          exit,
+        };
+        this.delegateSpan?.end(endTime, exit);
+        writeTraceRecord(this);
+        return undefined;
+      }),
+      Match.tag("Ended", () => undefined),
+      Match.exhaustive,
+    );
   }
 
   attribute(key: string, value: unknown): void {
@@ -75,7 +84,10 @@ class NdjsonSpan implements Tracer.Span {
     this.events.push({
       name,
       timeUnixNano: startTime.toString(),
-      ...(attributes ? { attributes: sanitizeRecord(attributes) } : {}),
+      ...Option.match(Option.fromNullishOr(attributes), {
+        onNone: () => ({}),
+        onSome: (a) => ({ attributes: sanitizeRecord(a) }),
+      }),
     });
 
     this.delegateSpan?.event(name, startTime, attributes);
@@ -104,7 +116,12 @@ export const makeNdjsonTracer = (options: NdjsonTracerOptions = {}): Tracer.Trac
 
   return Tracer.make({
     span({ name, parent, annotations, links, startTime, kind, root, sampled }) {
-      const effectiveParent = root ? undefined : parent;
+      // Root spans discard any inherited parent; non-root spans inherit the
+      // caller's parent. `Boolean.match` makes the intent explicit.
+      const effectiveParent = Boolean.match(root, {
+        onTrue: () => Option.none<Tracer.AnySpan>(),
+        onFalse: () => parent,
+      });
       const delegateParent = toDelegateSpan(effectiveParent);
       const delegateSpan = delegate?.span({
         name,
@@ -138,21 +155,35 @@ export const NdjsonTracerLive = Layer.succeed(Tracer.Tracer)(makeNdjsonTracer())
 // Serialization
 // ============================================================================
 
-const writeTraceRecord = (span: NdjsonSpan): void => {
-  if (span.status._tag !== "Ended") {
-    return;
-  }
+/**
+ * Writes a trace record to the NDJSON sink if the span has transitioned to
+ * Ended. Started spans are no-ops — the emission is driven by `NdjsonSpan.end`.
+ */
+const writeTraceRecord = (span: NdjsonSpan): void =>
+  Match.value(span.status).pipe(
+    Match.tag("Ended", (ended) => emitEndedSpan(span, ended)),
+    Match.tag("Started", () => undefined),
+    Match.exhaustive,
+  );
 
+/** Serializes and emits one Ended span. Failures are reported to the sink. */
+const emitEndedSpan = (
+  span: NdjsonSpan,
+  status: Extract<Tracer.SpanStatus, { _tag: "Ended" }>,
+): void => {
   const record: TraceRecord = {
     _tag: "span",
     name: span.name,
     traceId: span.traceId,
     spanId: span.spanId,
-    ...(span.parent ? { parentSpanId: span.parent.spanId } : {}),
-    startTimeUnixNano: span.status.startTime.toString(),
-    endTimeUnixNano: span.status.endTime.toString(),
-    durationMs: Number(span.status.endTime - span.status.startTime) / 1_000_000,
-    status: toRecordStatus(span.status.exit),
+    ...Option.match(span.parent, {
+      onNone: (): { readonly parentSpanId?: string } => ({}),
+      onSome: (parent) => ({ parentSpanId: parent.spanId }),
+    }),
+    startTimeUnixNano: status.startTime.toString(),
+    endTimeUnixNano: status.endTime.toString(),
+    durationMs: Number(status.endTime - status.startTime) / 1_000_000,
+    status: toRecordStatus(status.exit),
     attributes: sanitizeRecord(Object.fromEntries(span.attributes)),
     events: span.events,
     links: span.links.map(
@@ -166,109 +197,124 @@ const writeTraceRecord = (span: NdjsonSpan): void => {
   };
 
   try {
-    console.log(JSON.stringify(record));
+    writeNdjsonLine(JSON.stringify(record));
   } catch (error) {
-    console.warn("[observability] failed to serialize span record", {
+    reportSinkError("[observability] failed to serialize span record", {
       span: span.name,
-      error: error instanceof Error ? error.message : String(error),
+      error: describeError(error),
     });
   }
 };
 
-const toRecordStatus = (exit: Exit.Exit<unknown, unknown>) => {
-  if (Exit.isSuccess(exit)) {
-    return SPAN_STATUS.OK;
-  }
+/** Maps an Exit into the flat NDJSON span-status enum. */
+const toRecordStatus = (exit: Exit.Exit<unknown, unknown>): TraceRecord["status"] =>
+  Exit.match(exit, {
+    onSuccess: () => SPAN_STATUS.OK,
+    onFailure: (cause) =>
+      Boolean.match(Cause.hasInterruptsOnly(cause), {
+        onTrue: () => SPAN_STATUS.INTERRUPTED,
+        onFalse: () => SPAN_STATUS.ERROR,
+      }),
+  });
 
-  return Cause.hasInterruptsOnly(exit.cause) ? SPAN_STATUS.INTERRUPTED : SPAN_STATUS.ERROR;
-};
-
-const toDelegateSpan = (span: Tracer.AnySpan | undefined): Tracer.AnySpan | undefined => {
-  if (span === undefined) {
-    return undefined;
-  }
-
-  if (span instanceof NdjsonSpan) {
-    return (
-      span.delegate ??
-      Tracer.externalSpan({
-        spanId: span.spanId,
-        traceId: span.traceId,
-        sampled: span.sampled,
-        annotations: span.annotations,
-      })
-    );
-  }
-
-  return span;
-};
+/**
+ * Translates a span from our wrapper into a delegate-friendly span so the
+ * external tracer records reference the real (non-wrapper) span identity.
+ * Non-wrapper spans pass through unchanged.
+ */
+const toDelegateSpan = (
+  span: Option.Option<Tracer.AnySpan>,
+): Option.Option<Tracer.AnySpan> =>
+  Option.map(span, (inner) =>
+    Match.value(inner).pipe(
+      Match.when(
+        (v): v is NdjsonSpan => v instanceof NdjsonSpan,
+        (nd) =>
+          nd.delegate ??
+          Tracer.externalSpan({
+            spanId: nd.spanId,
+            traceId: nd.traceId,
+            sampled: nd.sampled,
+            annotations: nd.annotations,
+          }),
+      ),
+      Match.orElse(() => inner),
+    ),
+  );
 
 const toDelegateLink = (link: Tracer.SpanLink): Tracer.SpanLink => ({
-  span: toDelegateSpan(link.span) ?? link.span,
+  span: Option.getOrElse(toDelegateSpan(Option.some(link.span)), () => link.span),
   attributes: link.attributes,
 });
 
 const sanitizeRecord = (input: Record<string, unknown>): Record<string, unknown> =>
   Object.fromEntries(Object.entries(input).map(([key, value]) => [key, sanitizeValue(value)]));
 
-const sanitizeValue = (value: unknown, seen: WeakSet<object> = new WeakSet()): unknown => {
-  if (typeof value === "bigint") {
-    return value.toString();
-  }
+/**
+ * Converts any value into a JSON-safe representation, guarding against
+ * cycles, BigInts, errors, and host objects. The `seen` set prevents
+ * infinite recursion on self-referential structures.
+ */
+const sanitizeValue = (value: unknown, seen: WeakSet<object> = new WeakSet()): unknown =>
+  Match.value(value).pipe(
+    Match.when(Match.bigint, (v) => v.toString()),
+    Match.when(Match.null, () => null),
+    Match.when(Match.string, (v) => v),
+    Match.when(Match.number, (v) => v),
+    Match.when(Match.boolean, (v) => v),
+    Match.when(Match.undefined, () => "undefined"),
+    Match.when(Predicate.isFunction, (fn) => `[function ${fn.name || "anonymous"}]`),
+    Match.when(Match.instanceOf(Error), (e) => ({
+      name: e.name,
+      message: e.message,
+      stack: e.stack,
+    })),
+    Match.when(
+      (v: unknown): v is ReadonlyArray<unknown> => Array.isArray(v),
+      (arr) => arr.map((item) => sanitizeValue(item, seen)),
+    ),
+    Match.when(Match.instanceOf(Map), (map) =>
+      Object.fromEntries(
+        Array.from(map.entries()).map(([key, item]) => [
+          String(key),
+          sanitizeValue(item, seen),
+        ]),
+      ),
+    ),
+    Match.when(Match.instanceOf(Set), (set) =>
+      Array.from(set.values()).map((item) => sanitizeValue(item, seen)),
+    ),
+    Match.when(Match.record, (obj) => sanitizeObject(obj, seen)),
+    Match.orElse((v: unknown) => String(v)),
+  );
 
-  if (
-    value === null ||
-    typeof value === "string" ||
-    typeof value === "number" ||
-    typeof value === "boolean"
-  ) {
-    return value;
-  }
+/**
+ * Recursively sanitizes a plain object. Returns `"[circular]"` when the
+ * same reference has already been visited higher in the traversal.
+ */
+const sanitizeObject = (
+  obj: { [x: PropertyKey]: unknown },
+  seen: WeakSet<object>,
+): unknown =>
+  Option.match(
+    Option.liftPredicate(obj, (o) => !seen.has(o)),
+    {
+      onNone: () => "[circular]",
+      onSome: (o) => {
+        seen.add(o);
+        return Object.fromEntries(
+          Object.entries(o).map(([key, item]) => [key, sanitizeValue(item, seen)]),
+        );
+      },
+    },
+  );
 
-  if (typeof value === "undefined") {
-    return "undefined";
-  }
-
-  if (typeof value === "function") {
-    return `[function ${value.name || "anonymous"}]`;
-  }
-
-  if (value instanceof Error) {
-    return {
-      name: value.name,
-      message: value.message,
-      stack: value.stack,
-    };
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((item) => sanitizeValue(item, seen));
-  }
-
-  if (value instanceof Map) {
-    return Object.fromEntries(
-      Array.from(value.entries()).map(([key, item]) => [String(key), sanitizeValue(item, seen)]),
-    );
-  }
-
-  if (value instanceof Set) {
-    return Array.from(value.values()).map((item) => sanitizeValue(item, seen));
-  }
-
-  if (typeof value === "object") {
-    if (seen.has(value)) {
-      return "[circular]";
-    }
-
-    seen.add(value);
-
-    return Object.fromEntries(
-      Object.entries(value).map(([key, item]) => [key, sanitizeValue(item, seen)]),
-    );
-  }
-
-  return String(value);
-};
+/** Best-effort human-readable description of an unknown throwable. */
+const describeError = (error: unknown): string =>
+  Match.value(error).pipe(
+    Match.when(Match.instanceOf(Error), (e) => e.message),
+    Match.orElse(() => String(error)),
+  );
 
 // ============================================================================
 // IDs
