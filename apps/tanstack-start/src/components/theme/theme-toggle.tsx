@@ -1,5 +1,5 @@
-import { Monitor, Moon, Sun, Check } from "lucide-react";
-import * as React from "react";
+import { Match, Option } from "effect";
+import { Check, Monitor, Moon, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -8,8 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 import { useTheme } from "./theme-provider";
+
+type Theme = "light" | "dark" | "system";
+type Resolved = "light" | "dark";
 
 interface ThemeToggleProps {
   variant?: "default" | "outline" | "ghost";
@@ -17,6 +21,27 @@ interface ThemeToggleProps {
   showLabel?: boolean;
   align?: "start" | "center" | "end";
 }
+
+// ============================================================================
+// Pure helpers
+// ============================================================================
+
+/** Next theme in the light → dark → system → light cycle. */
+const nextTheme = (current: Theme): Theme =>
+  Match.value(current).pipe(
+    Match.when("light", () => "dark" as const),
+    Match.when("dark", () => "system" as const),
+    Match.when("system", () => "light" as const),
+    Match.exhaustive,
+  );
+
+/** Human label describing the current effective theme. */
+const describeActiveTheme = (theme: Theme, resolvedTheme: Resolved | undefined): string =>
+  Match.value(theme).pipe(
+    Match.when("system", () => `System (${resolvedTheme ?? "unknown"})`),
+    Match.whenOr("light", "dark", (t) => t),
+    Match.exhaustive,
+  );
 
 export function ThemeToggle({
   variant = "ghost",
@@ -26,31 +51,27 @@ export function ThemeToggle({
 }: ThemeToggleProps) {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
-  // Animation variants for icons
-  const iconVariants = {
-    sun: "transition-all duration-500 ease-in-out",
-    moon: "transition-all duration-500 ease-in-out",
-    system: "transition-all duration-300 ease-in-out",
-  };
+  const iconTransition = "transition-all duration-500 ease-in-out";
+  const systemTransition = "transition-all duration-300 ease-in-out";
 
-  const getCurrentIcon = () => {
-    if (theme === "system") {
-      return (
-        <Monitor
-          className={`h-4 w-4 ${iconVariants.system} rotate-0 scale-100`}
-          aria-hidden="true"
-        />
-      );
-    }
-
-    if (resolvedTheme === "dark") {
-      return (
-        <Moon className={`h-4 w-4 ${iconVariants.moon} rotate-0 scale-100`} aria-hidden="true" />
-      );
-    }
-
-    return <Sun className={`h-4 w-4 ${iconVariants.sun} rotate-0 scale-100`} aria-hidden="true" />;
-  };
+  // Pick the trigger icon via Match.value. For "system" the icon is fixed;
+  // for explicit themes we inspect the resolved theme so a dark resolved
+  // theme shows the Moon icon even when the user switched to "system".
+  const currentIcon = Match.value(theme).pipe(
+    Match.when("system", () => (
+      <Monitor className={`h-4 w-4 ${systemTransition} rotate-0 scale-100`} aria-hidden="true" />
+    )),
+    Match.orElse(() =>
+      Match.value(resolvedTheme).pipe(
+        Match.when("dark", () => (
+          <Moon className={`h-4 w-4 ${iconTransition} rotate-0 scale-100`} aria-hidden="true" />
+        )),
+        Match.orElse(() => (
+          <Sun className={`h-4 w-4 ${iconTransition} rotate-0 scale-100`} aria-hidden="true" />
+        )),
+      ),
+    ),
+  );
 
   const themeOptions = [
     {
@@ -73,9 +94,13 @@ export function ThemeToggle({
     },
   ] as const;
 
-  const handleThemeSelect = (newTheme: typeof theme) => {
+  const handleThemeSelect = (newTheme: Theme) => {
     setTheme(newTheme);
   };
+
+  const currentLabel = Option.getOrUndefined(
+    Option.fromNullishOr(themeOptions.find((option) => option.value === theme)?.label),
+  );
 
   return (
     <DropdownMenu>
@@ -83,22 +108,18 @@ export function ThemeToggle({
         <Button
           variant={variant}
           size={size}
-          className={`
-            relative overflow-hidden transition-all duration-200 ease-in-out
-            hover:scale-105 active:scale-95
-            focus:ring-2 focus:ring-ring focus:ring-offset-2
-            ${showLabel ? "gap-2" : "aspect-square"}
-          `}
+          className={cn(
+            "relative overflow-hidden transition-all duration-200 ease-in-out",
+            "hover:scale-105 active:scale-95",
+            "focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            { "gap-2": showLabel, "aspect-square": !showLabel },
+          )}
           aria-label="Toggle theme"
         >
-          <div className="relative flex items-center justify-center">{getCurrentIcon()}</div>
-          {showLabel && (
-            <span className="text-sm font-medium">
-              {themeOptions.find((option) => option.value === theme)?.label}
-            </span>
-          )}
+          <div className="relative flex items-center justify-center">{currentIcon}</div>
+          {showLabel && <span className="text-sm font-medium">{currentLabel}</span>}
           <span className="sr-only">
-            Current theme: {theme === "system" ? `System (${resolvedTheme})` : theme}
+            Current theme: {describeActiveTheme(theme, resolvedTheme)}
           </span>
         </Button>
       </DropdownMenuTrigger>
@@ -116,30 +137,30 @@ export function ThemeToggle({
               <DropdownMenuItem
                 key={option.value}
                 onClick={() => handleThemeSelect(option.value)}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 cursor-pointer
-                  transition-all duration-200 ease-in-out
-                  hover:bg-accent/80 focus:bg-accent/80
-                  rounded-md group
-                  ${isSelected ? "bg-accent/60 text-accent-foreground" : ""}
-                `}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 cursor-pointer",
+                  "transition-all duration-200 ease-in-out",
+                  "hover:bg-accent/80 focus:bg-accent/80",
+                  "rounded-md group",
+                  { "bg-accent/60 text-accent-foreground": isSelected },
+                )}
               >
                 <div className="flex items-center justify-center w-5 h-5">
                   <Icon
-                    className={`
-                      h-4 w-4 transition-all duration-200
-                      ${isSelected ? "text-accent-foreground scale-110" : "text-muted-foreground"}
-                      group-hover:scale-105
-                    `}
+                    className={cn(
+                      "h-4 w-4 transition-all duration-200 group-hover:scale-105",
+                      isSelected && "text-accent-foreground scale-110",
+                      !isSelected && "text-muted-foreground",
+                    )}
                   />
                 </div>
 
                 <div className="flex flex-col flex-1 min-w-0">
                   <span
-                    className={`
-                    text-sm font-medium leading-none
-                    ${isSelected ? "text-accent-foreground" : "text-foreground"}
-                  `}
+                    className={cn("text-sm font-medium leading-none", {
+                      "text-accent-foreground": isSelected,
+                      "text-foreground": !isSelected,
+                    })}
                   >
                     {option.label}
                   </span>
@@ -159,12 +180,11 @@ export function ThemeToggle({
         {resolvedTheme && (
           <div className="border-t border-border/50 mt-2 pt-2">
             <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground">
-              <div
-                className={`
-                w-2 h-2 rounded-full transition-colors duration-200
-                ${resolvedTheme === "dark" ? "bg-blue-500" : "bg-amber-500"}
-              `}
-              />
+              {/*
+                Indicator dot uses `bg-foreground` so its visibility follows
+                the theme's own text color — no hardcoded palette colors.
+              */}
+              <div className="w-2 h-2 rounded-full transition-colors duration-200 bg-foreground" />
               Currently using {resolvedTheme} theme
             </div>
           </div>
@@ -174,19 +194,29 @@ export function ThemeToggle({
   );
 }
 
-// Simplified version for minimal use cases
+// Simplified version for minimal use cases.
 export function ThemeToggleSimple() {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   const handleToggle = () => {
-    if (theme === "light") {
-      setTheme("dark");
-    } else if (theme === "dark") {
-      setTheme("system");
-    } else {
-      setTheme("light");
-    }
+    setTheme(nextTheme(theme));
   };
+
+  const icon = Match.value(theme).pipe(
+    Match.when("system", () => (
+      <Monitor className="h-4 w-4 transition-all duration-300 ease-in-out rotate-0 scale-100" />
+    )),
+    Match.orElse(() =>
+      Match.value(resolvedTheme).pipe(
+        Match.when("dark", () => (
+          <Moon className="h-4 w-4 transition-all duration-500 ease-in-out rotate-0 scale-100" />
+        )),
+        Match.orElse(() => (
+          <Sun className="h-4 w-4 transition-all duration-500 ease-in-out rotate-0 scale-100" />
+        )),
+      ),
+    ),
+  );
 
   return (
     <Button
@@ -199,22 +229,10 @@ export function ThemeToggleSimple() {
         hover:scale-105 active:scale-95
         focus:ring-2 focus:ring-ring focus:ring-offset-2
       `}
-      aria-label={`Switch to ${theme === "light" ? "dark" : theme === "dark" ? "system" : "light"} theme`}
+      aria-label={`Switch to ${nextTheme(theme)} theme`}
     >
-      <div className="relative flex items-center justify-center">
-        {theme === "system" && (
-          <Monitor className="h-4 w-4 transition-all duration-300 ease-in-out rotate-0 scale-100" />
-        )}
-        {resolvedTheme === "dark" && theme !== "system" && (
-          <Moon className="h-4 w-4 transition-all duration-500 ease-in-out rotate-0 scale-100" />
-        )}
-        {resolvedTheme === "light" && theme !== "system" && (
-          <Sun className="h-4 w-4 transition-all duration-500 ease-in-out rotate-0 scale-100" />
-        )}
-      </div>
-      <span className="sr-only">
-        Current theme: {theme === "system" ? `System (${resolvedTheme})` : theme}
-      </span>
+      <div className="relative flex items-center justify-center">{icon}</div>
+      <span className="sr-only">Current theme: {describeActiveTheme(theme, resolvedTheme)}</span>
     </Button>
   );
 }

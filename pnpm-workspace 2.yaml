@@ -1,0 +1,28 @@
+packages:
+  - packages/*
+  - apps/*
+
+catalog:
+  effect: 4.0.0-beta.20
+  "@effect/tsgo": 0.3.1
+  "@effect/sql-pg": 4.0.0-beta.20
+  "@effect/vitest": 4.0.0-beta.20
+  "@effect/atom-react": 4.0.0-beta.20
+  typescript: 6.0.2
+
+# Vite+ wraps `vite` and `vitest` and ships them as `@voidzero-dev/vite-plus-core`
+# and `@voidzero-dev/vite-plus-test`. These overrides force every transitive
+# consumer (including `@effect/vitest` and Vite plugins) to resolve through the
+# Vite+ versions so the toolchain stays unified behind `vp`.
+overrides:
+  vite: npm:@voidzero-dev/vite-plus-core@latest
+  vitest: npm:@voidzero-dev/vite-plus-test@latest
+
+# `@effect/vitest` declares a peer on `vitest@^3.2.0`. Once the override above
+# replaces `vitest` with `@voidzero-dev/vite-plus-test`, the resolved version
+# (0.1.x) no longer satisfies the literal range. Tell pnpm that this is
+# intentional so installs do not fail on the peer mismatch.
+peerDependencyRules:
+  allowedVersions:
+    "@effect/vitest>vitest": "*"
+    vitest: "*"

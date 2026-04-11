@@ -5,7 +5,7 @@
  *
  * @module
  */
-import { Context, pipe } from "effect";
+import { Context, Match } from "effect";
 
 import { rpcHandler } from "@/runtime";
 import { currentEnv, currentCtx } from "@/services/cloudflare";
@@ -15,16 +15,15 @@ import { currentEnv, currentCtx } from "@/services/cloudflare";
  */
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    const url = new URL(request.url);
-
-    // Health check endpoint
-    if (url.pathname === "/health") {
-      return Response.json({ status: "ok", service: "effect-worker-rpc" });
-    }
-
-    // Pass per-request Cloudflare bindings via Context
-    const services = pipe(Context.make(currentEnv, env), Context.add(currentCtx, ctx));
-
-    return rpcHandler(request, services);
+    // Route via Match: `/health` returns a synchronous liveness probe,
+    // everything else is forwarded to the RPC handler. Match.value expresses
+    // the two-branch decision without an imperative `if` guard and keeps the
+    // Response construction flat.
+    return Match.value(new URL(request.url).pathname).pipe(
+      Match.when("/health", () => Response.json({ status: "ok", service: "effect-worker-rpc" })),
+      Match.orElse(() =>
+        rpcHandler(request, Context.make(currentEnv, env).pipe(Context.add(currentCtx, ctx))),
+      ),
+    );
   },
 } satisfies ExportedHandler<Env>;

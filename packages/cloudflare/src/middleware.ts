@@ -15,7 +15,7 @@
 
 import { PgDrizzle, makeDrizzle } from "@repo/db";
 import { CloudflareBindingsError, DatabaseConnectionError } from "@repo/domain";
-import { Context, Effect, Option } from "effect";
+import { Context, Effect, Option, type Scope } from "effect";
 
 import { currentEnv, currentCtx, type WorkerExecutionContext } from "./bindings";
 
@@ -52,23 +52,20 @@ export const provideBindings = Effect.fn("cloudflare.provideBindings")(function*
   const env = yield* currentEnv;
   const ctx = yield* currentCtx;
 
-  return yield* Option.match(
-    Option.all([Option.fromNullishOr(env), Option.fromNullishOr(ctx)]),
-    {
-      onNone: () =>
-        new CloudflareBindingsError({
-          message:
-            "Cloudflare bindings not available. Ensure withCloudflareBindings() wraps the handler.",
+  return yield* Option.match(Option.all([Option.fromNullishOr(env), Option.fromNullishOr(ctx)]), {
+    onNone: () =>
+      new CloudflareBindingsError({
+        message:
+          "Cloudflare bindings not available. Ensure withCloudflareBindings() wraps the handler.",
+      }),
+    onSome: ([resolvedEnv, resolvedCtx]) =>
+      effect.pipe(
+        Effect.provideService(CloudflareBindings, {
+          env: resolvedEnv,
+          ctx: resolvedCtx,
         }),
-      onSome: ([resolvedEnv, resolvedCtx]) =>
-        effect.pipe(
-          Effect.provideService(CloudflareBindings, {
-            env: resolvedEnv,
-            ctx: resolvedCtx,
-          }),
-        ),
-    },
-  );
+      ),
+  });
 });
 
 // ============================================================================
@@ -87,21 +84,21 @@ export const provideBindings = Effect.fn("cloudflare.provideBindings")(function*
 export const provideDatabase = <A, E, R>(
   getConnectionString: (env: unknown) => string,
   effect: Effect.Effect<A, E, R>,
-): Effect.Effect<A, E | DatabaseConnectionError, Exclude<R, PgDrizzle>> =>
+): Effect.Effect<A, E | DatabaseConnectionError, Exclude<R, PgDrizzle> | Scope.Scope> =>
   Effect.gen(function* () {
     const env = yield* currentEnv;
-    return yield* Option.match(Option.fromNullishOr(env), {
+    const resolvedEnv = yield* Option.match(Option.fromNullishOr(env), {
       onNone: () =>
-        new DatabaseConnectionError({
-          message:
-            "Cloudflare env not available. Ensure withCloudflareBindings() wraps the handler.",
-        }),
-      onSome: (resolvedEnv) =>
-        Effect.gen(function* () {
-          const db = yield* makeDrizzle(getConnectionString(resolvedEnv));
-          return yield* effect.pipe(Effect.provideService(PgDrizzle, db));
-        }),
+        Effect.fail(
+          new DatabaseConnectionError({
+            message:
+              "Cloudflare env not available. Ensure withCloudflareBindings() wraps the handler.",
+          }),
+        ),
+      onSome: Effect.succeed,
     });
+    const db = yield* makeDrizzle(getConnectionString(resolvedEnv));
+    return yield* effect.pipe(Effect.provideService(PgDrizzle, db));
   }).pipe(
     Effect.mapError(
       () =>

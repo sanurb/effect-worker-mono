@@ -10,7 +10,8 @@ import "./patch.js";
 import { PgClient } from "@effect/sql-pg";
 import type { DrizzleConfig } from "drizzle-orm";
 import { drizzle, type RemoteCallback } from "drizzle-orm/pg-proxy";
-import { Context, Effect, Layer, Redacted } from "effect";
+import { Context, Effect, Layer, Match, Redacted } from "effect";
+import type { SqlError } from "effect/unstable/sql";
 import { SqlClient } from "effect/unstable/sql";
 
 export { PgDrizzle } from "./tag.js";
@@ -34,10 +35,13 @@ const buildRemoteCallback =
   (client: SqlClient.SqlClient): RemoteCallback =>
   (sql, params, method) => {
     const statement = client.unsafe(sql, params);
-    const baseEffect =
-      method === "execute"
-        ? Effect.map(statement.raw, (result) => ({ rows: [result] }))
-        : Effect.map(statement.values, (result) => ({ rows: result as unknown as unknown[] }));
+    // Drizzle distinguishes `"execute"` (side-effect, single result wrapped in a
+    // 1-element row) from `"all"` (cursor, 2-D rows of raw cell values). Match
+    // makes the dispatch explicit and leaves the happy path as a single pipeline.
+    const baseEffect = Match.value(method).pipe(
+      Match.when("execute", () => Effect.map(statement.raw, (result) => ({ rows: [result] }))),
+      Match.orElse(() => Effect.map(statement.values, (rows) => ({ rows: [...rows] }))),
+    );
     return Effect.runPromise(baseEffect);
   };
 
@@ -46,7 +50,7 @@ const buildRemoteCallback =
 // ============================================================================
 
 /**
- * Creates the RemoteCallback that bridges Drizzle’s pg-proxy to Effect’s SqlClient.
+ * Creates the RemoteCallback that bridges Drizzle's pg-proxy to Effect's SqlClient.
  */
 export const makeRemoteCallback: Effect.Effect<RemoteCallback, never, SqlClient.SqlClient> =
   Effect.gen(function* () {
@@ -77,16 +81,17 @@ export const PgDrizzleLive: Layer.Layer<PgDrizzle, never, SqlClient.SqlClient> =
   PgDrizzleLiveWithConfig(defaultConfig);
 
 /**
- * Creates a complete PgDrizzle layer from a connection string.
- * Includes PgClient setup with proper lifecycle management.
+ * Creates a complete PgDrizzle layer from a connection string. The error
+ * channel exposes `SqlError` so callers see connection failures instead of
+ * having them silently swallowed by a type-erasure cast.
  */
 export const makePgDrizzleLayer = (
   connectionString: string,
   config: DrizzleConfig = defaultConfig,
-): Layer.Layer<PgDrizzle> =>
+): Layer.Layer<PgDrizzle, SqlError.SqlError> =>
   PgDrizzleLiveWithConfig(config).pipe(
     Layer.provide(PgClient.layer({ url: Redacted.make(connectionString) })),
-  ) as Layer.Layer<PgDrizzle>;
+  );
 
 /**
  * Creates a PgRemoteDatabase instance from a connection string.
@@ -98,9 +103,11 @@ export const makePgDrizzleLayer = (
  * Composes {@link buildRemoteCallback} with a scoped PgClient, so the
  * bridge logic is never duplicated.
  */
-export const makeDrizzle = (connectionString: string, config: DrizzleConfig = defaultConfig) =>
-  Effect.gen(function* () {
-    const services = yield* Layer.build(PgClient.layer({ url: Redacted.make(connectionString) }));
-    const client = Context.get(services, SqlClient.SqlClient);
-    return drizzle(buildRemoteCallback(client), config);
-  });
+export const makeDrizzle = Effect.fn("makeDrizzle")(function* (
+  connectionString: string,
+  config: DrizzleConfig = defaultConfig,
+) {
+  const services = yield* Layer.build(PgClient.layer({ url: Redacted.make(connectionString) }));
+  const client = Context.get(services, SqlClient.SqlClient);
+  return drizzle(buildRemoteCallback(client), config);
+});

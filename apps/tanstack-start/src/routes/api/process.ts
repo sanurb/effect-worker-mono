@@ -5,7 +5,7 @@
  * POST JSON data, process with Effect, return Response.
  */
 import { createFileRoute } from "@tanstack/react-router";
-import { Effect, Schema as S } from "effect";
+import { Effect, Match, Option, Schema as S } from "effect";
 
 import { effectRuntimeMiddleware } from "@/server/middleware";
 
@@ -20,7 +20,7 @@ const ProcessRequestSchema = S.Struct({
       value: S.Number,
     }),
   ),
-  operation: S.Literal("sum", "average", "max", "min"),
+  operation: S.Literals(["sum", "average", "max", "min"] as const),
 });
 
 type ProcessRequest = S.Schema.Type<typeof ProcessRequestSchema>;
@@ -40,6 +40,21 @@ class ProcessingError {
 }
 
 // ============================================================================
+// Helpers
+// ============================================================================
+
+/**
+ * Best-effort description of an unknown thrown value. Replaces scattered
+ * `x instanceof Error ? x.message : fallback` ternaries with one Match-based
+ * helper.
+ */
+const describeThrowable = (error: unknown, fallback: string): string =>
+  Match.value(error).pipe(
+    Match.when(Match.instanceOf(Error), (e) => e.message),
+    Match.orElse(() => fallback),
+  );
+
+// ============================================================================
 // Effect Programs
 // ============================================================================
 
@@ -53,32 +68,42 @@ const validateRequest = (body: unknown) =>
   Effect.try({
     try: () => S.decodeUnknownSync(ProcessRequestSchema)(body),
     catch: (error) =>
-      new ValidationError(
-        `Invalid request: ${error instanceof Error ? error.message : "Unknown error"}`,
-      ),
+      new ValidationError(`Invalid request: ${describeThrowable(error, "Unknown error")}`),
   });
 
-const processItems = (items: ProcessRequest["items"], operation: ProcessRequest["operation"]) =>
-  Effect.gen(function* () {
-    if (items.length === 0) {
-      return yield* Effect.fail(new ProcessingError("Cannot process empty array"));
-    }
+/**
+ * Reduces the requested aggregate (sum/average/max/min) over a list of
+ * numeric cell values. Pure — no Effect involvement; the caller decides
+ * how to wrap the result.
+ */
+const aggregate = (values: ReadonlyArray<number>, operation: ProcessRequest["operation"]): number =>
+  Match.value(operation).pipe(
+    Match.when("sum", () => values.reduce((a, b) => a + b, 0)),
+    Match.when("average", () => values.reduce((a, b) => a + b, 0) / values.length),
+    Match.when("max", () => Math.max(...values)),
+    Match.when("min", () => Math.min(...values)),
+    Match.exhaustive,
+  );
 
-    const values = items.map((item) => item.value);
+const processItems = Effect.fn("processItems")(function* (
+  items: ProcessRequest["items"],
+  operation: ProcessRequest["operation"],
+) {
+  // Fail loudly on empty input instead of returning a meaningless aggregate.
+  const values = yield* Option.match(
+    Option.liftPredicate(items, (arr) => arr.length > 0),
+    {
+      onNone: () => Effect.fail(new ProcessingError("Cannot process empty array")),
+      onSome: (arr) => Effect.succeed(arr.map((item) => item.value)),
+    },
+  );
 
-    yield* Effect.log(`Processing ${operation} on ${values.length} items`);
+  yield* Effect.log("Processing items").pipe(
+    Effect.annotateLogs({ operation, count: values.length }),
+  );
 
-    switch (operation) {
-      case "sum":
-        return values.reduce((a, b) => a + b, 0);
-      case "average":
-        return values.reduce((a, b) => a + b, 0) / values.length;
-      case "max":
-        return Math.max(...values);
-      case "min":
-        return Math.min(...values);
-    }
-  });
+  return aggregate(values, operation);
+});
 
 // ============================================================================
 // Response Helpers
@@ -155,7 +180,9 @@ export const Route = createFileRoute("/api/process")({
             // Process the data
             const result = yield* processItems(data.items, data.operation);
 
-            yield* Effect.log(`Completed: ${data.operation} = ${result}`);
+            yield* Effect.log("Completed aggregate").pipe(
+              Effect.annotateLogs({ operation: data.operation, result }),
+            );
 
             return jsonResponse({
               success: true,
@@ -176,10 +203,7 @@ export const Route = createFileRoute("/api/process")({
             // Handle unexpected errors (500)
             Effect.catchDefect((defect) =>
               Effect.succeed(
-                errorResponse(
-                  defect instanceof Error ? defect.message : "Internal server error",
-                  500,
-                ),
+                errorResponse(describeThrowable(defect, "Internal server error"), 500),
               ),
             ),
           ),

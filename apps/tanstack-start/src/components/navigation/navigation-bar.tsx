@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, Github, ExternalLink } from "lucide-react";
+import { Match, Option } from "effect";
+import { ExternalLink, Github, Menu } from "lucide-react";
 import * as React from "react";
 
 import { ThemeToggle } from "@/components/theme";
@@ -14,6 +15,10 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
+// ============================================================================
+// Data model
+// ============================================================================
+
 interface NavigationItem {
   label: string;
   href: string;
@@ -21,7 +26,7 @@ interface NavigationItem {
   scrollTo?: string;
 }
 
-const navigationItems: NavigationItem[] = [
+const navigationItems: ReadonlyArray<NavigationItem> = [
   { label: "Features", href: "#features", scrollTo: "features" },
   {
     label: "Documentation",
@@ -34,6 +39,68 @@ const navigationItems: NavigationItem[] = [
     isExternal: true,
   },
 ];
+
+// ============================================================================
+// Helpers
+// ============================================================================
+
+/**
+ * Best-effort smooth scroll to an element id. Becomes a no-op when the
+ * target is missing instead of branching on a nullable lookup via `if`.
+ */
+const smoothScrollTo = (elementId: string): void => {
+  Option.match(Option.fromNullishOr(document.getElementById(elementId)), {
+    onNone: () => undefined,
+    onSome: (element) => {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      return undefined;
+    },
+  });
+};
+
+/** Picks the trailing icon for a navigation item based on its label. */
+const trailingIcon = (label: string): React.ReactElement =>
+  Match.value(label).pipe(
+    Match.when("GitHub", () => <Github className="h-4 w-4" />),
+    Match.orElse(() => <ExternalLink className="h-4 w-4" />),
+  );
+
+/**
+ * Renders a single navigation entry in either its external-link shape or
+ * its internal-button shape. Encapsulates the `isExternal` decision so the
+ * desktop and mobile nav both call one component.
+ */
+interface NavLinkProps {
+  item: NavigationItem;
+  className: string;
+  onNavigate: (item: NavigationItem) => void;
+  showIcon: boolean;
+}
+
+const NavLink = ({ item, className, onNavigate, showIcon }: NavLinkProps): React.ReactElement =>
+  Match.value(Boolean(item.isExternal)).pipe(
+    Match.when(true, () => (
+      <a
+        href={item.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+        onClick={() => onNavigate(item)}
+      >
+        <span>{item.label}</span>
+        {showIcon && trailingIcon(item.label)}
+      </a>
+    )),
+    Match.orElse(() => (
+      <button onClick={() => onNavigate(item)} className={className}>
+        {item.label}
+      </button>
+    )),
+  );
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export function NavigationBar() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -48,31 +115,24 @@ export function NavigationBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleSmoothScroll = (elementId: string) => {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  };
-
-  const handleNavClick = (item: NavigationItem) => {
-    if (item.scrollTo) {
-      handleSmoothScroll(item.scrollTo);
-    }
+  const handleNavClick = React.useCallback((item: NavigationItem) => {
+    Option.match(Option.fromNullishOr(item.scrollTo), {
+      onNone: () => undefined,
+      onSome: (target) => {
+        smoothScrollTo(target);
+        return undefined;
+      },
+    });
     setIsOpen(false);
-  };
+  }, []);
 
   return (
     <nav
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out",
-        isScrolled
-          ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5"
-          : "bg-transparent",
-      )}
+      className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out", {
+        "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5":
+          isScrolled,
+        "bg-transparent": !isScrolled,
+      })}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
@@ -92,28 +152,12 @@ export function NavigationBar() {
           <div className="hidden lg:flex items-center space-x-1">
             {navigationItems.map((item) => (
               <div key={item.label} className="relative group">
-                {item.isExternal ? (
-                  <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-300 hover:bg-accent/50 group"
-                  >
-                    <span>{item.label}</span>
-                    {item.label === "GitHub" ? (
-                      <Github className="h-4 w-4" />
-                    ) : (
-                      <ExternalLink className="h-4 w-4" />
-                    )}
-                  </a>
-                ) : (
-                  <button
-                    onClick={() => handleNavClick(item)}
-                    className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-300 hover:bg-accent/50"
-                  >
-                    {item.label}
-                  </button>
-                )}
+                <NavLink
+                  item={item}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-300 hover:bg-accent/50 group"
+                  onNavigate={handleNavClick}
+                  showIcon
+                />
                 <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-primary to-primary/80 transition-all duration-300 group-hover:w-3/4" />
               </div>
             ))}
@@ -123,9 +167,6 @@ export function NavigationBar() {
               <ThemeToggle variant="ghost" align="end" />
             </div>
           </div>
-
-          {/* CTA Button - Desktop */}
-          <div className="hidden lg:block"></div>
 
           {/* Mobile Menu Button + Theme Toggle */}
           <div className="lg:hidden flex items-center space-x-2">
@@ -157,29 +198,12 @@ export function NavigationBar() {
                 <div className="flex flex-col space-y-2 pb-6">
                   {navigationItems.map((item) => (
                     <div key={item.label} className="relative group">
-                      {item.isExternal ? (
-                        <a
-                          href={item.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-300 hover:bg-accent/50"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          <span>{item.label}</span>
-                          {item.label === "GitHub" ? (
-                            <Github className="h-4 w-4" />
-                          ) : (
-                            <ExternalLink className="h-4 w-4" />
-                          )}
-                        </a>
-                      ) : (
-                        <button
-                          onClick={() => handleNavClick(item)}
-                          className="flex items-center w-full px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-300 hover:bg-accent/50 text-left"
-                        >
-                          {item.label}
-                        </button>
-                      )}
+                      <NavLink
+                        item={item}
+                        className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-300 hover:bg-accent/50"
+                        onNavigate={handleNavClick}
+                        showIcon
+                      />
                     </div>
                   ))}
                 </div>

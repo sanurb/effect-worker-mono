@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { Match } from "effect";
 import { Loader2, Zap, CheckCircle, AlertCircle, Code2, Server } from "lucide-react";
 import * as React from "react";
 
@@ -16,15 +17,15 @@ type GreetingResult = {
 export function EffectDemo() {
   const [name, setName] = React.useState("World");
 
-  const mutation = useMutation({
-    mutationFn: (input: { name: string }) => greetingFunction({ data: input }),
+  const mutation = useMutation<GreetingResult, Error, { name: string }>({
+    mutationFn: (input) => greetingFunction({ data: input }),
   });
 
   const handleSubmit = () => {
     mutation.mutate({ name });
   };
 
-  const result = mutation.data as GreetingResult | undefined;
+  const result = mutation.data;
 
   return (
     <section id="effect-demo" className="py-24 bg-gradient-to-b from-background to-muted/20">
@@ -74,10 +75,9 @@ export function EffectDemo() {
                   disabled={mutation.isPending || !name.trim()}
                   className="w-full"
                 >
-                  {mutation.isPending ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Zap className="w-4 h-4 mr-2" />
+                  {Match.value(mutation.isPending).pipe(
+                    Match.when(true, () => <Loader2 className="w-4 h-4 mr-2 animate-spin" />),
+                    Match.orElse(() => <Zap className="w-4 h-4 mr-2" />),
                   )}
                   Run Server Function
                 </Button>
@@ -90,9 +90,9 @@ export function EffectDemo() {
                 )}
 
                 {mutation.isSuccess && result && (
-                  <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <AlertDescription className="text-green-800 dark:text-green-200">
+                  <Alert className="border-primary/30 bg-primary/5">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    <AlertDescription className="text-foreground">
                       <strong>{result.message}</strong>
                       <br />
                       <span className="text-xs opacity-75">{result.timestamp}</span>
@@ -101,9 +101,9 @@ export function EffectDemo() {
                 )}
 
                 {mutation.isError && (
-                  <Alert className="border-red-200 bg-red-50 dark:bg-red-950/20">
-                    <AlertCircle className="w-4 h-4 text-red-600" />
-                    <AlertDescription className="text-red-800 dark:text-red-200">
+                  <Alert className="border-destructive/30 bg-destructive/5">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <AlertDescription className="text-destructive">
                       <strong>Error:</strong> {mutation.error?.message || "Something went wrong"}
                     </AlertDescription>
                   </Alert>

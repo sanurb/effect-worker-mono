@@ -222,9 +222,7 @@ const toRecordStatus = (exit: Exit.Exit<unknown, unknown>): TraceRecord["status"
  * external tracer records reference the real (non-wrapper) span identity.
  * Non-wrapper spans pass through unchanged.
  */
-const toDelegateSpan = (
-  span: Option.Option<Tracer.AnySpan>,
-): Option.Option<Tracer.AnySpan> =>
+const toDelegateSpan = (span: Option.Option<Tracer.AnySpan>): Option.Option<Tracer.AnySpan> =>
   Option.map(span, (inner) =>
     Match.value(inner).pipe(
       Match.when(
@@ -275,10 +273,7 @@ const sanitizeValue = (value: unknown, seen: WeakSet<object> = new WeakSet()): u
     ),
     Match.when(Match.instanceOf(Map), (map) =>
       Object.fromEntries(
-        Array.from(map.entries()).map(([key, item]) => [
-          String(key),
-          sanitizeValue(item, seen),
-        ]),
+        Array.from(map.entries()).map(([key, item]) => [String(key), sanitizeValue(item, seen)]),
       ),
     ),
     Match.when(Match.instanceOf(Set), (set) =>
@@ -292,10 +287,7 @@ const sanitizeValue = (value: unknown, seen: WeakSet<object> = new WeakSet()): u
  * Recursively sanitizes a plain object. Returns `"[circular]"` when the
  * same reference has already been visited higher in the traversal.
  */
-const sanitizeObject = (
-  obj: { [x: PropertyKey]: unknown },
-  seen: WeakSet<object>,
-): unknown =>
+const sanitizeObject = (obj: { [x: PropertyKey]: unknown }, seen: WeakSet<object>): unknown =>
   Option.match(
     Option.liftPredicate(obj, (o) => !seen.has(o)),
     {

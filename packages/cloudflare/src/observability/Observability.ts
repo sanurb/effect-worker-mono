@@ -5,7 +5,7 @@
  */
 
 import type { LogLevel } from "effect";
-import { Effect, Layer, References, Tracer } from "effect";
+import { Effect, Layer, Match, Option, References, Tracer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
 import { OtlpSerialization, OtlpTracer } from "effect/unstable/observability";
 
@@ -48,9 +48,10 @@ export const makeObservabilityLayer = (
     Layer.succeed(References.TracerTimingEnabled)(true),
   );
 
-  const tracerLayer = config.otlpTracesUrl
-    ? makeDelegatingTracerLayer(config.otlpTracesUrl, config)
-    : Layer.succeed(Tracer.Tracer)(makeNdjsonTracer());
+  const tracerLayer = Option.match(Option.fromNullishOr(config.otlpTracesUrl), {
+    onNone: () => Layer.succeed(Tracer.Tracer)(makeNdjsonTracer()),
+    onSome: (url) => makeDelegatingTracerLayer(url, config),
+  });
 
   return Layer.mergeAll(baseLayer, tracerLayer);
 };
@@ -62,7 +63,10 @@ const makeDelegatingTracerLayer = (
   Layer.effect(Tracer.Tracer)(
     OtlpTracer.make({
       url,
-      resource: config.otlpServiceName ? { serviceName: config.otlpServiceName } : undefined,
+      resource: Option.match(Option.fromNullishOr(config.otlpServiceName), {
+        onNone: () => undefined,
+        onSome: (serviceName) => ({ serviceName }),
+      }),
     }).pipe(Effect.map((delegate) => makeNdjsonTracer({ delegate }))),
   ).pipe(Layer.provide(Layer.mergeAll(FetchHttpClient.layer, OtlpSerialization.layerJson)));
 
@@ -70,23 +74,13 @@ const makeDelegatingTracerLayer = (
 // Helpers
 // ============================================================================
 
-const parseLogLevel = (value: string | undefined): LogLevel.LogLevel => {
-  switch (value?.toLowerCase()) {
-    case "trace":
-      return LOG_LEVEL.TRACE;
-    case "debug":
-      return LOG_LEVEL.DEBUG;
-    case "warn":
-    case "warning":
-      return LOG_LEVEL.WARN;
-    case "error":
-      return LOG_LEVEL.ERROR;
-    case "fatal":
-      return LOG_LEVEL.FATAL;
-    case "none":
-      return LOG_LEVEL.NONE;
-    case "info":
-    default:
-      return LOG_LEVEL.INFO;
-  }
-};
+const parseLogLevel = (value: string | undefined): LogLevel.LogLevel =>
+  Match.value(value?.toLowerCase()).pipe(
+    Match.when("trace", () => LOG_LEVEL.TRACE),
+    Match.when("debug", () => LOG_LEVEL.DEBUG),
+    Match.whenOr("warn", "warning", () => LOG_LEVEL.WARN),
+    Match.when("error", () => LOG_LEVEL.ERROR),
+    Match.when("fatal", () => LOG_LEVEL.FATAL),
+    Match.when("none", () => LOG_LEVEL.NONE),
+    Match.orElse(() => LOG_LEVEL.INFO),
+  );

@@ -53,11 +53,7 @@
       "rules": {}
     },
     {
-      "files": [
-        "packages/cloudflare/src/observability/Tracer.ts",
-        "apps/tanstack-start/src/server.ts",
-        "apps/tanstack-start/src/components/default-catch-boundary.tsx"
-      ],
+      "files": ["packages/cloudflare/src/observability/ndjson-sink.ts"],
       "rules": {
         "no-console": "off"
       }

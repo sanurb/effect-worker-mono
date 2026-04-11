@@ -44,7 +44,7 @@ export const greetingFunction = effectFunction
     return await context.runEffect(
       Effect.gen(function* () {
         const greeting = context.env.MY_VAR || "Hello";
-        yield* Effect.log(`Processing greeting for: ${data.name}`);
+        yield* Effect.log("Processing greeting").pipe(Effect.annotateLogs({ name: data.name }));
         return {
           message: `${greeting}, ${data.name}!`,
           timestamp: new Date().toISOString(),

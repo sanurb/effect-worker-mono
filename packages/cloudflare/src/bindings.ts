@@ -7,7 +7,7 @@
  *
  * @module
  */
-import { Context, Effect } from "effect";
+import { Context, Effect, Option } from "effect";
 
 /**
  * ExecutionContext interface for Cloudflare Workers.
@@ -67,14 +67,19 @@ export const withCloudflareBindings =
 export const waitUntil = <A, E>(effect: Effect.Effect<A, E>): Effect.Effect<void> =>
   Effect.gen(function* () {
     const ctx = yield* currentCtx;
-    if (ctx === null) return;
     const services = yield* Effect.context<never>();
-    ctx.waitUntil(
-      Effect.runPromiseWith(services)(
-        effect.pipe(
-          Effect.tapCause(Effect.logError),
-          Effect.catch(() => Effect.void),
-        ),
-      ),
-    );
+    yield* Option.match(Option.fromNullishOr(ctx), {
+      onNone: () => Effect.void,
+      onSome: (resolvedCtx) =>
+        Effect.sync(() => {
+          resolvedCtx.waitUntil(
+            Effect.runPromiseWith(services)(
+              effect.pipe(
+                Effect.tapCause(Effect.logError),
+                Effect.catch(() => Effect.void),
+              ),
+            ),
+          );
+        }),
+    });
   });

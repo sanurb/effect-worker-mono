@@ -1,3 +1,5 @@
+import { Option } from "effect";
+
 export const seo = ({
   title,
   description,
@@ -20,13 +22,14 @@ export const seo = ({
     { name: "og:type", content: "website" },
     { name: "og:title", content: title },
     { name: "og:description", content: description },
-    ...(image
-      ? [
-          { name: "twitter:image", content: image },
-          { name: "twitter:card", content: "summary_large_image" },
-          { name: "og:image", content: image },
-        ]
-      : []),
+    ...Option.match(Option.fromNullishOr(image), {
+      onNone: (): ReadonlyArray<{ readonly name: string; readonly content: string }> => [],
+      onSome: (src) => [
+        { name: "twitter:image", content: src },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "og:image", content: src },
+      ],
+    }),
   ];
 
   return tags;

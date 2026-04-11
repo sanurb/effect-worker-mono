@@ -1,5 +1,6 @@
 import { Link, rootRouteId, useMatch, useRouter } from "@tanstack/react-router";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import { Match } from "effect";
 import { AlertTriangle, RefreshCw, ArrowLeft, Home, ChevronDown, Bug, Mail } from "lucide-react";
 import { useState } from "react";
 
@@ -7,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter();
@@ -16,8 +18,8 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   });
   const [showDetails, setShowDetails] = useState(false);
 
-  console.error(error);
-
+  // Rely on the UI Alert below to surface the error — redundant console
+  // logging is removed so the catch boundary stays side-effect-free at render.
   // Format error details for display
   const errorMessage = error?.message || "An unexpected error occurred";
   const errorStack = error?.stack || "";
@@ -62,22 +64,25 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
               Try Again
             </Button>
 
-            {isRoot ? (
-              <Button variant="outline" asChild>
-                <Link to="/" className="flex items-center gap-2">
-                  <Home className="h-4 w-4" />
-                  Go to Home
-                </Link>
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                onClick={() => window.history.back()}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Go Back
-              </Button>
+            {Match.value(isRoot).pipe(
+              Match.when(true, () => (
+                <Button variant="outline" asChild>
+                  <Link to="/" className="flex items-center gap-2">
+                    <Home className="h-4 w-4" />
+                    Go to Home
+                  </Link>
+                </Button>
+              )),
+              Match.orElse(() => (
+                <Button
+                  variant="outline"
+                  onClick={() => window.history.back()}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Go Back
+                </Button>
+              )),
             )}
           </div>
 
@@ -93,7 +98,9 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
                   <Bug className="h-4 w-4" />
                   Technical Details
                   <ChevronDown
-                    className={`h-4 w-4 transition-transform duration-200 ${showDetails ? "rotate-180" : ""}`}
+                    className={cn("h-4 w-4 transition-transform duration-200", {
+                      "rotate-180": showDetails,
+                    })}
                   />
                 </Button>
               </CollapsibleTrigger>

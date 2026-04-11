@@ -24,9 +24,6 @@ export const writeNdjsonLine = (line: string): void => {
  * from its own finalizer; instead it surfaces the failure here so it lands
  * in the same stream wrangler/observability is watching.
  */
-export const reportSinkError = (
-  message: string,
-  fields: Record<string, unknown>,
-): void => {
+export const reportSinkError = (message: string, fields: Record<string, unknown>): void => {
   console.warn(message, fields);
 };
