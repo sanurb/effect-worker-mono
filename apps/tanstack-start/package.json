@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "effect-tsgo patch",
     "dev": "vp dev --port 3000",
     "build": "vp build",
     "deploy": "pnpm run build && wrangler deploy",

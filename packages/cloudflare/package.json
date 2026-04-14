@@ -14,7 +14,6 @@
     }
   },
   "scripts": {
-    "prepare": "effect-tsgo patch",
     "build": "tsgo -p tsconfig.build.json",
     "check": "tsgo -p tsconfig.json --noEmit",
     "clean": "rm -rf dist"
