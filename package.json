@@ -16,6 +16,8 @@
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
     "postinstall": "effect-tsgo patch",
+    "sg:check": "sg scan",
+    "sg:test": "sg test",
     "test": "vp test run",
     "test:watch": "vp test",
     "trace:inspect": "cat .traces/spans.ndjson | jq .",
