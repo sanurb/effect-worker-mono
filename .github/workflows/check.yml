@@ -23,7 +23,7 @@ jobs:
       - name: Vite+ check (fmt + lint + type-aware lint)
         run: vp check
       - name: ast-grep architecture rules
-        run: pnpm sg:check
+        run: pnpm exec sg scan
   build:
     name: Build
     runs-on: ubuntu-latest
