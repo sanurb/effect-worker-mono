@@ -31,9 +31,8 @@ const defaultConfig: DrizzleConfig = { casing: "snake_case" };
  * operations. This is the single source of truth for the bridge logic —
  * every layer and helper below delegates to it.
  */
-const buildRemoteCallback =
-  (client: SqlClient.SqlClient): RemoteCallback =>
-  (sql, params, method) => {
+const buildRemoteCallback = (client: SqlClient.SqlClient): RemoteCallback =>
+  function (sql, params, method) {
     const statement = client.unsafe(sql, params);
     // Drizzle distinguishes `"execute"` (side-effect, single result wrapped in a
     // 1-element row) from `"all"` (cursor, 2-D rows of raw cell values). Match

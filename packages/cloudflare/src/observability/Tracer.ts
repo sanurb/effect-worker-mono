@@ -59,17 +59,20 @@ class NdjsonSpan implements Tracer.Span {
     // any subsequent end() call is a no-op. Dispatch via Match.tag keeps the
     // decision declarative and exhaustive across the span status union.
     Match.value(this.status).pipe(
-      Match.tag("Started", (started) => {
-        this.status = {
-          _tag: "Ended",
-          startTime: started.startTime,
-          endTime,
-          exit,
-        };
-        this.delegateSpan?.end(endTime, exit);
-        writeTraceRecord(this);
-        return undefined;
-      }),
+      Match.tag(
+        "Started",
+        (started) => (
+          (this.status = {
+            _tag: "Ended",
+            startTime: started.startTime,
+            endTime,
+            exit,
+          }),
+          this.delegateSpan?.end(endTime, exit),
+          writeTraceRecord(this),
+          undefined
+        ),
+      ),
       Match.tag("Ended", () => undefined),
       Match.exhaustive,
     );
@@ -107,7 +110,7 @@ class NdjsonSpan implements Tracer.Span {
 // Tracer construction
 // ============================================================================
 
-export const makeNdjsonTracer = (options: NdjsonTracerOptions = {}): Tracer.Tracer => {
+export function makeNdjsonTracer(options: NdjsonTracerOptions = {}): Tracer.Tracer {
   const { delegate } = options;
   // Capture and bind the delegate's context handler once. `bind` preserves the
   // `this` reference at call time, so the closure does not need a non-null
@@ -147,7 +150,7 @@ export const makeNdjsonTracer = (options: NdjsonTracerOptions = {}): Tracer.Trac
     },
     context: delegateContext,
   });
-};
+}
 
 export const NdjsonTracerLive = Layer.succeed(Tracer.Tracer)(makeNdjsonTracer());
 
@@ -292,7 +295,7 @@ const sanitizeObject = (obj: { [x: PropertyKey]: unknown }, seen: WeakSet<object
     Option.liftPredicate(obj, (o) => !seen.has(o)),
     {
       onNone: () => "[circular]",
-      onSome: (o) => {
+      onSome: function (o) {
         seen.add(o);
         return Object.fromEntries(
           Object.entries(o).map(([key, item]) => [key, sanitizeValue(item, seen)]),
@@ -316,8 +319,8 @@ const randomTraceId = (): string => randomHex(16);
 
 const randomSpanId = (): string => randomHex(8);
 
-const randomHex = (bytes: number): string => {
+function randomHex(bytes: number): string {
   const buffer = new Uint8Array(bytes);
   crypto.getRandomValues(buffer);
   return Array.from(buffer, (value) => value.toString(16).padStart(2, "0")).join("");
-};
+}

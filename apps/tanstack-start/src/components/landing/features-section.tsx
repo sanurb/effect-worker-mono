@@ -76,7 +76,7 @@ export function FeaturesSection() {
         </div>
 
         <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-6 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-2 xl:grid-cols-4">
-          {features.map((feature) => {
+          {features.map(function (feature) {
             const IconComponent = feature.icon;
             return (
               <Card

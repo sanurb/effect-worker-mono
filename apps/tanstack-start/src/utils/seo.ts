@@ -1,6 +1,6 @@
 import { Option } from "effect";
 
-export const seo = ({
+export function seo({
   title,
   description,
   keywords,
@@ -10,7 +10,7 @@ export const seo = ({
   description?: string;
   image?: string;
   keywords?: string;
-}) => {
+}) {
   const tags = [
     { title },
     { name: "description", content: description },
@@ -33,4 +33,4 @@ export const seo = ({
   ];
 
   return tags;
-};
+}

@@ -29,8 +29,8 @@
     "@redwoodjs/agent-ci": "^0.8.2",
     "@types/node": "^22.8.5",
     "effect": "catalog:",
-    "vite-plus": "0.1.16",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.16"
+    "vite-plus": "0.1.17-alpha.3",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.17-alpha.3"
   },
   "overrides": {
     "effect": "catalog:"

@@ -68,7 +68,7 @@ export function Footer() {
 
         <div className="mt-8 md:mt-0 flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-6">
           <div className="flex space-x-6">
-            {navigation.social.map((item) => {
+            {navigation.social.map(function (item) {
               const IconComponent = item.icon;
               return (
                 <a

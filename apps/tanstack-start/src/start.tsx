@@ -10,16 +10,14 @@ declare module "@tanstack/react-start" {
   }
 }
 
-export const startInstance = createStart(() => {
-  return {
-    defaultSsr: true,
-  };
-});
+export const startInstance = createStart(() => ({
+  defaultSsr: true,
+}));
 
-startInstance.createMiddleware().server(({ next }) => {
-  return next({
+startInstance.createMiddleware().server(({ next }) =>
+  next({
     context: {
       fromStartInstanceMw: true,
     },
-  });
-});
+  }),
+);

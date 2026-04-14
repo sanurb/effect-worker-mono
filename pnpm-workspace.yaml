@@ -17,13 +17,13 @@ catalog:
 # same version `vite-plus` itself depends on so a downstream `npm publish`
 # cannot bump them silently — `vp upgrade` is the only supported bump path.
 overrides:
-  vite: npm:@voidzero-dev/vite-plus-core@0.1.16
-  vitest: npm:@voidzero-dev/vite-plus-test@0.1.16
+  vite: npm:@voidzero-dev/vite-plus-core@0.1.17-alpha.3
+  vitest: npm:@voidzero-dev/vite-plus-test@0.1.17-alpha.3
 
 # `@voidzero-dev/vite-plus-test` is versioned independently of upstream
 # `vitest` (`0.1.x` vs `4.x`). After the override above any package that
 # peer-depends on `vitest@^3.0.0 || ^4.0.0` (e.g. `@effect/vitest@4.0.0-beta.47+`)
-# resolves a literal `0.1.16`, which never satisfies a numeric range. This rule
+# resolves a literal `0.1.17-alpha.3`, which never satisfies a numeric range. This rule
 # tells pnpm the mismatch is intentional. It is the only Vite+ peer band-aid
 # this repo carries — do not extend it without justification.
 peerDependencyRules:

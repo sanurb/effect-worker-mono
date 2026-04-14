@@ -130,8 +130,8 @@ export const Route = createFileRoute("/api/process")({
        * GET /api/process
        * Returns API info and usage example
        */
-      GET: async () => {
-        return jsonResponse({
+      GET: async () =>
+        jsonResponse({
           name: "Effect Process API",
           description: "Process data using Effect pipelines",
           usage: {
@@ -161,15 +161,14 @@ export const Route = createFileRoute("/api/process")({
               itemCount: 3,
             },
           },
-        });
-      },
+        }),
 
       /**
        * POST /api/process
        * Process items with the specified operation
        */
-      POST: async ({ request, context }) => {
-        return await context.runEffect(
+      POST: async ({ request, context }) =>
+        context.runEffect(
           Effect.gen(function* () {
             // Parse JSON body
             const body = yield* parseRequestBody(request);
@@ -207,8 +206,7 @@ export const Route = createFileRoute("/api/process")({
               ),
             ),
           ),
-        );
-      },
+        ),
     },
   },
 });

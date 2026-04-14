@@ -58,9 +58,8 @@ export const effectRuntimeMiddleware = createMiddleware().server(async ({ next }
   const runtime = ManagedRuntime.make(servicesLayer);
 
   try {
-    const runEffect = <A, E>(effect: Effect.Effect<A, E, EffectServices>) => {
-      return runtime.runPromise(effect);
-    };
+    const runEffect = <A, E>(effect: Effect.Effect<A, E, EffectServices>) =>
+      runtime.runPromise(effect);
 
     return await next({
       context: {

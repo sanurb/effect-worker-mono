@@ -40,9 +40,9 @@ export interface ObservabilityConfig {
 // Layer construction
 // ============================================================================
 
-export const makeObservabilityLayer = (
+export function makeObservabilityLayer(
   config: ObservabilityConfig = {},
-): Layer.Layer<never, never, never> => {
+): Layer.Layer<never, never, never> {
   const baseLayer = Layer.mergeAll(
     makeLoggerLayer(parseLogLevel(config.logLevel)),
     Layer.succeed(References.TracerTimingEnabled)(true),
@@ -54,7 +54,7 @@ export const makeObservabilityLayer = (
   });
 
   return Layer.mergeAll(baseLayer, tracerLayer);
-};
+}
 
 const makeDelegatingTracerLayer = (
   url: string,

@@ -51,10 +51,7 @@ const navigationItems: ReadonlyArray<NavigationItem> = [
 const smoothScrollTo = (elementId: string): void => {
   Option.match(Option.fromNullishOr(document.getElementById(elementId)), {
     onNone: () => undefined,
-    onSome: (element) => {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-      return undefined;
-    },
+    onSome: (element) => void element.scrollIntoView({ behavior: "smooth", block: "start" }),
   });
 };
 
@@ -106,7 +103,7 @@ export function NavigationBar() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
 
-  React.useEffect(() => {
+  React.useEffect(function () {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -118,10 +115,7 @@ export function NavigationBar() {
   const handleNavClick = React.useCallback((item: NavigationItem) => {
     Option.match(Option.fromNullishOr(item.scrollTo), {
       onNone: () => undefined,
-      onSome: (target) => {
-        smoothScrollTo(target);
-        return undefined;
-      },
+      onSome: (target) => void smoothScrollTo(target),
     });
     setIsOpen(false);
   }, []);

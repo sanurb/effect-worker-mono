@@ -40,8 +40,8 @@ const GreetingRequestSchema = S.Struct({
  */
 export const greetingFunction = effectFunction
   .inputValidator(validateWith(GreetingRequestSchema))
-  .handler(async ({ data, context }) => {
-    return await context.runEffect(
+  .handler(({ data, context }) =>
+    context.runEffect(
       Effect.gen(function* () {
         const greeting = context.env.MY_VAR || "Hello";
         yield* Effect.log("Processing greeting").pipe(Effect.annotateLogs({ name: data.name }));
@@ -50,5 +50,5 @@ export const greetingFunction = effectFunction
           timestamp: new Date().toISOString(),
         };
       }),
-    );
-  });
+    ),
+  );

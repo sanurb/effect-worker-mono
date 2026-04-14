@@ -75,8 +75,6 @@ const detectSystemTheme = (): Option.Option<ResolvedTheme> =>
 // ============================================================================
 
 /** CSS snippet that kills in-flight transitions. */
-const disableTransitionsStyle =
-  "*,*::before,*::after{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}";
 
 /**
  * Inserts a transient style node that suppresses CSS transitions, forces a
@@ -85,7 +83,11 @@ const disableTransitionsStyle =
  */
 const suppressTransitionsOnce = (doc: Document, win: Window): void => {
   const css = doc.createElement("style");
-  css.appendChild(doc.createTextNode(disableTransitionsStyle));
+  css.appendChild(
+    doc.createTextNode(
+      "*,*::before,*::after{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}",
+    ),
+  );
   doc.head.appendChild(css);
   // Read a layout-affecting value to force the browser to apply the style
   // before subsequent mutations. The return value is intentionally unused.
@@ -99,14 +101,12 @@ const suppressTransitionsOnce = (doc: Document, win: Window): void => {
 const writeThemeToRoot = (doc: Document, targetTheme: ResolvedTheme, attribute: string): void => {
   const root = doc.documentElement;
   Match.value(attribute).pipe(
-    Match.when("class", () => {
+    Match.when("class", function () {
       root.classList.remove("light", "dark");
       root.classList.add(targetTheme);
-      return undefined;
     }),
-    Match.orElse(() => {
+    Match.orElse(function () {
       root.setAttribute(attribute, targetTheme);
-      return undefined;
     }),
   );
 };
@@ -164,10 +164,7 @@ export function ThemeProvider({
     (newTheme: Theme) => {
       Option.match(tryLocalStorage(), {
         onNone: () => undefined,
-        onSome: (storage) => {
-          storage.setItem(storageKey, newTheme);
-          return undefined;
-        },
+        onSome: (storage) => void storage.setItem(storageKey, newTheme),
       });
       setThemeState(newTheme);
     },
@@ -181,19 +178,15 @@ export function ThemeProvider({
       // === "undefined") return` guard.
       Option.match(Option.all([Option.fromNullishOr(targetTheme), tryDocument(), tryWindow()]), {
         onNone: () => undefined,
-        onSome: ([target, doc, win]) => {
+        onSome: function ([target, doc, win]) {
           Option.match(
             Option.liftPredicate(undefined, () => disableTransitionOnChange),
             {
               onNone: () => undefined,
-              onSome: () => {
-                suppressTransitionsOnce(doc, win);
-                return undefined;
-              },
+              onSome: () => void suppressTransitionsOnce(doc, win),
             },
           );
           writeThemeToRoot(doc, target, attribute);
-          return undefined;
         },
       });
     },
@@ -206,40 +199,40 @@ export function ThemeProvider({
       Option.liftPredicate(resolvedTheme, () => isMounted),
       {
         onNone: () => undefined,
-        onSome: (target) => {
-          applyTheme(target);
-          return undefined;
-        },
+        onSome: (target) => void applyTheme(target),
       },
     );
   }, [resolvedTheme, applyTheme, isMounted]);
 
   // Subscribe to system theme changes. The effect is a no-op on the server
   // and when the caller has disabled system-theme tracking.
-  React.useEffect(() => {
-    const cleanup = Option.flatMap(tryWindow(), (win) =>
-      Boolean.match(enableSystem, {
-        onFalse: () => Option.none<() => void>(),
-        onTrue: () => {
-          const mediaQuery = win.matchMedia("(prefers-color-scheme: dark)");
-          const handleSystemThemeChange = (e: MediaQueryListEvent): void => {
-            setSystemTheme(
-              Boolean.match(e.matches, {
-                onTrue: () => "dark" as const,
-                onFalse: () => "light" as const,
-              }),
+  React.useEffect(
+    function () {
+      const cleanup = Option.flatMap(tryWindow(), (win) =>
+        Boolean.match(enableSystem, {
+          onFalse: () => Option.none<() => void>(),
+          onTrue: function () {
+            const mediaQuery = win.matchMedia("(prefers-color-scheme: dark)");
+            const handleSystemThemeChange = (e: MediaQueryListEvent): void => {
+              setSystemTheme(
+                Boolean.match(e.matches, {
+                  onTrue: () => "dark" as const,
+                  onFalse: () => "light" as const,
+                }),
+              );
+            };
+            mediaQuery.addEventListener("change", handleSystemThemeChange);
+            return Option.some(() =>
+              mediaQuery.removeEventListener("change", handleSystemThemeChange),
             );
-          };
-          mediaQuery.addEventListener("change", handleSystemThemeChange);
-          return Option.some(() =>
-            mediaQuery.removeEventListener("change", handleSystemThemeChange),
-          );
-        },
-      }),
-    );
+          },
+        }),
+      );
 
-    return Option.getOrUndefined(cleanup);
-  }, [enableSystem]);
+      return Option.getOrUndefined(cleanup);
+    },
+    [enableSystem],
+  );
 
   // Hydration effect — apply the correct theme on first client mount.
   React.useEffect(() => {
@@ -252,7 +245,7 @@ export function ThemeProvider({
   React.useEffect(() => {
     Option.match(tryDocument(), {
       onNone: () => undefined,
-      onSome: (doc) => {
+      onSome: function (doc) {
         const script = doc.createElement("script");
         script.innerHTML = `
           try {
@@ -269,14 +262,12 @@ export function ThemeProvider({
           } catch (e) {}
         `;
         Option.match(Option.fromNullishOr(doc.querySelector("script[data-theme-script]")), {
-          onNone: () => {
+          onNone: function () {
             script.setAttribute("data-theme-script", "true");
             doc.head.appendChild(script);
-            return undefined;
           },
           onSome: () => undefined,
         });
-        return undefined;
       },
     });
   }, [storageKey, defaultTheme]);
@@ -308,7 +299,7 @@ export function ThemeProvider({
 // Consumer hook
 // ============================================================================
 
-export const useTheme = () => {
+export function useTheme() {
   const context = React.useContext(ThemeProviderContext);
   return Option.match(Option.fromNullishOr(context), {
     onNone: (): never => {
@@ -316,7 +307,7 @@ export const useTheme = () => {
     },
     onSome: (resolved) => resolved,
   });
-};
+}
 
 // Keep `hasWindow` reachable so bundlers tree-shake it only when unused.
 export { hasWindow };

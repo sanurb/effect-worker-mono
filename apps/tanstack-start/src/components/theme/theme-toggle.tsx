@@ -51,23 +51,29 @@ export function ThemeToggle({
 }: ThemeToggleProps) {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
-  const iconTransition = "transition-all duration-500 ease-in-out";
-  const systemTransition = "transition-all duration-300 ease-in-out";
-
   // Pick the trigger icon via Match.value. For "system" the icon is fixed;
   // for explicit themes we inspect the resolved theme so a dark resolved
   // theme shows the Moon icon even when the user switched to "system".
   const currentIcon = Match.value(theme).pipe(
     Match.when("system", () => (
-      <Monitor className={`h-4 w-4 ${systemTransition} rotate-0 scale-100`} aria-hidden="true" />
+      <Monitor
+        className="h-4 w-4 transition-all duration-300 ease-in-out rotate-0 scale-100"
+        aria-hidden="true"
+      />
     )),
     Match.orElse(() =>
       Match.value(resolvedTheme).pipe(
         Match.when("dark", () => (
-          <Moon className={`h-4 w-4 ${iconTransition} rotate-0 scale-100`} aria-hidden="true" />
+          <Moon
+            className="h-4 w-4 transition-all duration-500 ease-in-out rotate-0 scale-100"
+            aria-hidden="true"
+          />
         )),
         Match.orElse(() => (
-          <Sun className={`h-4 w-4 ${iconTransition} rotate-0 scale-100`} aria-hidden="true" />
+          <Sun
+            className="h-4 w-4 transition-all duration-500 ease-in-out rotate-0 scale-100"
+            aria-hidden="true"
+          />
         )),
       ),
     ),
@@ -129,7 +135,7 @@ export function ThemeToggle({
         className="w-56 p-2 bg-popover/95 backdrop-blur-sm border border-border/50 shadow-lg"
       >
         <div className="grid gap-1">
-          {themeOptions.map((option) => {
+          {themeOptions.map(function (option) {
             const Icon = option.icon;
             const isSelected = theme === option.value;
 
