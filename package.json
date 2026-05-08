@@ -40,7 +40,14 @@
   "packageManager": "pnpm@10.14.0",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@ast-grep/cli"
+      "@ast-grep/cli",
+      "cpu-features",
+      "esbuild",
+      "msgpackr-extract",
+      "protobufjs",
+      "sharp",
+      "ssh2",
+      "workerd"
     ]
   }
 }

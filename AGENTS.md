@@ -2,6 +2,22 @@
 
 Navigation guide for humans and agents. Read this first, then jump to the source files or docs named below. Detailed knowledge lives in those docs — keep this file short.
 
+## Effect Reference Repository
+
+You have access to the Effect repository at `./.repos/effect`.
+
+- Use `./.repos/effect` to extract best practices before introducing new patterns.
+- Look at `./.repos/effect/AGENTS.md` for repository-specific guidance from the upstream project.
+- Look at existing code in `./.repos/effect` to understand how Effect APIs are typically structured and tested.
+- Prefer following upstream Effect conventions when this workshop repo does not yet establish its own pattern.
+- Treat `./.repos/effect` as a reference implementation unless the task explicitly requires editing it.
+
+## Code Style Guidance
+
+- Keep changes minimal and consistent with the existing workshop code.
+- Prefer established Effect patterns over ad hoc abstractions.
+- Before adding a new approach, check whether `./.repos/effect` already demonstrates the same idea.
+
 ## Universal Rules
 
 1. Run `vp check` before every PR. It runs format, lint, and type-aware checks in one pass via Vite+. Run `pnpm sg:check` after it for the ast-grep architecture rules (Vite+ does not wrap ast-grep).
