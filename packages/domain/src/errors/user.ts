@@ -1,38 +1,40 @@
 /**
  * User Errors
  *
- * Error types for user-related operations with automatic status code mapping.
+ * Domain error classes with HTTP status annotations.
+ *
+ * `HttpApiSchema.status("BadRequest")` (effect@4.0.0-beta.49+) is the new
+ * literal API but it's a Schema modifier, not class-preserving — applying it
+ * to a `TaggedErrorClass` strips the constructor. Until effect ships a
+ * class-aware variant, name the status codes locally to avoid magic numbers
+ * while keeping `new UserCreationError({...})` constructable.
  *
  * @module
  */
 import { Schema as S } from "effect";
+import type { HttpApiSchema } from "effect/unstable/httpapi";
 
 import { UserIdSchema } from "../schemas/user";
 
-/**
- * Error returned when a user creation fails.
- *
- * HTTP Status: 400 Bad Request
- */
+const HTTP_STATUS = {
+  BadRequest: 400,
+  NotFound: 404,
+} as const satisfies Partial<Record<HttpApiSchema.StatusLiteral, number>>;
+
 export class UserCreationError extends S.TaggedErrorClass<UserCreationError>()(
   "UserCreationError",
   {
     email: S.String,
     name: S.String,
   },
-  { httpApiStatus: 400 },
+  { httpApiStatus: HTTP_STATUS.BadRequest },
 ) {}
 
-/**
- * Error returned when a user is not found.
- *
- * HTTP Status: 404 Not Found
- */
 export class UserNotFoundError extends S.TaggedErrorClass<UserNotFoundError>()(
   "UserNotFoundError",
   {
     id: UserIdSchema,
     message: S.String,
   },
-  { httpApiStatus: 404 },
+  { httpApiStatus: HTTP_STATUS.NotFound },
 ) {}
