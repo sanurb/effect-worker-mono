@@ -8,10 +8,31 @@ import { defineConfig } from "vite-plus";
 const alias = (name: string) => {
   const target = process.env.TEST_DIST !== undefined ? "dist/dist/esm" : "src";
   return {
-    [`@repo/${name}/test`]: path.join(__dirname, "packages", name, "test"),
-    [`@repo/${name}`]: path.join(__dirname, "packages", name, target),
+    [`@repo/${name}/test`]: path.join(import.meta.dirname, "packages", name, "test"),
+    [`@repo/${name}`]: path.join(import.meta.dirname, "packages", name, target),
   };
 };
+
+// Globs that should never be linted or formatted regardless of where they
+// appear in the workspace. Centralised so `lint.ignorePatterns` and
+// `fmt.ignorePatterns` stay in sync.
+const ignoredPaths = [
+  "**/node_modules/**",
+  "**/dist/**",
+  "**/.wrangler/**",
+  "**/__snapshots__/**",
+  "**/*.d.ts",
+  "**/routeTree.gen.ts",
+  ".agents/",
+  ".claude/",
+  ".codemogger/",
+  ".codex/",
+  ".fp/",
+  ".pi/",
+  ".repos/",
+  ".traces/",
+  "references/",
+];
 
 // https://viteplus.dev/config/
 export default defineConfig({
@@ -25,7 +46,7 @@ export default defineConfig({
 
   // Vitest is wrapped by Vite+ and configured here in one place.
   test: {
-    setupFiles: [path.join(__dirname, "setupTests.ts")],
+    setupFiles: [path.join(import.meta.dirname, "setupTests.ts")],
     fakeTimers: {
       toFake: undefined,
     },
@@ -45,10 +66,79 @@ export default defineConfig({
     projects: ["packages/*"],
   },
 
-  // Oxlint and Oxfmt configuration is left in `.oxlintrc.json` / `.oxfmtrc.json`
-  // because they hold the project rule sets. Vite+ reads them automatically
-  // when `vp lint` / `vp fmt` run. Add `lint` / `fmt` sections here only if
-  // you want to override or migrate those files via `vp migrate`.
+  // Oxlint configuration. Vite+ recommends colocating lint rules in
+  // `vite.config.ts` instead of `.oxlintrc.json` so the config stays type-safe
+  // and composable. See https://viteplus.dev/guide/monorepo.
+  lint: {
+    plugins: ["eslint", "import", "typescript", "unicorn", "oxc"],
+    env: {
+      browser: false,
+      node: true,
+    },
+    ignorePatterns: ignoredPaths,
+    rules: {
+      "no-var": "error",
+      "prefer-const": "error",
+      "no-unused-vars": "off",
+      "typescript/no-unused-vars": "error",
+      "typescript/no-explicit-any": "error",
+      "typescript/no-non-null-assertion": "warn",
+      "typescript/consistent-type-imports": ["error", { prefer: "type-imports" }],
+      "no-console": "error",
+      "no-debugger": "error",
+      "no-eval": "error",
+      "no-new-func": "error",
+      "no-throw-literal": "error",
+      "no-return-assign": "error",
+      eqeqeq: "error",
+      "no-shadow": "off",
+      "typescript/no-shadow": "error",
+    },
+    overrides: [
+      {
+        // Test files need console output and inevitably reach for `any`.
+        files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+        rules: {
+          "no-console": "off",
+          "typescript/no-explicit-any": "off",
+        },
+      },
+      {
+        // Structured-log sink writes to stdout/stderr by design.
+        files: ["packages/cloudflare/src/observability/ndjson-sink.ts"],
+        rules: {
+          "no-console": "off",
+        },
+      },
+    ],
+  },
+
+  // Oxfmt configuration. Same rationale as `lint` above — keep the source of
+  // truth in this file rather than `.oxfmtrc.json`.
+  fmt: {
+    printWidth: 100,
+    tabWidth: 2,
+    useTabs: false,
+    semi: true,
+    singleQuote: false,
+    trailingComma: "all",
+    bracketSpacing: true,
+    arrowParens: "always",
+    endOfLine: "lf",
+    sortImports: {
+      groups: [
+        "builtin",
+        "external",
+        ["internal", "subpath"],
+        ["parent", "sibling", "index"],
+        "style",
+        "unknown",
+      ],
+      newlinesBetween: true,
+    },
+    sortPackageJson: true,
+    ignorePatterns: ignoredPaths,
+  },
 
   // Vite Task: monorepo task orchestration. `vp run <task>` executes the
   // wrapped command with caching and dependency-aware scheduling. These tasks
@@ -73,11 +163,7 @@ export default defineConfig({
   },
 
   // Git hooks for staged files - https://viteplus.dev/guide/commit-hooks
-  // `vp check` does not accept `--disable-nested-config`, so fmt and lint are
-  // invoked separately. The flag keeps oxlint from descending into
-  // `.repos/effect/.oxlintrc.json`, whose `@effect/oxc/oxlint` plugin is not
-  // installed in this repo.
   staged: {
-    "*.@(js|ts|tsx|md|yaml|yml|json)": ["vp fmt", "vp lint --disable-nested-config --fix"],
+    "*.@(js|ts|tsx|md|yaml|yml|json)": "vp check --fix",
   },
 });
