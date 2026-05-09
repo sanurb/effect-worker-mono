@@ -20,8 +20,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-      - name: Vite+ check (fmt + lint + type-aware lint)
-        run: vp check
+      - name: Vite+ check (fmt + lint)
+        # `vp check` does not accept `--disable-nested-config`, and without
+        # it oxlint walks into `.repos/effect/.oxlintrc.json` and crashes on
+        # the missing `@effect/oxc/oxlint` plugin. The npm scripts wrap fmt
+        # and lint with the right flag, so use them here.
+        run: pnpm format:check && pnpm lint
       - name: ast-grep architecture rules
         run: pnpm exec sg scan
   build:
