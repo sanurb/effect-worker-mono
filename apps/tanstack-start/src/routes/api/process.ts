@@ -10,6 +10,8 @@ import { DateTime, Effect, Match, Option, Schema as S } from "effect";
 
 import { effectRuntimeMiddleware } from "@/server/middleware";
 
+import { ProcessingError } from "./errors";
+
 // ============================================================================
 // Request/Response Schemas
 // ============================================================================
@@ -25,14 +27,6 @@ const ProcessRequestSchema = S.Struct({
 });
 
 type ProcessRequest = S.Schema.Type<typeof ProcessRequestSchema>;
-
-// ============================================================================
-// Typed Errors
-// ============================================================================
-
-class ProcessingError extends S.TaggedErrorClass<ProcessingError>()("ProcessingError", {
-  message: S.String,
-}) {}
 
 // ============================================================================
 // Helpers

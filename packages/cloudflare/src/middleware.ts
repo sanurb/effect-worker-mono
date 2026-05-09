@@ -14,7 +14,7 @@
  */
 
 import { DatabaseConnectionError, PgDrizzle, makeDrizzle } from "@repo/db";
-import { Context, Effect, Option, Schema } from "effect";
+import { Context, Effect, Match, Option, Schema } from "effect";
 
 import { currentEnv, currentCtx, type WorkerExecutionContext } from "./bindings";
 import { CloudflareBindingsError } from "./errors";
@@ -85,6 +85,14 @@ export const provideBindings = Effect.fn("cloudflare.provideBindings")(function*
 // Database middleware effect
 // ============================================================================
 
+const toDatabaseConnectionError = (cause: unknown): DatabaseConnectionError =>
+  Match.value(cause).pipe(
+    Match.when(Match.instanceOf(DatabaseConnectionError), (e) => e),
+    Match.orElse(
+      (c) => new DatabaseConnectionError({ message: `Database connection failed: ${String(c)}` }),
+    ),
+  );
+
 /**
  * Wraps an Effect in PgDrizzle provision: reads `currentEnv` from the
  * request-scoped Reference, decodes the Hyperdrive connection string from it,
@@ -94,8 +102,8 @@ export const provideBindings = Effect.fn("cloudflare.provideBindings")(function*
  * `DatabaseConnectionError` so the transport layer sees a single typed
  * failure.
  */
-export const provideDatabase = Effect.fnUntraced(
-  function* <A, E, R>(effect: Effect.Effect<A, E, R>) {
+export const provideDatabase = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+  Effect.gen(function* () {
     const env = yield* currentEnv;
     const resolvedEnv = yield* Option.match(Option.fromNullishOr(env), {
       onNone: () =>
@@ -109,10 +117,4 @@ export const provideDatabase = Effect.fnUntraced(
     });
     const db = yield* makeDrizzle(readHyperdriveConnectionString(resolvedEnv));
     return yield* effect.pipe(Effect.provideService(PgDrizzle, db));
-  },
-  Effect.mapError((cause) =>
-    cause instanceof DatabaseConnectionError
-      ? cause
-      : new DatabaseConnectionError({ message: `Database connection failed: ${String(cause)}` }),
-  ),
-);
+  }).pipe(Effect.mapError(toDatabaseConnectionError));
