@@ -13,11 +13,11 @@
  * @module
  */
 
-import { PgDrizzle, makeDrizzle } from "@repo/db";
-import { CloudflareBindingsError, DatabaseConnectionError } from "@repo/domain";
+import { DatabaseConnectionError, PgDrizzle, makeDrizzle } from "@repo/db";
 import { Context, Effect, Option, type Scope } from "effect";
 
 import { currentEnv, currentCtx, type WorkerExecutionContext } from "./bindings";
+import { CloudflareBindingsError } from "./errors";
 
 // ============================================================================
 // CloudflareBindings service tag
@@ -81,11 +81,14 @@ export const provideBindings = Effect.fn("cloudflare.provideBindings")(function*
  * `DatabaseConnectionError` so the transport layer sees a single typed
  * failure.
  */
-export const provideDatabase = <A, E, R>(
+export const provideDatabase: <A, E, R>(
   getConnectionString: (env: unknown) => string,
   effect: Effect.Effect<A, E, R>,
-): Effect.Effect<A, E | DatabaseConnectionError, Exclude<R, PgDrizzle> | Scope.Scope> =>
-  Effect.gen(function* () {
+) => Effect.Effect<A, E | DatabaseConnectionError, Exclude<R, PgDrizzle> | Scope.Scope> =
+  Effect.fnUntraced(function* <A, E, R>(
+    getConnectionString: (env: unknown) => string,
+    effect: Effect.Effect<A, E, R>,
+  ) {
     const env = yield* currentEnv;
     const resolvedEnv = yield* Option.match(Option.fromNullishOr(env), {
       onNone: () =>
@@ -99,11 +102,9 @@ export const provideDatabase = <A, E, R>(
     });
     const db = yield* makeDrizzle(getConnectionString(resolvedEnv));
     return yield* effect.pipe(Effect.provideService(PgDrizzle, db));
-  }).pipe(
-    Effect.mapError(
-      () =>
-        new DatabaseConnectionError({
-          message: "Database connection failed",
-        }),
-    ),
-  );
+  }, Effect.mapError(
+    () =>
+      new DatabaseConnectionError({
+        message: "Database connection failed",
+      }),
+  ));

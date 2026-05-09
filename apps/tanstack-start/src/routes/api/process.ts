@@ -5,7 +5,7 @@
  * POST JSON data, process with Effect, return Response.
  */
 import { createFileRoute } from "@tanstack/react-router";
-import { Effect, Match, Option, Schema as S } from "effect";
+import { DateTime, Effect, Match, Option, Schema as S } from "effect";
 
 import { effectRuntimeMiddleware } from "@/server/middleware";
 
@@ -29,15 +29,15 @@ type ProcessRequest = S.Schema.Type<typeof ProcessRequestSchema>;
 // Typed Errors
 // ============================================================================
 
-class ValidationError {
-  readonly _tag = "ValidationError";
-  constructor(readonly message: string) {}
-}
+class ValidationError extends S.TaggedErrorClass<ValidationError>()(
+  "ValidationError",
+  { message: S.String },
+) {}
 
-class ProcessingError {
-  readonly _tag = "ProcessingError";
-  constructor(readonly message: string) {}
-}
+class ProcessingError extends S.TaggedErrorClass<ProcessingError>()(
+  "ProcessingError",
+  { message: S.String },
+) {}
 
 // ============================================================================
 // Helpers
@@ -61,15 +61,18 @@ const describeThrowable = (error: unknown, fallback: string): string =>
 const parseRequestBody = (request: Request) =>
   Effect.tryPromise({
     try: () => request.json(),
-    catch: () => new ValidationError("Invalid JSON body"),
+    catch: () => new ValidationError({ message: "Invalid JSON body" }),
   });
 
 const validateRequest = (body: unknown) =>
-  Effect.try({
-    try: () => S.decodeUnknownSync(ProcessRequestSchema)(body),
-    catch: (error) =>
-      new ValidationError(`Invalid request: ${describeThrowable(error, "Unknown error")}`),
-  });
+  S.decodeUnknownEffect(ProcessRequestSchema)(body).pipe(
+    Effect.mapError(
+      (error) =>
+        new ValidationError({
+          message: `Invalid request: ${describeThrowable(error, "Unknown error")}`,
+        }),
+    ),
+  );
 
 /**
  * Reduces the requested aggregate (sum/average/max/min) over a list of
@@ -93,7 +96,8 @@ const processItems = Effect.fn("processItems")(function* (
   const values = yield* Option.match(
     Option.liftPredicate(items, (arr) => arr.length > 0),
     {
-      onNone: () => Effect.fail(new ProcessingError("Cannot process empty array")),
+      onNone: () =>
+        Effect.fail(new ProcessingError({ message: "Cannot process empty array" })),
       onSome: (arr) => Effect.succeed(arr.map((item) => item.value)),
     },
   );
@@ -183,12 +187,13 @@ export const Route = createFileRoute("/api/process")({
               Effect.annotateLogs({ operation: data.operation, result }),
             );
 
+            const now = yield* DateTime.now;
             return jsonResponse({
               success: true,
               result,
               operation: data.operation,
               itemCount: data.items.length,
-              processedAt: new Date().toISOString(),
+              processedAt: DateTime.formatIso(now),
             });
           }).pipe(
             // Handle validation errors (400)

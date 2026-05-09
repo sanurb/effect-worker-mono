@@ -4,7 +4,7 @@
  * Demonstrates how to use Effect in TanStack Start server functions.
  */
 import { createServerFn } from "@tanstack/react-start";
-import { Effect, Schema as S } from "effect";
+import { DateTime, Effect, Schema as S } from "effect";
 
 import { effectRuntimeMiddleware } from "../middleware";
 
@@ -45,9 +45,10 @@ export const greetingFunction = effectFunction
       Effect.gen(function* () {
         const greeting = context.env.MY_VAR || "Hello";
         yield* Effect.log("Processing greeting").pipe(Effect.annotateLogs({ name: data.name }));
+        const now = yield* DateTime.now;
         return {
           message: `${greeting}, ${data.name}!`,
-          timestamp: new Date().toISOString(),
+          timestamp: DateTime.formatIso(now),
         };
       }),
     ),
