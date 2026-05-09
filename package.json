@@ -16,6 +16,7 @@
     "lint": "vp lint --disable-nested-config",
     "lint:fix": "vp lint --disable-nested-config --fix",
     "postinstall": "effect-tsgo patch",
+    "prepare": "vp config",
     "test": "vp test run",
     "test:watch": "vp test",
     "trace:inspect": "cat .traces/spans.ndjson | jq .",

@@ -13,6 +13,7 @@ const alias = (name: string) => {
   };
 };
 
+// https://viteplus.dev/config/
 export default defineConfig({
   // Standard Vite configuration that all tests inherit. Apps that need a Vite
   // server (e.g. tanstack-start) keep their own `vite.config.ts`.
@@ -71,8 +72,12 @@ export default defineConfig({
     },
   },
 
-  // `vp staged` runs these commands against staged files (replaces lint-staged).
+  // Git hooks for staged files - https://viteplus.dev/guide/commit-hooks
+  // `vp check` does not accept `--disable-nested-config`, so fmt and lint are
+  // invoked separately. The flag keeps oxlint from descending into
+  // `.repos/effect/.oxlintrc.json`, whose `@effect/oxc/oxlint` plugin is not
+  // installed in this repo.
   staged: {
-    "*.@(js|ts|tsx|md|yaml|yml|json)": "vp check --fix",
+    "*.@(js|ts|tsx|md|yaml|yml|json)": ["vp fmt", "vp lint --disable-nested-config --fix"],
   },
 });

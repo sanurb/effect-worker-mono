@@ -30,84 +30,91 @@ You have access to the Effect repository at `./.repos/effect`.
 
 <!--VITE PLUS START-->
 
-## Using Vite+, the Unified Toolchain for the Web
+# Using Vite+, the Unified Toolchain for the Web
 
-This monorepo runs on **Vite+**, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling behind a single global CLI: `vp`. The local entry point is `vite.config.ts` at the repo root, configured via `defineConfig` from `vite-plus`.
+This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, but it invokes Vite through `vp dev` and `vp build`.
 
-Vite+ is distinct from Vite. Vite+ invokes Vite through `vp dev` and `vp build`. The same applies for Vitest, Oxlint, and Oxfmt — Vite+ owns those entry points.
+## Vite+ Workflow
 
-### Vite+ Workflow
+`vp` is a global binary that handles the full development lifecycle. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
 
-`vp` is a global binary. Run `vp help` for the full command list and `vp <command> --help` for details on any command.
+### Start
 
-#### Start
+- create - Create a new project from a template
+- migrate - Migrate an existing project to Vite+
+- config - Configure hooks and agent integration
+- staged - Run linters on staged files
+- install (`i`) - Install dependencies
+- env - Manage Node.js versions
 
-- `vp create` — scaffold a new project
-- `vp migrate` — migrate an existing project to Vite+
-- `vp config` — configure hooks and agent integration
-- `vp staged` — run linters on staged files
-- `vp install` (`vp i`) — install dependencies
-- `vp env` — manage Node.js versions
+### Develop
 
-#### Develop
+- dev - Run the development server
+- check - Run format, lint, and TypeScript type checks
+- lint - Lint code
+- fmt - Format code
+- test - Run tests
 
-- `vp dev` — run the Vite dev server
-- `vp check` — run format, lint, and TypeScript-aware checks in one pass
-- `vp lint` — Oxlint
-- `vp fmt` — Oxfmt
-- `vp test` — Vitest (uses `vite.config.ts` `test.*` config)
+### Execute
 
-#### Execute
+- run - Run monorepo tasks
+- exec - Execute a command from local `node_modules/.bin`
+- dlx - Execute a package binary without installing it as a dependency
+- cache - Manage the task cache
 
-- `vp run <task>` — run monorepo tasks defined in `vite.config.ts` `run.tasks`
-- `vp exec` — execute a binary from local `node_modules/.bin`
-- `vp dlx` — execute a package binary without installing it
-- `vp cache` — manage the task cache
+### Build
 
-#### Build
+- build - Build for production
+- pack - Build libraries
+- preview - Preview production build
 
-- `vp build` — production build (Vite + Rolldown)
-- `vp pack` — library build for npm publishing
-- `vp preview` — preview production build
+### Manage Dependencies
 
-#### Manage Dependencies
+Vite+ automatically detects and wraps the underlying package manager such as pnpm, npm, or Yarn through the `packageManager` field in `package.json` or package manager-specific lockfiles.
 
-Vite+ wraps the underlying package manager (pnpm here, via `packageManager` in `package.json`).
+- add - Add packages to dependencies
+- remove (`rm`, `un`, `uninstall`) - Remove packages from dependencies
+- update (`up`) - Update packages to latest versions
+- dedupe - Deduplicate dependencies
+- outdated - Check for outdated packages
+- list (`ls`) - List installed packages
+- why (`explain`) - Show why a package is installed
+- info (`view`, `show`) - View package information from the registry
+- link (`ln`) / unlink - Manage local package links
+- pm - Forward a command to the package manager
 
-- `vp add` / `vp remove` (`rm`, `un`, `uninstall`) / `vp update` (`up`)
-- `vp dedupe`, `vp outdated`, `vp list`, `vp why`, `vp info`
-- `vp link` / `vp unlink`
-- `vp pm <args>` — forward a command to pnpm if no `vp` equivalent exists
+### Maintain
 
-### What Vite+ Does NOT Wrap (use directly)
+- upgrade - Update `vp` itself to the latest version
 
-| Tool                                                  | Why it stays direct                                                                               |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `tsgo` (`@effect/tsgo`, `@typescript/native-preview`) | Effect's native TS preview compiler — used for per-package `check`/`build`. Not in Vite+'s scope. |
-| `wrangler`                                            | Cloudflare worker dev/deploy.                                                                     |
-| `drizzle-kit`                                         | Database migrations and studio.                                                                   |
-| `sg` (`@ast-grep/cli`)                                | Effect architecture rules. Run via `pnpm sg:check` / `pnpm sg:test`.                              |
-| `agent-ci`                                            | Local CI runner (`pnpm ci:local`).                                                                |
+These commands map to their corresponding tools. For example, `vp dev --port 3000` runs Vite's dev server and works the same as Vite. `vp test` runs JavaScript tests through the bundled Vitest. The version of all tools can be checked using `vp --version`. This is useful when researching documentation, features, and bugs.
 
-Per-package `tsgo` checks remain in each package's `check` script and run together via the `types:check` task (`vp run types:check`).
+## Common Pitfalls
 
-### Common Pitfalls
+- **Using the package manager directly:** Do not use pnpm, npm, or Yarn directly. Vite+ can handle all package manager operations.
+- **Always use Vite commands to run tools:** Don't attempt to run `vp vitest` or `vp oxlint`. They do not exist. Use `vp test` and `vp lint` instead.
+- **Running scripts:** Vite+ built-in commands (`vp dev`, `vp build`, `vp test`, etc.) always run the Vite+ built-in tool, not any `package.json` script of the same name. To run a custom script that shares a name with a built-in command, use `vp run <script>`. For example, if you have a custom `dev` script that runs multiple services concurrently, run it with `vp run dev`, not `vp dev` (which always starts Vite's dev server).
+- **Do not install Vitest, Oxlint, Oxfmt, or tsdown directly:** Vite+ wraps these tools. They must not be installed directly. You cannot upgrade these tools by installing their latest versions. Always use Vite+ commands.
+- **Use Vite+ wrappers for one-off binaries:** Use `vp dlx` instead of package-manager-specific `dlx`/`npx` commands.
+- **Import JavaScript modules from `vite-plus`:** Instead of importing from `vite` or `vitest`, all modules should be imported from the project's `vite-plus` dependency. For example, `import { defineConfig } from 'vite-plus';` or `import { expect, test, vi } from 'vite-plus/test';`. You must not install `vitest` to import test utilities.
+- **Type-Aware Linting:** There is no need to install `oxlint-tsgolint`, `vp lint --type-aware` works out of the box.
 
-- **Do not call pnpm/npm/yarn directly** for normal dependency operations. Use `vp install`, `vp add`, `vp remove`. The remaining `pnpm`-prefixed entries in `package.json` exist only for per-package targeting (`pnpm --filter <pkg>`) of tools Vite+ does not own (`sg`, `tsgo`, `wrangler`, `agent-ci`).
-- **Do not run `vp vitest` or `vp oxlint`** — they do not exist. Use `vp test`, `vp lint`, `vp fmt`.
-- **Do not install `vite`, `vitest`, `oxlint`, `oxfmt`, or `tsdown` directly.** Vite+ wraps them. The only Vite+ direct dependencies in this repo are `vite-plus` and the `vitest` alias to `@voidzero-dev/vite-plus-test` (used as the package name plain tests would import). Upgrade them through `vp upgrade` and bump both pinned versions together.
-- **Use `vp dlx` instead of `pnpm dlx` / `npx`.**
-- **Importing test utilities:** Effect-aware tests import from `@effect/vitest`. Plain tests, if added, import from `vite-plus/test` — never from `vitest`. The pnpm override redirects the literal `vitest` package name to `@voidzero-dev/vite-plus-test`, so a stray `from "vitest"` still resolves but is forbidden by harness rules.
-- **Type-aware lint:** `vp lint --type-aware` works out of the box. Do not install `oxlint-tsgolint` separately.
+## CI Integration
 
-### Review Checklist for Agents
+For GitHub Actions, consider using [`voidzero-dev/setup-vp`](https://github.com/voidzero-dev/setup-vp) to replace separate `actions/setup-node`, package-manager setup, cache, and install steps with a single action.
+
+```yaml
+- uses: voidzero-dev/setup-vp@v1
+  with:
+    cache: true
+- run: vp check
+- run: vp test
+```
+
+## Review Checklist for Agents
 
 - [ ] Run `vp install` after pulling remote changes and before getting started.
 - [ ] Run `vp check` and `vp test` to validate changes.
-- [ ] Run `pnpm sg:check` for ast-grep architecture rules.
-- [ ] For per-package type checks: `vp run types:check` (wraps `pnpm -r run check`).
-- [ ] For build of shared packages: `vp run build:packages` (wraps the dependency-ordered tsgo build). `vp build` is reserved for Vite-driven apps (currently `tanstack-start`).
-
 <!--VITE PLUS END-->
 
 ## Package Index
