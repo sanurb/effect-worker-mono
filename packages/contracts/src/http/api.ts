@@ -7,8 +7,8 @@
  */
 import { HttpApi } from "effect/unstable/httpapi";
 
-import { CloudflareBindingsMiddleware } from "../middleware";
 import { HealthGroup, UsersGroup } from "./groups";
+import { CloudflareBindingsMiddleware } from "./middleware";
 
 /**
  * Worker API definition.

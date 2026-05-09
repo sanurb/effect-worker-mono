@@ -12,6 +12,9 @@
 // Schema exports
 export { users, type User as DbUser, type NewUser } from "./schema";
 
+// Adapter errors
+export { DatabaseConnectionError } from "./errors";
+
 // Query exports
 export * from "./queries";
 

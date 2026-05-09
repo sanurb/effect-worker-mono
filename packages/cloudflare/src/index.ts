@@ -18,6 +18,11 @@ export {
   type WorkerExecutionContext,
 } from "./bindings";
 
+export { CloudflareBindingsError } from "./errors";
+
 export { CloudflareBindings, provideBindings, provideDatabase } from "./middleware";
 
-export * from "./observability";
+export {
+  makeObservabilityLayer,
+  type ObservabilityConfig,
+} from "./observability/Observability";

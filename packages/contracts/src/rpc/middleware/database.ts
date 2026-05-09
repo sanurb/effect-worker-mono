@@ -1,13 +1,16 @@
-import type { PgDrizzle } from "@repo/db/pg-drizzle/tag";
-import { DatabaseConnectionError } from "@repo/domain";
 /**
  * Database RPC Middleware Tag
  *
  * RpcMiddleware tag that provides PgDrizzle to RPC handlers.
- * The implementation is provided by the app using Context.Reference.
+ * The implementation is provided by the app via Layer.
+ *
+ * `PgDrizzle` is imported from the `pg-drizzle/tag` subpath as a type-only
+ * import to keep `pg` out of the contracts consumer graph.
  *
  * @module
  */
+import { DatabaseConnectionError } from "@repo/db";
+import type { PgDrizzle } from "@repo/db/pg-drizzle/tag";
 import { RpcMiddleware } from "effect/unstable/rpc";
 
 /**
@@ -19,8 +22,6 @@ import { RpcMiddleware } from "effect/unstable/rpc";
  * const myRpc = Rpc.make("myRpc", { ... })
  *   .middleware(RpcDatabaseMiddleware)
  * ```
- *
- * Implementation is provided by the app layer.
  *
  * Handlers can then use PgDrizzle directly:
  *

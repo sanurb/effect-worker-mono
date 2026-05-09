@@ -20,7 +20,7 @@ The repo is organized as a hexagonal-ish monorepo around shared domain types and
                                                @repo/domain
 ```
 
-That diagram is intentionally honest about the current code, not the idealized version. `@repo/contracts` is part of the application boundary, but today it also references infrastructure service types from `@repo/cloudflare` and `@repo/db` through middleware tags.
+`@repo/contracts` is the transport boundary. Adapter service tags (`CloudflareBindings`, `PgDrizzle`) and adapter errors (`CloudflareBindingsError`, `DatabaseConnectionError`) live with their adapters in `@repo/cloudflare` and `@repo/db` respectively — contracts only declares the per-transport middleware tags that bind those adapter services to HTTP and RPC handlers.
 
 ## Responsibility by Layer
 
@@ -45,6 +45,7 @@ What does not belong here:
 - Cloudflare bindings
 - HTTP or RPC route definitions
 - Wrangler config or environment lookups
+- Adapter failure modes (Cloudflare bindings missing, database connection failed) — those live with their adapters in `@repo/cloudflare/src/errors.ts` and `@repo/db/src/errors.ts`.
 
 ### 2. Persistence adapter — `@repo/db`
 
@@ -59,6 +60,7 @@ Key source files:
 - `packages/db/src/schema.ts`
 - `packages/db/src/queries/users.ts`
 - `packages/db/src/pg-drizzle/index.ts`
+- `packages/db/src/errors.ts`
 - `packages/db/src/index.ts`
 
 Boundary rule:
@@ -79,6 +81,7 @@ Key source files:
 
 - `packages/cloudflare/src/bindings.ts`
 - `packages/cloudflare/src/middleware.ts`
+- `packages/cloudflare/src/errors.ts`
 - `packages/cloudflare/src/observability/Observability.ts`
 - `packages/cloudflare/src/observability/Tracer.ts`
 - `packages/cloudflare/src/index.ts`
@@ -99,14 +102,15 @@ Key source files:
 
 - `packages/contracts/src/http/api.ts`
 - `packages/contracts/src/http/groups/*.ts`
+- `packages/contracts/src/http/middleware/*.ts`
 - `packages/contracts/src/rpc/procedures/users.ts`
-- `packages/contracts/src/middleware/*.ts`
+- `packages/contracts/src/rpc/middleware/*.ts`
 - `packages/contracts/src/index.ts`
 
-Boundary reality:
+Boundary rule:
 
-- The contracts package is not pure schema-only code. Its middleware tags reference services from `@repo/cloudflare` and `@repo/db`.
-- Treat it as the shared transport boundary for the worker apps, not as a domain-only package.
+- Middleware tags live next to their transport (`http/middleware/`, `rpc/middleware/`). Each tag's `provides:` references an adapter service tag imported directly from `@repo/cloudflare` or `@repo/db` — no shim, no duplicated declaration.
+- This package owns the transport surface; it does not own adapter services or adapter errors.
 
 ### 5. Application composition — `apps/*`
 
@@ -187,7 +191,6 @@ Put differently:
 
 These are not bugs in the documentation; they are the current architecture tradeoffs:
 
-- `@repo/contracts` depends on infrastructure service types, so it is not a pure boundary package.
 - `apps/tanstack-start` is structurally ready for shared services but still acts mostly as an isolated example.
 - Database access is shared across both worker apps, but the TanStack app has not been wired into that same runtime model yet.
 

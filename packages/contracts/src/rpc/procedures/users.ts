@@ -16,7 +16,7 @@ import { Schema as S } from "effect";
  */
 import { Rpc, RpcGroup } from "effect/unstable/rpc";
 
-import { RpcDatabaseMiddleware } from "../../middleware";
+import { RpcDatabaseMiddleware } from "../middleware";
 
 // ============================================================================
 // Response Schemas

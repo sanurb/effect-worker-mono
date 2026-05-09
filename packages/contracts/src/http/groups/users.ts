@@ -11,7 +11,7 @@ import { Schema as S } from "effect";
  */
 import { HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi";
 
-import { DatabaseMiddleware } from "../../middleware";
+import { DatabaseMiddleware } from "../middleware";
 
 /**
  * Users list response schema.

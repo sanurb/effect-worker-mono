@@ -4,9 +4,4 @@
  * @module
  */
 export { UserCreationError, UserNotFoundError } from "./user";
-export {
-  NotFoundError,
-  ValidationError,
-  CloudflareBindingsError,
-  DatabaseConnectionError,
-} from "./common";
+export { NotFoundError, ValidationError } from "./common";

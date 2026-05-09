@@ -14,10 +14,23 @@
  */
 
 import { DatabaseConnectionError, PgDrizzle, makeDrizzle } from "@repo/db";
-import { Context, Effect, Option } from "effect";
+import { Context, Effect, Option, Schema } from "effect";
 
 import { currentEnv, currentCtx, type WorkerExecutionContext } from "./bindings";
 import { CloudflareBindingsError } from "./errors";
+
+// ============================================================================
+// Worker Env decoding
+// ============================================================================
+
+const DatabaseEnvSchema = Schema.Struct({
+  HYPERDRIVE: Schema.Struct({
+    connectionString: Schema.String,
+  }),
+});
+
+const readHyperdriveConnectionString = (env: unknown): string =>
+  Schema.decodeUnknownSync(DatabaseEnvSchema)(env).HYPERDRIVE.connectionString;
 
 // ============================================================================
 // CloudflareBindings service tag
@@ -74,15 +87,14 @@ export const provideBindings = Effect.fn("cloudflare.provideBindings")(function*
 
 /**
  * Wraps an Effect in PgDrizzle provision: reads `currentEnv` from the
- * request-scoped Reference, derives a connection string via the caller's
- * extractor, opens a scoped PgDrizzle, and provides it to the inner effect.
+ * request-scoped Reference, decodes the Hyperdrive connection string from it,
+ * opens a scoped PgDrizzle, and provides it to the inner effect.
  *
  * Any failure in the resolution or connection phase is mapped to
  * `DatabaseConnectionError` so the transport layer sees a single typed
  * failure.
  */
 export const provideDatabase = Effect.fnUntraced(function* <A, E, R>(
-  getConnectionString: (env: unknown) => string,
   effect: Effect.Effect<A, E, R>,
 ) {
   const env = yield* currentEnv;
@@ -96,7 +108,7 @@ export const provideDatabase = Effect.fnUntraced(function* <A, E, R>(
       ),
     onSome: Effect.succeed,
   });
-  const db = yield* makeDrizzle(getConnectionString(resolvedEnv));
+  const db = yield* makeDrizzle(readHyperdriveConnectionString(resolvedEnv));
   return yield* effect.pipe(Effect.provideService(PgDrizzle, db));
 }, Effect.mapError((cause) =>
   cause instanceof DatabaseConnectionError
