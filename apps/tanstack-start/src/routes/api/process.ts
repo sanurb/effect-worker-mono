@@ -4,6 +4,7 @@
  * Demonstrates Effect-TS in a standard API route pattern.
  * POST JSON data, process with Effect, return Response.
  */
+import { ValidationError } from "@repo/domain";
 import { createFileRoute } from "@tanstack/react-router";
 import { DateTime, Effect, Match, Option, Schema as S } from "effect";
 
@@ -28,11 +29,6 @@ type ProcessRequest = S.Schema.Type<typeof ProcessRequestSchema>;
 // ============================================================================
 // Typed Errors
 // ============================================================================
-
-class ValidationError extends S.TaggedErrorClass<ValidationError>()(
-  "ValidationError",
-  { message: S.String },
-) {}
 
 class ProcessingError extends S.TaggedErrorClass<ProcessingError>()(
   "ProcessingError",
@@ -61,7 +57,7 @@ const describeThrowable = (error: unknown, fallback: string): string =>
 const parseRequestBody = (request: Request) =>
   Effect.tryPromise({
     try: () => request.json(),
-    catch: () => new ValidationError({ message: "Invalid JSON body" }),
+    catch: () => new ValidationError({ message: "Invalid JSON body", errors: [] }),
   });
 
 const validateRequest = (body: unknown) =>
@@ -69,7 +65,8 @@ const validateRequest = (body: unknown) =>
     Effect.mapError(
       (error) =>
         new ValidationError({
-          message: `Invalid request: ${describeThrowable(error, "Unknown error")}`,
+          message: "Invalid request",
+          errors: String(error).split("\n").filter((line) => line.length > 0),
         }),
     ),
   );

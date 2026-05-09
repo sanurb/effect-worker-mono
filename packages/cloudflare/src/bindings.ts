@@ -64,22 +64,21 @@ export const withCloudflareBindings =
  * Uses ctx.waitUntil() to keep the Worker alive while the effect runs.
  * Errors are logged but don't affect the response.
  */
-export const waitUntil: <A, E>(effect: Effect.Effect<A, E>) => Effect.Effect<void> =
-  Effect.fnUntraced(function* <A, E>(effect: Effect.Effect<A, E>) {
-    const ctx = yield* currentCtx;
-    const services = yield* Effect.context<never>();
-    yield* Option.match(Option.fromNullishOr(ctx), {
-      onNone: () => Effect.void,
-      onSome: (resolvedCtx) =>
-        Effect.sync(() => {
-          resolvedCtx.waitUntil(
-            Effect.runPromiseWith(services)(
-              effect.pipe(
-                Effect.tapCause(Effect.logError),
-                Effect.catch(() => Effect.void),
-              ),
+export const waitUntil = Effect.fnUntraced(function* <A, E>(effect: Effect.Effect<A, E>) {
+  const ctx = yield* currentCtx;
+  const services = yield* Effect.context<never>();
+  yield* Option.match(Option.fromNullishOr(ctx), {
+    onNone: () => Effect.void,
+    onSome: (resolvedCtx) =>
+      Effect.sync(() => {
+        resolvedCtx.waitUntil(
+          Effect.runPromiseWith(services)(
+            effect.pipe(
+              Effect.tapCause(Effect.logError),
+              Effect.catch(() => Effect.void),
             ),
-          );
-        }),
-    });
+          ),
+        );
+      }),
   });
+});
