@@ -11,10 +11,10 @@
  *
  * @example Adding PgDrizzle (requires HYPERDRIVE binding in wrangler.jsonc):
  * ```typescript
- * import { PgDrizzle, makePgDrizzleLayer } from "@repo/db"
+ * import { PgDrizzle, makeDrizzle } from "@repo/db"
  *
- * const dbLayer = makePgDrizzleLayer(env.HYPERDRIVE.connectionString)
- * const servicesLayer = Layer.mergeAll(dbLayer, otherServiceLayer)
+ * const db = yield* makeDrizzle(env.HYPERDRIVE.connectionString)
+ * const servicesLayer = Layer.succeed(PgDrizzle, db)
  * ```
  */
 import { createMiddleware } from "@tanstack/react-start";
@@ -45,14 +45,6 @@ import type { EffectServices } from "../types";
  * ```
  */
 export const effectRuntimeMiddleware = createMiddleware().server(async ({ next }) => {
-  // Create service layers
-  // Add your service layers here and merge them:
-  //
-  // Example with PgDrizzle (uncomment when HYPERDRIVE is configured):
-  // const dbLayer = makePgDrizzleLayer(env.HYPERDRIVE.connectionString)
-  // const servicesLayer = Layer.mergeAll(dbLayer, otherServiceLayer)
-
-  // Empty layer - add your services above
   const servicesLayer = Layer.empty;
 
   const runtime = ManagedRuntime.make(servicesLayer);

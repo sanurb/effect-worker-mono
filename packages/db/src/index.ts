@@ -15,11 +15,5 @@ export { users, type User as DbUser, type NewUser } from "./schema";
 // Query exports
 export * from "./queries";
 
-// PgDrizzle service and layers
-export {
-  PgDrizzle,
-  PgDrizzleLive,
-  PgDrizzleLiveWithConfig,
-  makePgDrizzleLayer,
-  makeDrizzle,
-} from "./pg-drizzle/index.js";
+// PgDrizzle service and factory
+export { PgDrizzle, makeDrizzle } from "./pg-drizzle/index.js";
