@@ -13,12 +13,11 @@
     ".fp/",
     ".pi/",
     ".traces/",
-    ".repos/",
-    "designs/",
+    ".repos",
     "references/",
     "**/routeTree.gen.ts"
   ],
-  "plugins": ["typescript"],
+  "plugins": ["eslint", "import", "typescript", "unicorn", "oxc"],
   "env": {
     "browser": false,
     "node": true
@@ -28,7 +27,7 @@
     "prefer-const": "error",
     "no-unused-vars": "off",
     "typescript/no-unused-vars": "error",
-    "typescript/no-explicit-any": "warn",
+    "typescript/no-explicit-any": "error",
     "typescript/no-non-null-assertion": "warn",
     "typescript/consistent-type-imports": ["error", { "prefer": "type-imports" }],
     "no-console": "error",
