@@ -22,5 +22,4 @@ export {
   PgDrizzleLiveWithConfig,
   makePgDrizzleLayer,
   makeDrizzle,
-  makeRemoteCallback,
 } from "./pg-drizzle/index.js";

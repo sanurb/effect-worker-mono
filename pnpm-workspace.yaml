@@ -3,11 +3,11 @@ packages:
   - apps/*
 
 catalog:
-  effect: 4.0.0-beta.47
-  "@effect/tsgo": 0.3.1
-  "@effect/sql-pg": 4.0.0-beta.47
-  "@effect/vitest": 4.0.0-beta.47
-  "@effect/atom-react": 4.0.0-beta.47
+  effect: 4.0.0-beta.64
+  "@effect/tsgo": 0.5.2
+  "@effect/sql-pg": 4.0.0-beta.64
+  "@effect/vitest": 4.0.0-beta.64
+  "@effect/atom-react": 4.0.0-beta.64
   typescript: 6.0.2
 
 # Vite+ ships `vite` and `vitest` as `@voidzero-dev/vite-plus-core` and
@@ -22,7 +22,7 @@ overrides:
 
 # `@voidzero-dev/vite-plus-test` is versioned independently of upstream
 # `vitest` (`0.1.x` vs `4.x`). After the override above any package that
-# peer-depends on `vitest@^3.0.0 || ^4.0.0` (e.g. `@effect/vitest@4.0.0-beta.47+`)
+# peer-depends on `vitest@^3.0.0 || ^4.0.0` (e.g. `@effect/vitest@4.0.0-beta.64+`)
 # resolves a literal `0.1.17-alpha.3`, which never satisfies a numeric range. This rule
 # tells pnpm the mismatch is intentional. It is the only Vite+ peer band-aid
 # this repo carries — do not extend it without justification.

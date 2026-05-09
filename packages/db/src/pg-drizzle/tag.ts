@@ -1,4 +1,3 @@
-import type { PgRemoteDatabase } from "drizzle-orm/pg-proxy";
 /**
  * PgDrizzle Service Tag
  *
@@ -7,13 +6,18 @@ import type { PgRemoteDatabase } from "drizzle-orm/pg-proxy";
  * the tag for type-level references (e.g. middleware definitions), to avoid
  * pulling in Node.js-only dependencies like pg.
  *
+ * Drizzle 1.0.0-rc.1 ships native Effect v4 support via
+ * `drizzle-orm/effect-postgres`. The service now carries an `EffectPgDatabase`
+ * whose query builders return real `Effect` values — no QueryPromise patch.
+ *
  * @module
  */
+import type { EffectPgDatabase } from "drizzle-orm/effect-postgres";
 import { Context } from "effect";
 
 /**
- * PgDrizzle service tag — provides a Drizzle PgRemoteDatabase instance.
+ * PgDrizzle service tag — provides a Drizzle EffectPgDatabase instance.
  */
-export class PgDrizzle extends Context.Service<PgDrizzle, PgRemoteDatabase>()(
+export class PgDrizzle extends Context.Service<PgDrizzle, EffectPgDatabase>()(
   "@repo/db/PgDrizzle",
 ) {}

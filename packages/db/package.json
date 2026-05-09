@@ -12,12 +12,12 @@
   "dependencies": {
     "@effect/sql-pg": "catalog:",
     "@repo/domain": "workspace:*",
-    "drizzle-orm": "^0.45.0",
+    "drizzle-orm": "1.0.0-rc.1",
     "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/tsgo": "catalog:",
     "@typescript/native-preview": "latest",
-    "drizzle-kit": "^0.31.8"
+    "drizzle-kit": "1.0.0-rc.1"
   }
 }
