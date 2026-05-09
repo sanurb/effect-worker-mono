@@ -6,7 +6,7 @@
  *
  * @module
  */
-import { CloudflareBindings, CloudflareBindingsError } from "@repo/cloudflare";
+import { CloudflareBindingsError, type CloudflareBindings } from "@repo/cloudflare";
 import { HttpApiMiddleware } from "effect/unstable/httpapi";
 
 /**

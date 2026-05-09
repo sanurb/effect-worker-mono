@@ -30,10 +30,9 @@ type ProcessRequest = S.Schema.Type<typeof ProcessRequestSchema>;
 // Typed Errors
 // ============================================================================
 
-class ProcessingError extends S.TaggedErrorClass<ProcessingError>()(
-  "ProcessingError",
-  { message: S.String },
-) {}
+class ProcessingError extends S.TaggedErrorClass<ProcessingError>()("ProcessingError", {
+  message: S.String,
+}) {}
 
 // ============================================================================
 // Helpers
@@ -66,7 +65,9 @@ const validateRequest = (body: unknown) =>
       (error) =>
         new ValidationError({
           message: "Invalid request",
-          errors: String(error).split("\n").filter((line) => line.length > 0),
+          errors: String(error)
+            .split("\n")
+            .filter((line) => line.length > 0),
         }),
     ),
   );
@@ -93,8 +94,7 @@ const processItems = Effect.fn("processItems")(function* (
   const values = yield* Option.match(
     Option.liftPredicate(items, (arr) => arr.length > 0),
     {
-      onNone: () =>
-        Effect.fail(new ProcessingError({ message: "Cannot process empty array" })),
+      onNone: () => Effect.fail(new ProcessingError({ message: "Cannot process empty array" })),
       onSome: (arr) => Effect.succeed(arr.map((item) => item.value)),
     },
   );

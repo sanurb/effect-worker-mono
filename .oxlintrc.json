@@ -13,6 +13,7 @@
     ".fp/",
     ".pi/",
     ".traces/",
+    ".repos/",
     "designs/",
     "references/",
     "**/routeTree.gen.ts"
