@@ -1,12 +1,4 @@
-/**
- * PgDrizzle Service Tag
- *
- * Type-only entry point for the PgDrizzle tag. Import from here (instead of
- * `./index`) for middleware definitions and other type-level references, to
- * avoid pulling in Node.js-only deps (`pg`).
- *
- * @module
- */
+/** PgDrizzle service tag — separate module from `./index` so middleware can reference it without pulling `pg` at runtime. */
 import type { EffectPgDatabase } from "drizzle-orm/effect-postgres";
 import { Context } from "effect";
 

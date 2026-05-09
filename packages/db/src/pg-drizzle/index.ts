@@ -24,7 +24,7 @@ export { PgDrizzle } from "./tag.js";
  * (e.g. `import { snakeCase } from "drizzle-orm/pg-core/casing"`); the
  * top-level `casing` option was removed from `DrizzlePgConfig`.
  */
-export const makeDrizzle = Effect.fn("makeDrizzle")(function* (
+export const makeDrizzle = Effect.fnUntraced(function* (
   connectionString: string,
   config?: EffectDrizzlePgConfig,
 ) {
