@@ -7,10 +7,7 @@
  * @module
  */
 import { PgClient } from "@effect/sql-pg";
-import {
-  type EffectDrizzlePgConfig,
-  makeWithDefaults,
-} from "drizzle-orm/effect-postgres";
+import { type EffectDrizzlePgConfig, makeWithDefaults } from "drizzle-orm/effect-postgres";
 import { Effect, Redacted } from "effect";
 
 export { PgDrizzle } from "./tag.js";
