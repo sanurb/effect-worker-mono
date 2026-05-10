@@ -28,3 +28,6 @@ tm/
 
 .traces/
 /.ringi
+
+# Wrangler local-dev runtime state (Miniflare caches, sqlite, etc.)
+.wrangler/
