@@ -2,9 +2,8 @@ import * as path from "node:path";
 
 import { defineConfig } from "vite-plus";
 
-// `@repo/<name>` aliases used by tests so they import from source (or built
-// output when TEST_DIST is set). Only the packages that actually exist are
-// listed; the previous shared config aliased non-existent packages.
+// `@repo/<name>` aliases for test runs: source by default, dist when
+// TEST_DIST is set so tests exercise the published shape.
 const alias = (name: string) => {
   const target = process.env.TEST_DIST !== undefined ? "dist/dist/esm" : "src";
   return {
@@ -36,10 +35,8 @@ const ignoredPaths = [
 
 // https://viteplus.dev/config/
 export default defineConfig({
-  // Standard Vite configuration that all tests inherit. Apps that need a Vite
-  // server (e.g. tanstack-start) keep their own `vite.config.ts`.
-  // Vite+ replaces esbuild with oxc; the old `esbuild.target` setting from the
-  // pre-Vite+ shared config is now a no-op and has been removed.
+  // Apps that need a Vite server (e.g. tanstack-start) keep their own
+  // `vite.config.ts`; this root config is consumed by `vp test` only.
   optimizeDeps: {
     exclude: ["bun:sqlite"],
   },
@@ -60,25 +57,22 @@ export default defineConfig({
       ...alias("db"),
       ...alias("domain"),
     },
-    // `test.projects` replaces the deprecated `vitest.workspace.ts` file. Each
-    // workspace package picks up this root config; per-package overrides go
-    // inline here, not in scattered `vitest.config.ts` files.
+    // Per-package test overrides go inline above, not in scattered
+    // `vitest.config.ts` files.
     projects: ["packages/*"],
   },
 
-  // Oxlint configuration. Vite+ recommends colocating lint rules in
-  // `vite.config.ts` instead of `.oxlintrc.json` so the config stays type-safe
-  // and composable. See https://viteplus.dev/guide/monorepo.
+  // Oxlint config — co-located here per Vite+'s monorepo guide so it stays
+  // type-safe and avoids nested `.oxlintrc.json` discovery into `.repos/`.
+  // https://viteplus.dev/guide/monorepo
   lint: {
     plugins: ["eslint", "import", "typescript", "unicorn", "oxc"],
     env: {
       browser: false,
       node: true,
     },
-    // Type-aware lint runs the rules that need TypeScript type information
-    // (e.g. `consistent-type-imports`). `typeCheck: true` would additionally
-    // run a full TS compiler pass, which `pnpm check` / `vp run types:check`
-    // already does — keep it off so the responsibilities don't overlap.
+    // `typeCheck: true` would re-run the full TS compiler pass that
+    // `vp run types:check` already does — leave it off to avoid the overlap.
     options: {
       typeAware: true,
     },
@@ -120,8 +114,7 @@ export default defineConfig({
     ],
   },
 
-  // Oxfmt configuration. Same rationale as `lint` above — keep the source of
-  // truth in this file rather than `.oxfmtrc.json`.
+  // Oxfmt — co-located here for the same reason as `lint`.
   fmt: {
     printWidth: 100,
     tabWidth: 2,
@@ -147,18 +140,13 @@ export default defineConfig({
     ignorePatterns: ignoredPaths,
   },
 
-  // Vite Task: monorepo task orchestration. `vp run <task>` executes the
-  // wrapped command with caching and dependency-aware scheduling. These tasks
-  // give a single entry point that mirrors the project's existing pnpm-based
-  // scripts but routes them through the Vite+ task runner.
+  // Monorepo tasks dispatched via `vp run <task>`.
   run: {
     tasks: {
       "build:packages": {
-        // pnpm `--recursive` walks the workspace dep graph and runs `build`
-        // in topological order (domain → db → cloudflare → contracts), so
-        // the hand-rolled chain is no longer needed. The `./packages/*`
-        // filter excludes apps (worker apps would otherwise invoke
-        // `wrangler deploy --dry-run`, tanstack-start would run `vp build`).
+        // `./packages/*` filter excludes apps — building those would invoke
+        // `wrangler deploy --dry-run` / `vp build` which we don't want here.
+        // `--recursive` walks the workspace dep graph in topological order.
         command: "pnpm --recursive --filter './packages/*' run build",
       },
       "types:check": {
