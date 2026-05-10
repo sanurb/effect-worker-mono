@@ -75,6 +75,13 @@ export default defineConfig({
       browser: false,
       node: true,
     },
+    // Type-aware lint runs the rules that need TypeScript type information
+    // (e.g. `consistent-type-imports`). `typeCheck: true` would additionally
+    // run a full TS compiler pass, which `pnpm check` / `vp run types:check`
+    // already does — keep it off so the responsibilities don't overlap.
+    options: {
+      typeAware: true,
+    },
     ignorePatterns: ignoredPaths,
     rules: {
       "no-var": "error",
@@ -147,8 +154,12 @@ export default defineConfig({
   run: {
     tasks: {
       "build:packages": {
-        command:
-          "pnpm --filter '@repo/domain' run build && pnpm --filter '@repo/db' run build && pnpm --filter '@repo/cloudflare' run build && pnpm --filter '@repo/contracts' run build",
+        // pnpm `--recursive` walks the workspace dep graph and runs `build`
+        // in topological order (domain → db → cloudflare → contracts), so
+        // the hand-rolled chain is no longer needed. The `./packages/*`
+        // filter excludes apps (worker apps would otherwise invoke
+        // `wrangler deploy --dry-run`, tanstack-start would run `vp build`).
+        command: "pnpm --recursive --filter './packages/*' run build",
       },
       "types:check": {
         command: "pnpm -r run check",

@@ -1,31 +1,77 @@
 packages:
   - packages/*
   - apps/*
+  - tooling/*
 
+# Single source of truth for shared dependency versions. Add a package here
+# whenever it has ≥2 workspace consumers, or when we want to pin a floating
+# range (e.g. `latest`) so installs stay reproducible.
 catalog:
+  # Effect ecosystem — kept in lockstep.
   effect: 4.0.0-beta.64
-  "@effect/tsgo": 0.5.2
-  "@effect/sql-pg": 4.0.0-beta.64
-  "@effect/vitest": 4.0.0-beta.64
   "@effect/atom-react": 4.0.0-beta.64
+  "@effect/sql-pg": 4.0.0-beta.64
+  "@effect/tsgo": 0.5.2
+  "@effect/vitest": 4.0.0-beta.64
+
+  # TypeScript toolchain.
   typescript: 6.0.2
+  "@typescript/native-preview": 7.0.0-dev.20260412.1
+  "@types/node": ^22.19.17
+
+  # Vite+ unified toolchain. Pin the trio together so a downstream `npm publish`
+  # cannot bump them silently — `vp upgrade` is the only supported bump path.
+  vite-plus: 0.1.17-alpha.3
+  vite: npm:@voidzero-dev/vite-plus-core@0.1.17-alpha.3
+  vitest: npm:@voidzero-dev/vite-plus-test@0.1.17-alpha.3
+
+  # Repo tooling.
+  "@ast-grep/cli": ^0.42.1
+  "@redwoodjs/agent-ci": ^0.8.2
+
+  # Cloudflare Workers stack.
+  "@cloudflare/workers-types": ^4.20260410.1
+  wrangler: ^4.81.1
+
+  # Drizzle ORM (db package + worker apps).
+  drizzle-kit: 1.0.0-rc.1
+  drizzle-orm: 1.0.0-rc.1
+
+# `prefer` warns when a workspace package lists a literal version for a
+# catalog-managed dep, instead of `catalog:`. Switch to `strict` once the
+# warning surface is empty and we want pre-install enforcement.
+catalogMode: prefer
 
 # Vite+ ships `vite` and `vitest` as `@voidzero-dev/vite-plus-core` and
 # `@voidzero-dev/vite-plus-test`. These overrides force every transitive
 # consumer (Vite plugins, `@effect/vitest`, etc.) to resolve through the
-# Vite+ packages so the toolchain stays unified behind `vp`. Pin them to the
-# same version `vite-plus` itself depends on so a downstream `npm publish`
-# cannot bump them silently — `vp upgrade` is the only supported bump path.
+# Vite+ packages so the toolchain stays unified behind `vp`. The `effect`
+# override likewise locks every transitive resolution to the catalog version.
 overrides:
-  vite: npm:@voidzero-dev/vite-plus-core@0.1.17-alpha.3
-  vitest: npm:@voidzero-dev/vite-plus-test@0.1.17-alpha.3
+  effect: "catalog:"
+  vite: "catalog:"
+  vitest: "catalog:"
 
 # `@voidzero-dev/vite-plus-test` is versioned independently of upstream
 # `vitest` (`0.1.x` vs `4.x`). After the override above any package that
 # peer-depends on `vitest@^3.0.0 || ^4.0.0` (e.g. `@effect/vitest@4.0.0-beta.64+`)
-# resolves a literal `0.1.17-alpha.3`, which never satisfies a numeric range. This rule
-# tells pnpm the mismatch is intentional. It is the only Vite+ peer band-aid
-# this repo carries — do not extend it without justification.
+# resolves a literal `0.1.17-alpha.3`, which never satisfies a numeric range.
+# The same applies to `vite`, since Vite plugins peer-depend on
+# `vite@5 || ^6 || ^7`. These rules tell pnpm the mismatch is intentional.
 peerDependencyRules:
   allowedVersions:
+    vite: "*"
     vitest: "*"
+
+# Native-bindings allowlist — pnpm refuses to run install scripts unless we
+# opt in. pnpm 11 replaces the legacy `onlyBuiltDependencies` array with a
+# map keyed by package name so we can also opt *out* explicitly when needed.
+allowBuilds:
+  "@ast-grep/cli": true
+  cpu-features: true
+  esbuild: true
+  msgpackr-extract: true
+  protobufjs: true
+  sharp: true
+  ssh2: true
+  workerd: true

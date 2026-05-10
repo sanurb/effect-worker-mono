@@ -18,7 +18,7 @@ const effectFunction = createServerFn().middleware([effectRuntimeMiddleware]);
  * Validation helper using Effect Schema
  */
 const validateWith =
-  <A, I>(schema: S.Schema<A, I>) =>
+  <A>(schema: S.Schema<A>) =>
   (input: unknown): A =>
     S.decodeUnknownSync(schema)(input);
 

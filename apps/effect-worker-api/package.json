@@ -12,14 +12,14 @@
     "@repo/contracts": "workspace:^",
     "@repo/db": "workspace:^",
     "@repo/domain": "workspace:^",
-    "drizzle-orm": "1.0.0-rc.1",
+    "drizzle-orm": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241127.0",
+    "@cloudflare/workers-types": "catalog:",
     "@effect/tsgo": "catalog:",
-    "@types/node": "^22.0.0",
-    "@typescript/native-preview": "latest",
-    "wrangler": "^4.55.0"
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "wrangler": "catalog:"
   }
 }

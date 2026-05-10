@@ -23,32 +23,23 @@
     "trace:clear": "rm -f .traces/spans.ndjson",
     "ci:local": "agent-ci run --workflow .github/workflows/check.yml --quiet --no-matrix",
     "ci:local:all": "agent-ci run --all --quiet --no-matrix",
-    "ci:local:retry": "agent-ci retry"
+    "ci:local:retry": "agent-ci retry",
+    "deps": "vp dlx taze@latest -Ilwr",
+    "deps:major": "vp dlx taze@latest major -Ilwr"
   },
   "devDependencies": {
-    "@ast-grep/cli": "^0.42.1",
+    "@ast-grep/cli": "catalog:",
     "@effect/tsgo": "catalog:",
     "@effect/vitest": "catalog:",
-    "@redwoodjs/agent-ci": "^0.8.2",
-    "@types/node": "^22.8.5",
+    "@redwoodjs/agent-ci": "catalog:",
+    "@repo/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
     "effect": "catalog:",
-    "vite-plus": "0.1.17-alpha.3",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.17-alpha.3"
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
-  "overrides": {
-    "effect": "catalog:"
+  "engines": {
+    "node": ">=22"
   },
-  "packageManager": "pnpm@10.14.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@ast-grep/cli",
-      "cpu-features",
-      "esbuild",
-      "msgpackr-extract",
-      "protobufjs",
-      "sharp",
-      "ssh2",
-      "workerd"
-    ]
-  }
+  "packageManager": "pnpm@11.0.9"
 }

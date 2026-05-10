@@ -8,7 +8,9 @@
     "noEmit": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@repo/domain": ["../../packages/domain/src/index.ts"],
+      "@repo/domain/*": ["../../packages/domain/src/*"]
     }
   }
 }

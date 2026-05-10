@@ -3,30 +3,31 @@
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "editor.formatOnSave": true,
-  "eslint.format.enable": true,
   "[json]": {
     "editor.defaultFormatter": "vscode.json-language-features"
   },
   "[markdown]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "prettier.semi": false,
-    "prettier.trailingComma": "none"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[javascript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[javascriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
-  "eslint.validate": ["markdown", "javascript", "typescript"],
+  "prettier.enable": false,
+  "eslint.enable": false,
+  "biome.enabled": false,
+  "oxc.enable": true,
+  "oxc.fmt.configPath": "./vite.config.ts",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.oxc": "explicit"
   },
   "editor.quickSuggestions": {
     "other": true,
@@ -43,6 +44,7 @@
   "editor.wordBasedSuggestions": "matchingDocuments",
   "editor.parameterHints.enabled": true,
   "files.insertFinalNewline": true,
+  "npm.scriptRunner": "vp",
   "js/ts.experimental.useTsgo": true,
   "typescript.experimental.useTsgo": true,
   "typescript.native-preview.tsdk": "node_modules/@typescript/native-preview"

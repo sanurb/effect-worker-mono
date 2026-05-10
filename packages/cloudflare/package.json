@@ -24,6 +24,6 @@
   },
   "devDependencies": {
     "@effect/tsgo": "catalog:",
-    "@typescript/native-preview": "latest"
+    "@typescript/native-preview": "catalog:"
   }
 }

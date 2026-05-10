@@ -164,7 +164,7 @@ export function ThemeProvider({
     (newTheme: Theme) => {
       Option.match(tryLocalStorage(), {
         onNone: () => undefined,
-        onSome: (storage) => void storage.setItem(storageKey, newTheme),
+        onSome: (storage) => storage.setItem(storageKey, newTheme),
       });
       setThemeState(newTheme);
     },
@@ -183,7 +183,7 @@ export function ThemeProvider({
             Option.liftPredicate(undefined, () => disableTransitionOnChange),
             {
               onNone: () => undefined,
-              onSome: () => void suppressTransitionsOnce(doc, win),
+              onSome: () => suppressTransitionsOnce(doc, win),
             },
           );
           writeThemeToRoot(doc, target, attribute);
@@ -199,7 +199,7 @@ export function ThemeProvider({
       Option.liftPredicate(resolvedTheme, () => isMounted),
       {
         onNone: () => undefined,
-        onSome: (target) => void applyTheme(target),
+        onSome: (target) => applyTheme(target),
       },
     );
   }, [resolvedTheme, applyTheme, isMounted]);

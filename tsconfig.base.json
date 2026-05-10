@@ -1,25 +1,7 @@
 {
+  "$schema": "https://raw.githubusercontent.com/Effect-TS/tsgo/refs/heads/main/schema.json",
+  "extends": "@repo/tsconfig/base.json",
   "compilerOptions": {
-    "strict": true,
-    "exactOptionalPropertyTypes": true,
-    "noUncheckedIndexedAccess": true,
-    "moduleDetection": "force",
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "moduleResolution": "Bundler",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "target": "ES2023",
-    "module": "ESNext",
     "paths": {
       "@repo/cloudflare": ["./packages/cloudflare/src/index.ts"],
       "@repo/cloudflare/*": ["./packages/cloudflare/src/*"],
@@ -29,12 +11,6 @@
       "@repo/db/*": ["./packages/db/src/*"],
       "@repo/domain": ["./packages/domain/src/index.ts"],
       "@repo/domain/*": ["./packages/domain/src/*"]
-    },
-    "plugins": [
-      {
-        "name": "@effect/language-service"
-      }
-    ]
-  },
-  "$schema": "https://raw.githubusercontent.com/Effect-TS/tsgo/refs/heads/main/schema.json"
+    }
+  }
 }
