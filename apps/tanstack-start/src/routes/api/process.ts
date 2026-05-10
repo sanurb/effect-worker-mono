@@ -10,7 +10,7 @@ import { DateTime, Effect, Match, Option, Schema as S } from "effect";
 
 import { effectRuntimeMiddleware } from "@/server/middleware";
 
-import { ProcessingError } from "./errors";
+import { ProcessingError } from "./-errors";
 
 // ============================================================================
 // Request/Response Schemas

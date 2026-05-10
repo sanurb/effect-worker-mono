@@ -19,6 +19,7 @@ files:
 
 ignores:
   - "**/errors.ts"
+  - "**/-errors.ts"
   - "**/errors/**/*.ts"
   - "**/*.test.ts"
   - "**/*.test.tsx"

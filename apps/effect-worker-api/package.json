@@ -1,7 +1,7 @@
 {
   "name": "effect-worker-api",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --port 8787",
     "deploy": "wrangler deploy",
     "cf-typegen": "wrangler types --env-interface Env",
     "check": "tsgo -p tsconfig.json --noEmit",
