@@ -8,11 +8,11 @@ packages:
 # range (e.g. `latest`) so installs stay reproducible.
 catalog:
   # Effect ecosystem — kept in lockstep.
-  effect: 4.0.0-beta.64
-  "@effect/atom-react": 4.0.0-beta.64
-  "@effect/sql-pg": 4.0.0-beta.64
-  "@effect/tsgo": 0.5.2
-  "@effect/vitest": 4.0.0-beta.64
+  effect: 4.0.0-beta.78
+  "@effect/atom-react": 4.0.0-beta.78
+  "@effect/sql-pg": 4.0.0-beta.78
+  "@effect/tsgo": 0.14.2
+  "@effect/vitest": 4.0.0-beta.78
 
   # TypeScript toolchain.
   typescript: 6.0.2
@@ -34,8 +34,8 @@ catalog:
   wrangler: ^4.81.1
 
   # Drizzle ORM (db package + worker apps).
-  drizzle-kit: 1.0.0-rc.1
-  drizzle-orm: 1.0.0-rc.1
+  drizzle-kit: 1.0.0-rc.3
+  drizzle-orm: 1.0.0-rc.3
 
 # `prefer` warns when a workspace package lists a literal version for a
 # catalog-managed dep, instead of `catalog:`. Switch to `strict` once the

@@ -37,6 +37,7 @@
     "@redwoodjs/agent-ci": "catalog:",
     "@repo/tsconfig": "workspace:*",
     "@types/node": "catalog:",
+    "@vitest/runner": "workspace:*",
     "effect": "catalog:",
     "vite-plus": "catalog:",
     "vitest": "catalog:"
