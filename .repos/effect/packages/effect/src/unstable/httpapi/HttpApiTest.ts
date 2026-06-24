@@ -1,4 +1,11 @@
 /**
+ * Tests `HttpApi` implementations through an in-memory generated client.
+ *
+ * The helpers use the same request encoding, routing, response encoding, and
+ * client decoding as the normal `HttpApiBuilder` and `HttpApiClient` pipeline,
+ * but they do not start an HTTP server. This is useful for focused handler
+ * tests, schema round trips, middleware behavior, and typed client calls.
+ *
  * @since 4.0.0
  */
 import * as Context from "../../Context.ts"
@@ -21,8 +28,15 @@ import type * as HttpApiEndpoint from "./HttpApiEndpoint.ts"
 import type * as HttpApiGroup from "./HttpApiGroup.ts"
 
 /**
+ * Creates an in-memory client for testing selected groups of an `HttpApi`.
+ *
+ * **Details**
+ *
+ * Handlers for the selected groups are taken from the environment; unselected
+ * groups are wired with placeholder handlers that fail if called.
+ *
+ * @category testing
  * @since 4.0.0
- * @category Testing
  */
 export const groups = Effect.fnUntraced(function*<
   ApiId extends string,
@@ -31,7 +45,10 @@ export const groups = Effect.fnUntraced(function*<
   SelectedGroups = HttpApiGroup.WithName<Groups, Names[number]>
 >(
   api: HttpApi.HttpApi<ApiId, Groups>,
-  groupNames: Names
+  groupNames: Names,
+  options?: {
+    readonly baseUrl?: string | URL | undefined
+  }
 ): Effect.fn.Return<
   HttpApiClient.Client<Groups>,
   never,
@@ -90,6 +107,6 @@ export const groups = Effect.fnUntraced(function*<
 
   return yield* HttpApiClient.makeWith(api, {
     httpClient,
-    baseUrl: "http://localhost:3000"
+    baseUrl: options?.baseUrl ?? "http://localhost:3000"
   })
 })
