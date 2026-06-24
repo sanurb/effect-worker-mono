@@ -8,11 +8,11 @@ packages:
 # range (e.g. `latest`) so installs stay reproducible.
 catalog:
   # Effect ecosystem — kept in lockstep.
-  effect: 4.0.0-beta.78
-  "@effect/atom-react": 4.0.0-beta.78
-  "@effect/sql-pg": 4.0.0-beta.78
+  effect: 4.0.0-beta.88
+  "@effect/atom-react": 4.0.0-beta.88
+  "@effect/sql-pg": 4.0.0-beta.88
   "@effect/tsgo": 0.14.2
-  "@effect/vitest": 4.0.0-beta.78
+  "@effect/vitest": 4.0.0-beta.88
 
   # TypeScript toolchain.
   typescript: 6.0.2
