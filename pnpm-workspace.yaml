@@ -11,7 +11,7 @@ catalog:
   effect: 4.0.0-beta.88
   "@effect/atom-react": 4.0.0-beta.88
   "@effect/sql-pg": 4.0.0-beta.88
-  "@effect/tsgo": 0.14.2
+  "@effect/tsgo": 0.14.6
   "@effect/vitest": 4.0.0-beta.88
 
   # TypeScript toolchain.
