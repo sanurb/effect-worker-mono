@@ -310,7 +310,9 @@ export const causeSquash = <E>(self: Cause.Cause<E>): unknown => {
 }
 
 /** @internal */
-export const causePrettyErrors = <E>(self: Cause.Cause<E>): Array<Error> => {
+export const causePrettyErrors = <E>(self: Cause.Cause<E>, options?: {
+  readonly includeCauseInStack?: boolean | undefined
+}): Array<Error> => {
   const errors: Array<Error> = []
   const interrupts: Array<Cause.Interrupt> = []
   if (self.reasons.length === 0) return errors
@@ -326,7 +328,8 @@ export const causePrettyErrors = <E>(self: Cause.Cause<E>): Array<Error> => {
     errors.push(
       causePrettyError(
         failure._tag === "Die" ? failure.defect : failure.error as any,
-        failure.annotations
+        failure.annotations,
+        options
       )
     )
   }
@@ -337,7 +340,7 @@ export const causePrettyErrors = <E>(self: Cause.Cause<E>): Array<Error> => {
     const error = new globalThis.Error("All fibers interrupted without error", { cause })
     error.name = "InterruptError"
     error.stack = `${error.name}: ${error.message}`
-    errors.push(causePrettyError(error, interrupts[0].annotations))
+    errors.push(causePrettyError(error, interrupts[0].annotations, options))
   }
 
   setStackTraceLimit(prevStackLimit)
@@ -347,7 +350,10 @@ export const causePrettyErrors = <E>(self: Cause.Cause<E>): Array<Error> => {
 /** @internal */
 export const causePrettyError = (
   original: Record<string, unknown> | Error,
-  annotations?: ReadonlyMap<string, unknown>
+  annotations?: ReadonlyMap<string, unknown>,
+  options?: {
+    readonly includeCauseInStack?: boolean | undefined
+  }
 ): Error => {
   const kind = typeof original
   let error: Error
@@ -363,6 +369,9 @@ export const causePrettyError = (
     } else {
       const stack = `${error.name}: ${error.message}`
       error.stack = annotations ? addStackAnnotations(stack, annotations) : stack
+    }
+    if (options?.includeCauseInStack) {
+      error.stack = renderPrettyError(error)!
     }
     for (const key of Object.keys(original)) {
       if (!(key in error)) {
@@ -459,10 +468,10 @@ const currentStackTrace = (frame: StackFrame): string => {
 
 /** @internal */
 export const causePretty = <E>(cause: Cause.Cause<E>): string =>
-  causePrettyErrors<E>(cause).map((e) =>
-    e.cause ? `${e.stack} {\n${renderErrorCause(e.cause as Error, "  ")}\n}` : e.stack
-  )
-    .join("\n")
+  causePrettyErrors<E>(cause).map(renderPrettyError).join("\n")
+
+const renderPrettyError = (e: Error): string | undefined =>
+  e.cause ? `${e.stack} {\n${renderErrorCause(e.cause as Error, "  ")}\n}` : e.stack
 
 const renderErrorCause = (cause: Error, prefix: string) => {
   const lines = cause.stack!.split("\n")
@@ -892,10 +901,18 @@ export const suspend: <A, E, R>(
 })
 
 /** @internal */
-export const fromOption: <A>(option: Option.Option<A>) => Effect.Effect<A, Cause.NoSuchElementError> = Option.match({
-  onNone: () => fail(new NoSuchElementError("Effect.fromOption: Option.none")),
-  onSome: succeed
-})
+export const fromOption: <Arg extends Option.Option<unknown> | LazyArg<unknown>, E = Cause.NoSuchElementError>(
+  arg: Arg,
+  ...rest: [Arg] extends [Option.Option<unknown>] ? [onNone?: LazyArg<E>] : []
+) => [Arg] extends [Option.Option<infer A>] ? Effect.Effect<A, E>
+  : [Arg] extends [LazyArg<infer E>] ? <A>(option: Option.Option<A>) => Effect.Effect<A, E>
+  : never = dual(
+    (args) => args.length >= 2 || Option.isOption(args[0]),
+    <A, E>(option: Option.Option<A>, onNone?: LazyArg<E>): Effect.Effect<A, Cause.NoSuchElementError | E> =>
+      Option.isNone(option)
+        ? fail(onNone ? onNone() : new NoSuchElementError("Effect.fromOption: Option.none"))
+        : succeed(option.value)
+  )
 
 /** @internal */
 export const fromResult: <A, E>(result: Result.Result<A, E>) => Effect.Effect<A, E> = Result.match({
@@ -2063,6 +2080,25 @@ const getContext = withFiber((fiber) => succeed(fiber.context))
 export const contextWith = <R, A, E, R2>(
   f: (context: Context.Context<R>) => Effect.Effect<A, E, R2>
 ): Effect.Effect<A, E, R | R2> => withFiber((fiber) => f(fiber.context as Context.Context<R>))
+
+/** @internal */
+export const setContext: {
+  <R>(
+    context: Context.Context<R>
+  ): <A, E>(
+    self: Effect.Effect<A, E, R>
+  ) => Effect.Effect<A, E>
+  <A, E, R>(
+    self: Effect.Effect<A, E, R>,
+    context: Context.Context<R>
+  ): Effect.Effect<A, E>
+} = dual(
+  2,
+  <A, E, R>(
+    self: Effect.Effect<A, E, R>,
+    context: Context.Context<R>
+  ): Effect.Effect<A, E> => updateContext(self, constant(context))
+)
 
 /** @internal */
 export const provideContext: {
@@ -4549,17 +4585,20 @@ const forEachSequential = <A, B, E, R>(
     )
   })
 
+type IterateEagerOptions = {
+  readonly concurrency?: number | undefined
+  readonly start?: number | undefined
+  readonly end?: number | undefined
+  readonly orderedStep?: boolean | undefined
+}
+
 const iterateEagerImpl = <S, A, X, E, R, E2>(options: {
   readonly onItem: (state: S, item: A, index: number) => Effect.Effect<X, E, R>
   readonly step: (state: NoInfer<S>, item: A, exit: Exit.Exit<X, E>, index: number) => Exit.Exit<void, E2> | void
 }): (
   initialState: S,
   items: ReadonlyArray<A>,
-  options?: {
-    readonly concurrency?: number | undefined
-    readonly start?: number | undefined
-    readonly end?: number | undefined
-  }
+  options?: IterateEagerOptions
 ) => Effect.Effect<void, E | E2, R> | undefined => {
   const onItem = options.onItem
   const step = options.step
@@ -4567,15 +4606,12 @@ const iterateEagerImpl = <S, A, X, E, R, E2>(options: {
   return (
     state: S,
     items: ReadonlyArray<A>,
-    opts: {
-      readonly concurrency?: number | undefined
-      readonly start?: number | undefined
-      readonly end?: number | undefined
-    } | undefined
+    opts: IterateEagerOptions | undefined
   ): Effect.Effect<void, E | E2, R> | undefined => {
     let index = opts?.start ?? 0
     const end = opts?.end ?? items.length
     const concurrency = opts?.concurrency ?? 1
+    const orderedStep = opts?.orderedStep === true && concurrency > 1
     let done = false
     let parentFiber: Fiber.Fiber<any, any> | undefined
     let fibers: Set<Fiber.Fiber<any, any>> | undefined
@@ -4583,6 +4619,22 @@ const iterateEagerImpl = <S, A, X, E, R, E2>(options: {
     let interrupted = false
     let terminal: Exit.Exit<void, E | E2> | void
     let effect: Effect.Effect<X, E, R> | undefined
+    let nextIndex = index
+    const exits: Array<Exit.Exit<X, E> | undefined> | undefined = orderedStep ? new Array(end) : undefined
+
+    const runStep = (item: A, exit: Exit.Exit<X, E>, currentIndex: number): Exit.Exit<void, E | E2> | void => {
+      if (!orderedStep) return step(state, item, exit, currentIndex)
+      if (terminal) return terminal
+      exits![currentIndex] = exit
+      while (nextIndex < end) {
+        const nextExit = exits![nextIndex]
+        if (nextExit === undefined) return
+        exits![nextIndex] = undefined
+        const index = nextIndex++
+        const result = step(state, items[index], nextExit, index)
+        if (result) return result
+      }
+    }
 
     const go = (): Effect.Effect<void, E | E2, R> | undefined => {
       let paused = false
@@ -4592,13 +4644,13 @@ const iterateEagerImpl = <S, A, X, E, R, E2>(options: {
 
         // fast case (already an exit)
         if (effectIsExit(eff)) {
-          terminal = step(state, item, eff, index)
+          terminal = runStep(item, eff, index)
           if (terminal) break
 
           // Use flatMap for concurrency of 1
         } else if (concurrency === 1) {
           return flatMap(exit(eff), (exit) => {
-            terminal = step(state, item, exit, index)
+            terminal = runStep(item, exit, index)
             index++
             return terminal ?? go() ?? void_
           })
@@ -4625,7 +4677,7 @@ const iterateEagerImpl = <S, A, X, E, R, E2>(options: {
 
           const fiber = forkUnsafe(parentFiber, eff, true, true, "inherit")
           if (fiber._exit) {
-            terminal = step(state, item, fiber._exit, index)
+            terminal = runStep(item, fiber._exit, index)
             if (terminal) break
             continue
           }
@@ -4649,7 +4701,7 @@ const iterateEagerImpl = <S, A, X, E, R, E2>(options: {
                 }
               }
             } else {
-              const result = step(state, item, exit, currentIndex)
+              const result = runStep(item, exit, currentIndex)
               if (result) {
                 terminal = result._tag === "Failure"
                   ? exitFailCause(causeFromReasons(result.cause.reasons.slice()))
@@ -4705,11 +4757,7 @@ export const iterateEager = <S, A>(): <X, E, R, E2>(options: {
 }) => (
   initialState: S,
   items: ReadonlyArray<A>,
-  options?: {
-    readonly concurrency?: number | undefined
-    readonly start?: number | undefined
-    readonly end?: number | undefined
-  }
+  options?: IterateEagerOptions
 ) => Effect.Effect<void, E | E2, R> | undefined => iterateEagerImpl
 
 const forEachConcurrent = iterateEagerImpl({
@@ -5799,11 +5847,16 @@ class ClockImpl implements Clock.Clock {
   }
   readonly currentTimeNanos: Effect.Effect<bigint> = sync(() => this.currentTimeNanosUnsafe())
   sleep(duration: Duration.Duration): Effect.Effect<void> {
-    const millis = Duration.toMillis(duration)
+    return this.sleepMillis(Duration.toMillis(duration))
+  }
+  private sleepMillis(millis: number): Effect.Effect<void> {
     if (millis <= 0) return yieldNow
+    else if (!Number.isFinite(millis)) return never
     return callback((resume) => {
-      if (millis > MAX_TIMER_MILLIS) return
-      const handle = setTimeout(() => resume(void_), millis)
+      const continuation = millis > MAX_TIMER_MILLIS
+        ? this.sleepMillis(millis - MAX_TIMER_MILLIS)
+        : void_
+      const handle = setTimeout(() => resume(continuation), Math.min(millis, MAX_TIMER_MILLIS))
       return sync(() => clearTimeout(handle))
     })
   }
