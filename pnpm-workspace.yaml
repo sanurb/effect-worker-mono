@@ -8,22 +8,28 @@ packages:
 # range (e.g. `latest`) so installs stay reproducible.
 catalog:
   # Effect ecosystem — kept in lockstep.
-  effect: 4.0.0-beta.88
-  "@effect/atom-react": 4.0.0-beta.88
-  "@effect/sql-pg": 4.0.0-beta.88
-  "@effect/tsgo": 0.14.6
-  "@effect/vitest": 4.0.0-beta.88
+  effect: 4.0.0-beta.102
+  "@effect/atom-react": 4.0.0-beta.102
+  "@effect/sql-pg": 4.0.0-beta.102
+  "@effect/tsgo": 0.24.3
+  "@effect/vitest": 4.0.0-beta.102
 
-  # TypeScript toolchain.
-  typescript: 6.0.2
-  "@typescript/native-preview": 7.0.0-dev.20260412.1
+  # TypeScript toolchain. `typescript@7` *is* the native (Go) compiler that used
+  # to ship as `@typescript/native-preview`; the binary is `tsc`, not `tsgo`.
+  # `@effect/tsgo@0.24.3` only patches the official layout
+  # (`@typescript/typescript-<platform>-<arch>/lib/tsc`), so the preview channel
+  # is no longer a supported host for the Effect language service.
+  typescript: 7.0.2
   "@types/node": ^22.19.17
 
   # Vite+ unified toolchain. Pin the trio together so a downstream `npm publish`
   # cannot bump them silently — `vp upgrade` is the only supported bump path.
-  vite-plus: 0.1.17-alpha.3
-  vite: npm:@voidzero-dev/vite-plus-core@0.1.17-alpha.3
-  vitest: npm:@voidzero-dev/vite-plus-test@0.1.17-alpha.3
+  # Since 0.2.0 Vite+ consumes *upstream* `vitest` (and its `@vitest/*` helper
+  # packages) directly, so only `vite` is still an alias onto the Vite+ core.
+  vite-plus: 0.2.6
+  vite: npm:@voidzero-dev/vite-plus-core@0.2.6
+  vitest: 4.1.10
+  "@vitest/runner": 4.1.10
 
   # Repo tooling.
   "@ast-grep/cli": ^0.42.1
@@ -42,26 +48,28 @@ catalog:
 # warning surface is empty and we want pre-install enforcement.
 catalogMode: prefer
 
-# Vite+ ships `vite` and `vitest` as `@voidzero-dev/vite-plus-core` and
-# `@voidzero-dev/vite-plus-test`. These overrides force every transitive
-# consumer (Vite plugins, `@effect/vitest`, etc.) to resolve through the
-# Vite+ packages so the toolchain stays unified behind `vp`. The `effect`
+# Vite+ still ships `vite` as `@voidzero-dev/vite-plus-core`, so the `vite`
+# override forces every transitive consumer (Vite plugins, `@cloudflare/vite-plugin`,
+# …) through the Vite+ core and keeps the toolchain unified behind `vp`. The
+# `vitest` override pins upstream Vitest to the exact version Vite+ 0.2.6 bundles
+# so `@effect/vitest` and `vp test` share one runner instance. The `effect`
 # override likewise locks every transitive resolution to the catalog version.
 overrides:
   effect: "catalog:"
   vite: "catalog:"
   vitest: "catalog:"
+  "@vitest/runner": "catalog:"
 
-# `@voidzero-dev/vite-plus-test` is versioned independently of upstream
-# `vitest` (`0.1.x` vs `4.x`). After the override above any package that
-# peer-depends on `vitest@^3.0.0 || ^4.0.0` (e.g. `@effect/vitest@4.0.0-beta.64+`)
-# resolves a literal `0.1.17-alpha.3`, which never satisfies a numeric range.
-# The same applies to `vite`, since Vite plugins peer-depend on
-# `vite@5 || ^6 || ^7`. These rules tell pnpm the mismatch is intentional.
+# `vite` remains aliased to `@voidzero-dev/vite-plus-core`, which is versioned
+# independently of upstream Vite (`0.2.x` vs `7.x`). After the override above,
+# any package that peer-depends on `vite@^5 || ^6 || ^7` resolves a literal
+# `0.2.6`, which never satisfies a numeric range. This rule tells pnpm the
+# mismatch is intentional. `vitest` no longer needs an entry here: Vite+ 0.2.x
+# resolves to real `vitest@4.1.10`, which satisfies `@effect/vitest`'s
+# `vitest@^3.0.0 || ^4.0.0` peer range on its own.
 peerDependencyRules:
   allowedVersions:
     vite: "*"
-    vitest: "*"
 
 # Native-bindings allowlist — pnpm refuses to run install scripts unless we
 # opt in. pnpm 11 replaces the legacy `onlyBuiltDependencies` array with a

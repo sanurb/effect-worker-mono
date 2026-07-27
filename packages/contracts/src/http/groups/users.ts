@@ -18,7 +18,7 @@ import { DatabaseMiddleware } from "../middleware";
  */
 export const UsersListSchema = S.Struct({
   users: S.Array(UserSchema),
-  total: S.Number,
+  total: S.Finite,
 });
 export type UsersList = typeof UsersListSchema.Type;
 

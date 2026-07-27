@@ -1,5 +1,5 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsdk": "node_modules/typescript",
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "editor.formatOnSave": true,
@@ -46,6 +46,5 @@
   "files.insertFinalNewline": true,
   "npm.scriptRunner": "vp",
   "js/ts.experimental.useTsgo": true,
-  "typescript.experimental.useTsgo": true,
-  "typescript.native-preview.tsdk": "node_modules/@typescript/native-preview"
+  "typescript.experimental.useTsgo": true
 }

@@ -4,7 +4,7 @@ All the commands used to verify this repository. Run them before declaring any c
 
 The single fast gate is `vp check && pnpm sg:check`. The other commands catch problems that gate does not.
 
-> The toolchain is **Vite+**. `vp` wraps Vitest, Oxlint, Oxfmt (and the package manager). Tools that Vite+ does **not** wrap — `tsgo`, `wrangler`, `drizzle-kit`, `sg`/`@ast-grep/cli`, `agent-ci` — are still invoked through `pnpm`.
+> The toolchain is **Vite+**. `vp` wraps Vitest, Oxlint, Oxfmt (and the package manager). Tools that Vite+ does **not** wrap — `tsc`, `wrangler`, `drizzle-kit`, `sg`/`@ast-grep/cli`, `agent-ci` — are still invoked through `pnpm`.
 
 ## The Fast Gate
 
@@ -23,9 +23,9 @@ Run all of these for any non-trivial change:
 vp install              # restore deps (resolves the vite/vitest overrides)
 vp check                # format, lint, type-aware lint
 pnpm sg:check           # ast-grep architecture rules (not wrapped by Vite+)
-vp run types:check      # tsgo type check across every workspace package
+vp run types:check      # tsc type check across every workspace package
 vp test                 # vitest via Vite+ (bundled in vp)
-vp run build:packages   # tsgo build of shared packages in dependency order
+vp run build:packages   # tsc build of shared packages in dependency order
 ```
 
 For a specific package only:
@@ -85,16 +85,16 @@ vp test --project @repo/domain  # one workspace project only
 
 Test files live alongside source: `**/*.test.ts`. Test config lives in the root `vite.config.ts` under `test.*` (replaces the old `vitest.shared.ts` + `vitest.workspace.ts`). The setup file is `setupTests.ts`.
 
-Effect-aware tests import from `@effect/vitest`. Plain tests, if added, **must** import from `vite-plus/test` — not from `vitest`. The pnpm override redirects the `vitest` package name to `@voidzero-dev/vite-plus-test`, so any leftover direct import from `vitest` still resolves but is forbidden by harness rules.
+Effect-aware tests import from `@effect/vitest`. Plain tests, if added, **must** import from `vite-plus/test` — not from `vitest`. Since Vite+ 0.2 the `vitest` package name resolves to upstream Vitest (pinned by the pnpm override to the exact version Vite+ bundles), so a direct import from `vitest` still resolves but is forbidden by harness rules.
 
-### Build (per-package, via `tsgo`)
+### Build (per-package, via `tsc`)
 
 ```bash
 vp run build:packages  # builds: domain → db → cloudflare → contracts (in order)
 pnpm clean             # remove dist output under packages/*
 ```
 
-Both targets are declared in `vite.config.ts` `run.tasks` and dispatched through Vite+'s task runner. The underlying command is still a `pnpm --filter` chain because tsgo is not wrapped by Vite+; routing through `vp run` keeps the entry point coherent.
+Both targets are declared in `vite.config.ts` `run.tasks` and dispatched through Vite+'s task runner. The underlying command is still a `pnpm --filter` chain because `tsc` is not wrapped by Vite+; routing through `vp run` keeps the entry point coherent.
 
 Apps are not built by `vp run build:packages`. Build them individually:
 
@@ -134,7 +134,7 @@ DATABASE_URL=postgres://... pnpm db:studio     # open Drizzle Studio
 | `vp fmt --check`        | Formatting drift                                                  |
 | `vp check`              | Lint + format + type-aware lint in one pass                       |
 | `pnpm sg:check`         | Effect anti-patterns, architecture violations, structural rules   |
-| `vp run types:check`    | TypeScript type errors across all packages (via `tsgo`)           |
+| `vp run types:check`    | TypeScript type errors across all packages (via `tsc`)            |
 | `vp test`               | Behavioural regressions                                           |
 | `vp run build:packages` | Build-breaking import or export errors                            |
 

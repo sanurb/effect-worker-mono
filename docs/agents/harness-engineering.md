@@ -23,7 +23,7 @@ Run this loop for every feature, fix, or refactor:
    ```bash
    vp check          # vp fmt + vp lint + type-aware lint
    pnpm sg:check     # ast-grep architecture rules (not wrapped by Vite+)
-   pnpm -r run check # tsgo type check across all packages
+   pnpm -r run check # tsc type check across all packages
    vp test           # vitest via Vite+
    ```
 4. **Capture** what you learned: update a doc, add a test, or add a lint rule.

@@ -1,8 +1,8 @@
 {
   "name": "@repo/contracts",
   "scripts": {
-    "build": "tsgo -p tsconfig.build.json",
-    "check": "tsgo -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "check": "tsc -p tsconfig.json --noEmit",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -13,6 +13,6 @@
   },
   "devDependencies": {
     "@effect/tsgo": "catalog:",
-    "@typescript/native-preview": "catalog:"
+    "typescript": "catalog:"
   }
 }

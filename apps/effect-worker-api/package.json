@@ -4,8 +4,8 @@
     "dev": "wrangler dev --port 8787",
     "deploy": "wrangler deploy",
     "cf-typegen": "wrangler types --env-interface Env",
-    "check": "tsgo -p tsconfig.json --noEmit",
-    "build": "tsgo -p tsconfig.json && wrangler deploy --dry-run"
+    "check": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json && wrangler deploy --dry-run"
   },
   "dependencies": {
     "@repo/cloudflare": "workspace:^",
@@ -19,7 +19,7 @@
     "@cloudflare/workers-types": "catalog:",
     "@effect/tsgo": "catalog:",
     "@types/node": "catalog:",
-    "@typescript/native-preview": "catalog:",
+    "typescript": "catalog:",
     "wrangler": "catalog:"
   }
 }

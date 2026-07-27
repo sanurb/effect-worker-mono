@@ -40,9 +40,9 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/setup
       - name: Build packages
-        # `vp run build:packages` dispatches the dependency-ordered tsgo
+        # `vp run build:packages` dispatches the dependency-ordered tsc
         # build defined in vite.config.ts run.tasks. Vite+ does not wrap
-        # tsgo, but it owns the entry point.
+        # tsc, but it owns the entry point.
         run: vp run build:packages
   types:
     name: Types
@@ -52,8 +52,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         uses: ./.github/actions/setup
-      - name: Type check (tsgo)
-        # `vp run types:check` dispatches `pnpm -r run check` (tsgo) via
+      - name: Type check (tsc)
+        # `vp run types:check` dispatches `pnpm -r run check` (tsc) via
         # vite.config.ts run.tasks.
         run: vp run types:check
   test:

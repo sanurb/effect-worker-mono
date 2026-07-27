@@ -7,7 +7,7 @@
 import type { LogLevel } from "effect";
 import { Effect, Layer, Match, Option, References, Tracer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
-import { OtlpSerialization, OtlpTracer } from "effect/unstable/observability";
+import { OtlpExporter, OtlpSerialization, OtlpTracer } from "effect/unstable/observability";
 
 import { makeLoggerLayer } from "./Logger";
 import { makeNdjsonTracer } from "./Tracer";
@@ -68,7 +68,18 @@ const makeDelegatingTracerLayer = (
         onSome: (serviceName) => ({ serviceName }),
       }),
     }).pipe(Effect.map((delegate) => makeNdjsonTracer({ delegate }))),
-  ).pipe(Layer.provide(Layer.mergeAll(FetchHttpClient.layer, OtlpSerialization.layerJson)));
+  ).pipe(
+    Layer.provide(
+      Layer.mergeAll(
+        FetchHttpClient.layer,
+        OtlpSerialization.layerJson,
+        // `layerFlusher` is a module-level constant on purpose: layer memoization
+        // is keyed by instance, so referencing it keeps every OTLP signal on one
+        // registry. The exporter still flushes on scope close, as before.
+        OtlpExporter.layerFlusher,
+      ),
+    ),
+  );
 
 // ============================================================================
 // Helpers

@@ -38,7 +38,7 @@ apps/<name>/
     "build": "bun build src/index.ts --outdir dist --target bun",
     "lint": "vp lint src/",
     "format": "vp fmt src/",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsc --noEmit",
     "test": "bun test"
   },
   "dependencies": {

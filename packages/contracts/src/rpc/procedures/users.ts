@@ -28,7 +28,7 @@ import { RpcDatabaseMiddleware } from "../middleware";
  */
 export const RpcUsersListSchema = S.Struct({
   users: S.Array(UserSchema),
-  total: S.Number,
+  total: S.Finite,
 });
 
 // ============================================================================
